@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if [[ "$#" -eq 0 ]]; then
+  cat <<EOF
+Usage: $0 [OPTIONS] CEPHADM_ARGS
+
+Options:
+-h HOST_FILE, --hosts=HOST_FILE
+                      hosts file (each line "[user@]host[:port]")
+-H HOST_STRING, --host=HOST_STRING
+                      additional host entries ("[user@]host[:port]")
+
+Running the script without specifying hosts will only perform local execution.
+EOF
+  exit
+fi
+
+# https://stackoverflow.com/a/51548669
+shopt -s expand_aliases
+alias trace_on="set -x"
+alias trace_off="{ set +x; } 2>/dev/null; echo"
+
+err() {
+  local exit_status="$1"
+  shift
+  printf "\\033[1;31m[ERROR] %s\\033[0m\\n" "$*" >&2
+  exit "$exit_status"
+}
+
+# Trick so, program can be run as normal user, will just use "sudo"
+# call as root_check_run_as_sudo "$@"
+if [[ "$EUID" -ne 0 ]]; then
+  sudo "$0" "$@"
+  exit $?
+fi
+
+found_hosts=false
+for param in "$@"; do
+  if [[ "$param" == @(-h|-H|--hosts|--host) ]]; then
+    found_hosts=true
+    break
+  fi
+
+  if [[ "$param" =~ ^(--hosts=|--host=) ]]; then
+    found_hosts=true
+    break
+  fi
+done
+
+if [[ "$found_hosts" == true ]]; then
+  if ! command -v "parallel-ssh" >/dev/null 2>&1; then
+    err 1 "Please install parallel-ssh"
+  fi
+fi
+
+: "${CEPHADM:="$PWD"/cephadm}"
+if ! [[ -x "$CEPHADM" ]]; then
+  echo "[INFO] download cephadm"
+  trace_on
+  curl --silent --remote-name --location https://github.com/ceph/ceph/raw/octopus/src/cephadm/cephadm
+  chmod +x cephadm
+  trace_off
+fi
+
+if [[ "$found_hosts" == false ]]; then
+  "$CEPHADM" "$@"
+else
+  parallel-ssh \
+    -O StrictHostKeyChecking=no \
+    -O UserKnownHostsFile=/dev/null \
+    -O GlobalKnownHostsFile=/dev/null \
+    -O LogLevel=ERROR \
+    --par=8 \
+    --inline \
+    --print \
+    "sudo python3 -u - $*" -I < "${CEPHADM}"
+fi
