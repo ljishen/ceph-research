@@ -29,27 +29,33 @@ err() {
   exit "$exit_status"
 }
 
-# Trick so, program can be run as normal user, will just use "sudo"
-# call as root_check_run_as_sudo "$@"
-if [[ "$EUID" -ne 0 ]]; then
-  sudo "$0" "$@"
-  exit $?
-fi
+host_params=()
+cephadm_params=()
 
-found_hosts=false
-for param in "$@"; do
-  if [[ "$param" == @(-h|-H|--hosts|--host) ]]; then
-    found_hosts=true
-    break
+# loop positional params: https://unix.stackexchange.com/a/314041
+for (( idx = 1; idx <= $#; idx++ )); do
+  if [[ "${!idx}" == @(-h|-H|--hosts|--host) ]]; then
+    host_params+=("${!idx}")
+    (( idx++ ))
+    host_params+=("${!idx}")
+    continue
   fi
 
-  if [[ "$param" =~ ^(--hosts=|--host=) ]]; then
-    found_hosts=true
-    break
+  if [[ "${!idx}" =~ ^(--hosts=|--host=) ]]; then
+    host_params+=("${!idx}")
+    continue
   fi
+
+  cephadm_params+=("${!idx}")
 done
 
-if [[ "$found_hosts" == true ]]; then
+# "@Q" quote each parameter: https://lwn.net/Articles/701009/
+printf -v joined '%s, ' "${host_params[@]@Q}"
+echo "[DEBUG] host_params:" "[${joined%, }]"
+printf -v joined '%s, ' "${cephadm_params[@]@Q}"
+echo "[DEBUG] cephadm_params:" "[${joined%, }]"
+
+if (( "${#host_params[@]}" )); then
   if ! command -v "parallel-ssh" >/dev/null 2>&1; then
     err 1 "Please install parallel-ssh"
   fi
@@ -64,9 +70,8 @@ if ! [[ -x "$CEPHADM" ]]; then
   trace_off
 fi
 
-if [[ "$found_hosts" == false ]]; then
-  "$CEPHADM" "$@"
-else
+if (( "${#host_params[@]}" )); then
+  trace_on
   parallel-ssh \
     -O StrictHostKeyChecking=no \
     -O UserKnownHostsFile=/dev/null \
@@ -74,6 +79,11 @@ else
     -O LogLevel=ERROR \
     --par=8 \
     --inline \
+    --send-input \
     --print \
-    "sudo python3 -u - $*" -I < "${CEPHADM}"
+    "${host_params[@]}" \
+    "sudo python3 -u - ${cephadm_params[*]}" < "${CEPHADM}"
+  trace_off
+else
+  sudo "$CEPHADM" "${cephadm_params[@]}"
 fi
