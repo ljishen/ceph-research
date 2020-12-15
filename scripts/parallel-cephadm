@@ -6,7 +6,7 @@ set -euo pipefail
 
 debug() { printf "\\033[1;30m[DEBUG] %s\\033[0m\\n" "$*"; }
 err() {
-  local -r exit_status="$1"
+  local -ir exit_status="$1"
   shift
   printf "\\033[1;31m[ERROR] %s\\033[0m\\n" "$*" >&2
   exit "$exit_status"
@@ -60,7 +60,7 @@ for (( idx = 1; idx <= $#; idx++ )); do
 done
 
 print_arr() {
-  local -rn arr=$1
+  local -nr arr=$1
   local joined
   # "@Q" quote each parameter: https://lwn.net/Articles/701009/
   printf -v joined '%s, ' "${arr[@]@Q}"
