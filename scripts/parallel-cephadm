@@ -29,10 +29,10 @@ if (( $# < 1 )); then
 Usage: $0 [OPTIONS] CEPHADM_ARGS
 
 Options:
--h HOST_FILE, --hosts=HOST_FILE
-                      hosts file (each line "[user@]host[:port]")
--H HOST_STRING, --host=HOST_STRING
-                      additional host entries ("[user@]host[:port]")
+  --hosts HOST_FILE, --hosts=HOST_FILE
+                             hosts file (each line "[user@]host[:port]")
+  --host HOST_STRING, --host=HOST_STRING
+                             additional host entries ("[user@]host[:port]")
 
 Running the script without specifying hosts will only perform local execution.
 EOF
@@ -44,7 +44,7 @@ CEPHADM_PARAMS=()
 
 # loop positional params: https://unix.stackexchange.com/a/314041
 for (( idx = 1; idx <= $#; idx++ )); do
-  if [[ "${!idx}" == @(-h|-H|--hosts|--host) ]]; then
+  if [[ "${!idx}" == @(--hosts|--host) ]]; then
     HOST_PARAMS+=("${!idx}")
     (( idx++ ))
     HOST_PARAMS+=("${!idx}")

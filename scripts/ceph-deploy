@@ -41,7 +41,7 @@ EOF
 OSD_HOST_DEVICES=()
 while getopts ":m:o:h" option; do
   case $option in
-    m ) MON_IP=$OPTARG ;;
+    m ) readonly MON_IP=$OPTARG ;;
     o ) OSD_HOST_DEVICES+=("$OPTARG") ;;
     h )
       usage
