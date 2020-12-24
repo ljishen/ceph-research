@@ -23,8 +23,7 @@ alias trace_on="{ echo; set -x; } 2>/dev/null"
 alias trace_off="{ set +x; } 2>/dev/null"
 export PS4='# ${BASH_SOURCE:-"$0"}:${LINENO} - ${FUNCNAME[0]:+${FUNCNAME[0]}()} > '
 
-
-if (( $# < 1 )); then
+usage() {
   cat <<EOF
 Usage: $0 [OPTIONS] CEPHADM_ARGS
 
@@ -36,8 +35,13 @@ Options:
 
 Running the script without specifying hosts will only perform local execution.
 EOF
+}
+
+if (( $# == 0 )); then
+  usage
   exit
 fi
+
 
 HOST_PARAMS=()
 CEPHADM_PARAMS=()
@@ -47,6 +51,10 @@ for (( idx = 1; idx <= $#; idx++ )); do
   if [[ "${!idx}" == @(--hosts|--host) ]]; then
     HOST_PARAMS+=("${!idx}")
     (( idx++ ))
+    if [[ -z "${!idx:-}" ]]; then
+      usage
+      exit 2
+    fi
     HOST_PARAMS+=("${!idx}")
     continue
   fi
@@ -71,7 +79,7 @@ print_arr CEPHADM_PARAMS
 
 if (( "${#HOST_PARAMS[@]}" )); then
   if ! command -v "parallel-ssh" >/dev/null 2>&1; then
-    err 2 "Please install parallel-ssh"
+    err 3 "Please install parallel-ssh"
   fi
 fi
 
