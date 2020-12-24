@@ -1,27 +1,16 @@
 #!/usr/bin/env bash
 #
 # Require bash version >= 4.4
+#
+# This script depends on passwordless ssh and passwordless sudo via the current
+# user ($USER) on remote hosts.
 
 set -euo pipefail
 
-debug() { printf "\\033[1;30m[DEBUG] %s\\033[0m\\n" "$*"; }
-err() {
-  local -ir exit_status="$1"
-  shift
-  printf "\\033[1;31m[ERROR] %s\\033[0m\\n" "$*" >&2
-  exit "$exit_status"
-}
+readonly SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+# shellcheck source=./common.sh
+. "$SCRIPT_DIR/common.sh"
 
-vergte() { printf '%s\n%s' "$1" "$2" | sort -rCV; }
-if ! vergte "${BASH_VERSION%%[^0-9.]*}" "4.4"; then
-  err 1 "Require bash version >= 4.4"
-fi
-
-# https://stackoverflow.com/a/51548669
-shopt -s expand_aliases
-alias trace_on="{ echo; set -x; } 2>/dev/null"
-alias trace_off="{ set +x; } 2>/dev/null"
-export PS4='# ${BASH_SOURCE:-"$0"}:${LINENO} - ${FUNCNAME[0]:+${FUNCNAME[0]}()} > '
 
 usage() {
   cat <<EOF
@@ -42,10 +31,8 @@ if (( $# == 0 )); then
   exit
 fi
 
-
 HOST_PARAMS=()
 CEPHADM_PARAMS=()
-
 # loop positional params: https://unix.stackexchange.com/a/314041
 for (( idx = 1; idx <= $#; idx++ )); do
   if [[ "${!idx}" == @(--hosts|--host) ]]; then
@@ -53,7 +40,7 @@ for (( idx = 1; idx <= $#; idx++ )); do
     (( idx++ ))
     if [[ -z "${!idx:-}" ]]; then
       usage
-      exit 2
+      common::err $(( ERR_STATUS_START + 1 )) "Missing parameter for '${HOST_PARAMS[-1]}'"
     fi
     HOST_PARAMS+=("${!idx}")
     continue
@@ -66,27 +53,17 @@ for (( idx = 1; idx <= $#; idx++ )); do
 
   CEPHADM_PARAMS+=("${!idx}")
 done
-
-print_arr() {
-  local -nr arr=$1
-  local joined
-  # "@Q" quote each parameter: https://lwn.net/Articles/701009/
-  printf -v joined '%s, ' "${arr[@]@Q}"
-  debug "$1:" "[${joined%, }]"
-}
-print_arr HOST_PARAMS
-print_arr CEPHADM_PARAMS
+common::debug HOST_PARAMS: "$(common::print_array HOST_PARAMS)"
+common::debug CEPHADM_PARAMS: "$(common::print_array CEPHADM_PARAMS)"
 
 if (( "${#HOST_PARAMS[@]}" )); then
-  if ! command -v "parallel-ssh" >/dev/null 2>&1; then
-    err 3 "Please install parallel-ssh"
-  fi
+  common::check_if_parallel_ssh_installed
 fi
 
 readonly DEFAULT_BIN_DIR="$PWD"/cephadm_target/bin
 : "${CEPHADM:="$DEFAULT_BIN_DIR"/cephadm}"
 if ! [[ -x "$CEPHADM" ]]; then
-  debug "download cephadm"
+  common::debug "download cephadm"
   trace_on
   (
     mkdir -p "$DEFAULT_BIN_DIR" \
@@ -100,14 +77,7 @@ fi
 if (( "${#HOST_PARAMS[@]}" )); then
   trace_on
   parallel-ssh \
-    -O StrictHostKeyChecking=no \
-    -O UserKnownHostsFile=/dev/null \
-    -O GlobalKnownHostsFile=/dev/null \
-    -O LogLevel=ERROR \
-    --par=8 \
-    --inline \
-    --send-input \
-    --print \
+    "${PARALLEL_SSH_OPTIONS[@]}" \
     "${HOST_PARAMS[@]}" \
     "sudo python3 -u - ${CEPHADM_PARAMS[*]}" < "${CEPHADM}"
   trace_off

@@ -1,19 +1,18 @@
 #!/usr/bin/env bash
+#
+# Require bash version >= 4.4
+#
+# This script depends on passwordless ssh and passwordless sudo via the current
+# user ($USER) on remote hosts.
+#
+# The installation process is following the docker docs:
+#   https://docs.docker.com/engine/install/
 
 set -euo pipefail
 
-err() {
-  local -ir exit_status="$1"
-  shift
-  printf "\\033[1;31m[ERROR] %s\\033[0m\\n" "$*" >&2
-  exit "$exit_status"
-}
-
-# https://stackoverflow.com/a/51548669
-shopt -s expand_aliases
-alias trace_on="{ echo; set -x; } 2>/dev/null"
-alias trace_off="{ set +x; } 2>/dev/null"
-export PS4='# ${BASH_SOURCE:-"$0"}:${LINENO} - ${FUNCNAME[0]:+${FUNCNAME[0]}()} > '
+readonly SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+# shellcheck source=./common.sh
+. "$SCRIPT_DIR/common.sh"
 
 
 usage() {
@@ -42,7 +41,7 @@ for (( idx = 1; idx <= $#; idx++ )); do
     (( idx++ ))
     if [[ -z "${!idx:-}" ]]; then
       usage
-      exit 2
+      common::err $(( ERR_STATUS_START + 1 )) "Missing parameter for '${HOST_PARAMS[-1]}'"
     fi
     HOST_PARAMS+=("${!idx}")
     continue
@@ -53,28 +52,18 @@ for (( idx = 1; idx <= $#; idx++ )); do
     continue
   fi
 
-  _err 1 "Unsupport parameter '${!idx}'"
+  common::err $(( ERR_STATUS_START + 2 )) "Unsupport parameter '${!idx}'"
 done
 
-if ! command -v "parallel-ssh" >/dev/null 2>&1; then
-  _err 2 "Please install parallel-ssh"
-fi
-
-# max number of parallel threads
-: "${PAR:=5}"
+common::check_if_parallel_ssh_installed
 
 trace_on
 parallel-ssh \
-  -O StrictHostKeyChecking=no \
-  -O UserKnownHostsFile=/dev/null \
-  -O GlobalKnownHostsFile=/dev/null \
-  -O LogLevel=ERROR \
-  --par="$PAR" \
-  --inline \
-  --send-input \
-  --print \
+  "${PARALLEL_SSH_OPTIONS[@]}" \
   "${HOST_PARAMS[@]}" \
   bash <<'EOF'
+set -euo pipefail
+
 _info() { printf "\\033[1;32m[INFO] %s\\033[0m\\n" "$*"; }
 _err() {
   local -ir exit_status="$1"
@@ -110,12 +99,15 @@ get_arch() {
 SYS_ARCH="$(get_arch)"
 
 
+export DEBIAN_FRONTEND=noninteractive
+
 _info "Uninstall old versions..."
-sudo apt-get purge docker docker-engine docker.io containerd runc >/dev/null
+sudo apt-get --yes purge \
+  docker docker-engine docker.io containerd runc >/dev/null 2>&1 || true
 
 _info "Set up Docker's repositories..."
 sudo apt-get update >/dev/null
-sudo apt-get install -y \
+sudo apt-get --yes --no-install-recommends install \
   apt-transport-https \
   ca-certificates \
   curl \
@@ -127,16 +119,16 @@ sudo apt-get install -y \
 curl -fsSL https://download.docker.com/linux/"$SYS_DISTRO"/gpg \
   | sudo APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1 apt-key add - >/dev/null
 
-sudo add-apt-repository \
+sudo add-apt-repository --yes --update \
   "deb [arch=$SYS_ARCH] https://download.docker.com/linux/$SYS_DISTRO \
   $(lsb_release -cs) \
   stable" >/dev/null
 
 _info "Install docker engine..."
-sudo apt-get update >/dev/null
-sudo apt-get install docker-ce docker-ce-cli containerd.io >/dev/null
+sudo apt-get --yes --no-install-recommends install \
+  docker-ce docker-ce-cli containerd.io >/dev/null
 
-_info "Add your user to the docker group..."
+_info "Add current user ($USER) to the docker group..."
 sudo usermod -aG docker $USER
 
 if [[ -d "$HOME/.docker" ]]; then

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+#
+# Require bash version >= 4.4
+#
+# This script depends on passwordless ssh and passwordless sudo via the current
+# user ($USER) on remote hosts.
+
+set -euo pipefail
+
+readonly SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+# shellcheck source=./common.sh
+. "$SCRIPT_DIR/common.sh"
+
+common::check_if_parallel_ssh_installed
+
+trace_on
+parallel-ssh "${PARALLEL_SSH_OPTIONS[@]}" "$@"
+trace_off
