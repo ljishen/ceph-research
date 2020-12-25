@@ -61,10 +61,14 @@ trace_on
 parallel-ssh \
   "${PARALLEL_SSH_OPTIONS[@]}" \
   "${HOST_PARAMS[@]}" \
-  bash <<'EOF'
+  env INFO_LEVEL="${INFO_LEVEL:-0}" bash <<'EOF'
 set -euo pipefail
 
-_info() { printf "\\033[1;32m[INFO] %s\\033[0m\\n" "$*"; }
+INFO_PREFIX=''
+if (( INFO_LEVEL )); then
+  INFO_PREFIX="$(printf '%0.s>' $(seq 1 $INFO_LEVEL))"
+fi
+_info() { printf "\\033[1;32m[INFO] %s %s\\033[0m\\n" "$INFO_PREFIX" "$*"; }
 _err() {
   local -ir exit_status="$1"
   shift
@@ -138,6 +142,7 @@ if [[ -d "$HOME/.docker" ]]; then
 fi
 
 _info "Done!"
+echo
 
 # executing this command will replace the current shell and
 # lose our defined functions. So I put it at the end.

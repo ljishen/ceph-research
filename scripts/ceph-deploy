@@ -265,18 +265,18 @@ add_host_devices_as_osds() {
 
 
 ceph_deploy::deploy() {
-  stage "Reset devices on Hosts..."
+  stage "Reset devices on hosts..."
   reset_host_devices
 
-  stage "Bootstrap A New Cluster..."
+  stage "Bootstrap a new cluster..."
   bootstrap_cluster
 
   trap "trace_off; show_status" EXIT
 
-  stage "Add Hosts to the Cluster..."
+  stage "Add hosts to the cluster..."
   add_hosts
 
-  stage "Add OSDs to the Cluster..."
+  stage "Add OSDs to the cluster..."
   add_host_devices_as_osds
 }
 

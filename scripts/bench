@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+#
+# Require bash version >= 4.4
+
+set -euo pipefail
+
+usage() {
+  cat <<EOF
+Usage: $0 -m MON_IP -o <HOST_DEVICES> [-o <HOST_DEVICES> ...]
+  -m : (\$MON_IP)             IP address for the cluster’s first monitor daemon
+  -o : (\$OSD_HOST_DEVICES)   Create OSDs on the storage devices of the host
+                             HOST_DEVICES := host:device1[,device2,...]
+  -h :                       Show this help text
+
+All SSH connections to host clusters will use the user defined by '\$USER' (current: $USER).
+
+EOF
+}
+
+readonly bench_SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+export CMD_MODE=false
+# shellcheck source=./ceph-deploy
+. "$bench_SCRIPT_DIR"/ceph-deploy
+
+
+docker_install() {
+  local -ar all_hosts=( "$MON_IP" "${OSD_HOSTS[@]}" )
+
+  local host
+  for host in "${all_hosts[@]}"; do
+    if ! ssh "${SSH_COMM_OPTIONS[@]}" "$USER@$host" \
+      command -v "docker" >/dev/null 2>&1; then
+      common::info "> Installing docker on host '$host'"
+      INFO_LEVEL=2 "$bench_SCRIPT_DIR"/parallel-docker-install --host "$host"
+    fi
+  done
+}
+stage "Check and install docker..."
+docker_install
+
+ceph_deploy::deploy
