@@ -51,7 +51,7 @@ shift "$(( OPTIND - 1 ))"
 
 if [[ -z "${MON_IP:-}" ]]; then
   usage
-  common::err $(( ERR_STATUS_START + 2 )) "Please specify the IP address of the first monitor using '-m'"
+  common::err $(( ERR_STATUS_START + 2 )) "Please specify the IP address of the first monitor"
 fi
 
 if ! [[ "$MON_IP" =~ ^[[:digit:].]+$ ]]; then
@@ -60,7 +60,7 @@ fi
 
 if (( "${#OSD_HOST_DEVICES[@]}" == 0 )); then
   usage
-  common::err $(( ERR_STATUS_START + 2 )) "Please specify HOST_DEVICES for OSDs using '-o'"
+  common::err $(( ERR_STATUS_START + 2 )) "Please specify HOST_DEVICES for OSDs"
 fi
 
 parse_osd_devices() {
@@ -84,7 +84,6 @@ index_of_arr() {
 
 OSD_HOSTS=()
 OSD_DEVICES=()
-
 populate_osd_host_devices() {
   local host_devices_str
   for host_devices_str in "${OSD_HOST_DEVICES[@]}"; do
@@ -124,10 +123,8 @@ populate_osd_host_devices() {
 }
 populate_osd_host_devices
 
-
 stage() { printf "\\n\\n\\033[1;33m[STAGE] %s\\033[0m\\n" "$*"; }
 
-stage "Verify passwordless SSH to hosts, passwordless sudo via $USER, and the existence of devices on hosts..."
 verify_parameters() {
   local -i exit_status=0
 
@@ -171,10 +168,10 @@ verify_parameters() {
     done
   done
 }
+stage "Verify passwordless SSH to hosts, passwordless sudo via $USER, and the existence of devices on hosts..."
 verify_parameters
 
 
-stage "Reset devices on Hosts..."
 reset_host_devices() {
   local -i idx
   for idx in "${!OSD_HOSTS[@]}"; do
@@ -200,37 +197,35 @@ EOF
     done
   done
 }
-reset_host_devices
-
 
 readonly CEPHADM="$SCRIPT_DIR"/parallel-cephadm
 readonly DEFAULT_OUTPUT_DIR="$PWD"/cephadm_target/output
 readonly CEPH_SHELL="$CEPHADM shell --keyring $DEFAULT_OUTPUT_DIR/ceph.client.admin.keyring"
 readonly CEPH="$CEPH_SHELL -- ceph"
 
-mkdir -p "$DEFAULT_OUTPUT_DIR"
+bootstrap_cluster() {
+  trace_on
+  mkdir -p "$DEFAULT_OUTPUT_DIR"
+  $CEPHADM bootstrap \
+    --mon-ip "$MON_IP" \
+    --output-dir "$DEFAULT_OUTPUT_DIR" \
+    --ssh-user "$USER" \
+    --skip-dashboard \
+    --allow-overwrite \
+    --allow-fqdn-hostname \
+    --orphan-initial-daemons \
+    --skip-monitoring-stack
+  trace_off
 
-stage "Bootstrap A New Cluster..."
-trace_on
-$CEPHADM bootstrap \
-  --mon-ip "$MON_IP" \
-  --output-dir "$DEFAULT_OUTPUT_DIR" \
-  --ssh-user "$USER" \
-  --skip-dashboard \
-  --allow-overwrite \
-  --allow-fqdn-hostname \
-  --orphan-initial-daemons \
-  --skip-monitoring-stack
-trace_off
-
-common::info "> Set the default number of monitor daemons to 1"
-trace_on
-$CEPH orch apply mon 1
-trace_off
-common::info "> Set the default number of monitor daemons to 1"
-trace_on
-$CEPH orch apply mgr 1
-trace_off
+  common::info "> Set the default number of monitor daemons to 1"
+  trace_on
+  $CEPH orch apply mon 1
+  trace_off
+  common::info "> Set the default number of monitor daemons to 1"
+  trace_on
+  $CEPH orch apply mgr 1
+  trace_off
+}
 
 show_status() {
   stage "Show Cluster Status"
@@ -238,10 +233,7 @@ show_status() {
   $CEPH --status
   trace_off
 }
-trap "trace_off; show_status" EXIT
 
-
-stage "Add Hosts to the Cluster..."
 add_hosts() {
   local host
   for host in "${OSD_HOSTS[@]}"; do
@@ -257,10 +249,7 @@ add_hosts() {
     trace_off
   done
 }
-add_hosts
 
-
-stage "Add OSDs to the Cluster..."
 add_host_devices_as_osds() {
   local -i idx
   for idx in "${!OSD_HOSTS[@]}"; do
@@ -273,4 +262,27 @@ add_host_devices_as_osds() {
     trace_off
   done
 }
-add_host_devices_as_osds
+
+
+ceph_deploy::deploy() {
+  stage "Reset devices on Hosts..."
+  reset_host_devices
+
+  stage "Bootstrap A New Cluster..."
+  bootstrap_cluster
+
+  trap "trace_off; show_status" EXIT
+
+  stage "Add Hosts to the Cluster..."
+  add_hosts
+
+  stage "Add OSDs to the Cluster..."
+  add_host_devices_as_osds
+}
+
+# When CMD_MODE is true, this script is called from command line.
+# Otherwise, we assume this script is called by another script, and
+# therefore can later perform the actual run by calling the run function.
+if [[ "${CMD_MODE:-true}" == true ]]; then
+  ceph_deploy::deploy
+fi
