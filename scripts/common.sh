@@ -25,12 +25,6 @@ alias trace_on="{ echo; set -x; } 2>/dev/null"
 alias trace_off="{ set +x; } 2>/dev/null"
 export PS4='# ${BASH_SOURCE:-"$0"}:${LINENO} - ${FUNCNAME[0]:+${FUNCNAME[0]}()} > '
 
-common::check_if_parallel_ssh_installed() {
-  if ! command -v "parallel-ssh" >/dev/null 2>&1; then
-    common::err 2 "Please install parallel-ssh"
-  fi
-}
-
 common::print_array() {
   local -nr _arr=$1
   local joined
@@ -46,12 +40,5 @@ export SSH_COMM_OPTIONS=(
   -o "PasswordAuthentication=no"
   -o "StrictHostKeyChecking=no"
   -o "UserKnownHostsFile=/dev/null"
-)
-export PARALLEL_SSH_OPTIONS=(
-  --extra-args "${SSH_COMM_OPTIONS[*]}"
-  "--par=${PARALLEL_SSH_THREADS:-5}"
-  --inline
-  --send-input
-  --print
 )
 export ERR_STATUS_START=2

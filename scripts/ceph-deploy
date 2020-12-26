@@ -14,10 +14,11 @@ readonly SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 &&
 
 usage() {
   cat <<EOF
-Usage: $0 -m MON_IP -o <HOST_DEVICES> [-o <HOST_DEVICES> ...]
+Usage: $0 -m MON_IP -o <HOST_OSD_DEVICE> [-o <HOST_OSD_DEVICE> ...]
   -m : (\$MON_IP)             IP address for the cluster’s first monitor daemon
-  -o : (\$OSD_HOST_DEVICES)   Create OSDs on the storage devices of the host
-                             HOST_DEVICES := host:device1[,device2,...]
+  -o : (\$HOST_OSD_DEVICES)   Create an OSD on the storage device of the host defined by:
+                               HOST_OSD_DEVICE := host:device1[,device2,...]
+                             The device can only be a LVM logical volume or a raw block device.
   -h :                       Show this help text
 
 All SSH connections to host clusters will use the user defined by '\$USER' (current: $USER).
@@ -25,11 +26,11 @@ All SSH connections to host clusters will use the user defined by '\$USER' (curr
 EOF
 }
 
-OSD_HOST_DEVICES=()
+HOST_OSD_DEVICES=()
 while getopts ":m:o:h" option; do
   case $option in
     m ) readonly MON_IP=$OPTARG ;;
-    o ) OSD_HOST_DEVICES+=("$OPTARG") ;;
+    o ) HOST_OSD_DEVICES+=("$OPTARG") ;;
     h )
       usage
       exit
@@ -58,9 +59,9 @@ if ! [[ "$MON_IP" =~ ^[[:digit:].]+$ ]]; then
   common::err $(( ERR_STATUS_START + 3 )) "Invalid IP address: $MON_IP"
 fi
 
-if (( "${#OSD_HOST_DEVICES[@]}" == 0 )); then
+if (( "${#HOST_OSD_DEVICES[@]}" == 0 )); then
   usage
-  common::err $(( ERR_STATUS_START + 2 )) "Please specify HOST_DEVICES for OSDs"
+  common::err $(( ERR_STATUS_START + 2 )) "Please specify HOST_OSD_DEVICEs for OSDs"
 fi
 
 parse_osd_devices() {
@@ -86,11 +87,11 @@ OSD_HOSTS=()
 OSD_DEVICES=()
 populate_osd_host_devices() {
   local host_devices_str
-  for host_devices_str in "${OSD_HOST_DEVICES[@]}"; do
+  for host_devices_str in "${HOST_OSD_DEVICES[@]}"; do
     local -a host_devices_arr
     IFS=':' read -ra host_devices_arr <<< "$host_devices_str"
     if (( ${#host_devices_arr[@]} != 2 )); then
-      common::err $(( ERR_STATUS_START + 3 )) "Invalid HOST_DEVICES (host:device1[,device2,...]) format: $host_devices_str"
+      common::err $(( ERR_STATUS_START + 3 )) "Invalid HOST_OSD_DEVICE (host:device1[,device2,...]) format: $host_devices_str"
     fi
     if [[ "${host_devices_arr[0]}" == *@* ]]; then
       common::err $(( ERR_STATUS_START + 3 )) "All SSH connections use the user defined by '\$USER' (current: $USER)"

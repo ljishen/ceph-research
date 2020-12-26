@@ -27,12 +27,16 @@ export CMD_MODE=false
 docker_install() {
   local -ar all_hosts=( "$MON_IP" "${OSD_HOSTS[@]}" )
 
-  local host
+  local host first_install=true
   for host in "${all_hosts[@]}"; do
     if ! ssh "${SSH_COMM_OPTIONS[@]}" "$USER@$host" \
       command -v "docker" >/dev/null 2>&1; then
+      if [[ "$first_install" == false ]]; then
+        echo
+      fi
       common::info "> Installing docker on host '$host'"
       INFO_LEVEL=2 "$bench_SCRIPT_DIR"/parallel-docker-install --host "$host"
+      first_install=false
     fi
   done
 }

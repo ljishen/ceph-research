@@ -11,8 +11,17 @@ readonly SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 &&
 # shellcheck source=./common.sh
 . "$SCRIPT_DIR/common.sh"
 
-common::check_if_parallel_ssh_installed
+if ! command -v "parallel-ssh" >/dev/null 2>&1; then
+  common::err 2 "Please install parallel-ssh"
+fi
 
 trace_on
-parallel-ssh "${PARALLEL_SSH_OPTIONS[@]}" "$@"
+parallel-ssh \
+  --par "${PARALLEL_SSH_THREADS:-5}" \
+  --timeout 0 \
+  --extra-args "${SSH_COMM_OPTIONS[*]}" \
+  --inline \
+  --send-input \
+  --print \
+  "${PARALLEL_SSH_OPTIONS[@]}" "$@"
 trace_off
