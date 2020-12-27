@@ -17,8 +17,9 @@ usage() {
 Usage: $0 -m MON_IP -o <HOST_OSD_DEVICE> [-o <HOST_OSD_DEVICE> ...]
   -m : (\$MON_IP)             IP address for the cluster’s first monitor daemon
   -o : (\$HOST_OSD_DEVICES)   Create an OSD on the storage device of the host defined by:
-                               HOST_OSD_DEVICE := host:device1[,device2,...]
-                             The device can only be a LVM logical volume or a raw block device.
+                               HOST_OSD_DEVICE := host:DEVICE1[,DEVICE2,...]
+                               DEVICE := /dev/XXX | volume_group/logical_volume
+                             The device can only be a raw block device or a LVM logical volume.
   -h :                       Show this help text
 
 All SSH connections to host clusters will use the user defined by '\$USER' (current: $USER).
@@ -91,7 +92,8 @@ populate_osd_host_devices() {
     local -a host_devices_arr
     IFS=':' read -ra host_devices_arr <<< "$host_devices_str"
     if (( ${#host_devices_arr[@]} != 2 )); then
-      common::err $(( ERR_STATUS_START + 3 )) "Invalid HOST_OSD_DEVICE (host:device1[,device2,...]) format: $host_devices_str"
+      common::err $(( ERR_STATUS_START + 3 )) \
+        "Invalid HOST_OSD_DEVICE format (host:DEVICE1[,DEVICE2,...]): $host_devices_str"
     fi
     if [[ "${host_devices_arr[0]}" == *@* ]]; then
       common::err $(( ERR_STATUS_START + 3 )) "All SSH connections use the user defined by '\$USER' (current: $USER)"
@@ -105,10 +107,6 @@ populate_osd_host_devices() {
     local -i index_of_devices
     parse_osd_devices devices "${host_devices_arr[1]}"
     for device in "${devices[@]}"; do
-      if ! [[ "$device" =~ ^/dev/ ]]; then
-        common::err $(( ERR_STATUS_START + 3 )) "Invalid device '$device' in '$host_devices_str'"
-      fi
-
       if (( index_of_hosts >= 0 )); then
         parse_osd_devices prev_devices "${OSD_DEVICES[index_of_hosts]}"
         index_of_devices=$(index_of_arr prev_devices "$device")
@@ -126,6 +124,13 @@ populate_osd_host_devices
 
 stage() { printf "\\n\\n\\033[1;33m[STAGE] %s\\033[0m\\n" "$*"; }
 
+is_raw_block_device() {
+  local -r device="$1"
+  # logical volume name cannot contains "/"
+  #   https://github.com/lvmteam/lvm2/blob/v2_03_10/tools/toollib.c#L396
+  [[ "$device" =~ ^/dev/ ]]
+}
+
 verify_parameters() {
   local -i exit_status=0
 
@@ -141,12 +146,14 @@ verify_parameters() {
 
   common::info "> Check hosts for OSDs"
   local -i idx
-  local host
+  local host ssh_cmd
   for idx in "${!OSD_HOSTS[@]}"; do
     host="${OSD_HOSTS[idx]}"
+    ssh_cmd="ssh ${SSH_COMM_OPTIONS[*]} $USER@$host"
+
     common::info ">> Check host '$host'"
     trace_on
-    ssh "${SSH_COMM_OPTIONS[@]}" "$USER@$host" \
+    $ssh_cmd  \
       sudo --non-interactive --validate \
       || exit_status=$?
     trace_off
@@ -158,13 +165,51 @@ verify_parameters() {
     parse_osd_devices devices "${OSD_DEVICES[idx]}"
     for device in "${devices[@]}"; do
       common::info ">>> Check device '$device'"
-      trace_on
-      ssh "${SSH_COMM_OPTIONS[@]}" "$USER@$host" \
-        test -b "$device" \
-        || exit_status=$?
-      trace_off
-      if (( exit_status )); then
-        common::err $(( ERR_STATUS_START + 4 )) "Device '$device' does not exist on host '$host'!"
+      if is_raw_block_device "$device"; then
+        trace_on
+        $ssh_cmd \
+          test -b "$device" \
+          || exit_status=$?
+        trace_off
+        if (( exit_status )); then
+          common::err $(( ERR_STATUS_START + 4 )) "Raw block device '$device' does not exist on host '$host'!"
+        fi
+
+        trace_on
+        $ssh_cmd \
+          lsblk --nodeps --noheadings --output TYPE "$device" 2>/dev/null \
+          | grep --word-regexp disk >/dev/null \
+          || exit_status=$?
+        trace_off
+        if (( exit_status )); then
+          common::err $(( ERR_STATUS_START + 4 )) \
+            "'$device' is not a raw block device, please pass LVs or raw block devices for host '$host'"
+        fi
+      elif [[ "$device" == */* ]] && [[ ! "$device" =~ ^/|/$ ]]; then
+        # device is a LVM logical volume
+        # https://github.com/ceph/ceph/blob/v16.0.0/src/ceph-volume/ceph_volume/api/lvm.py#L1298
+        local device_vglv device_vg device_lv
+        IFS='/' read -ra device_vglv <<< "$device"
+        if (( ${#device_vglv[@]} != 2 )); then
+          common::err $(( ERR_STATUS_START + 4 )) \
+            "Invalid DEVICE '$device' format (/dev/XXX | volume_group/logical_volume) for host '$host'!"
+        fi
+        device_vg="${device_vglv[0]}"
+        device_lv="${device_vglv[1]}"
+
+        trace_on
+        $ssh_cmd sudo \
+          lvs --noheadings --readonly --options lv_name \
+          "${device_vg:+--select vg_name=$device_vg}" \
+          | grep --word-regexp "$device_lv" >/dev/null \
+          || exit_status=$?
+        trace_off
+        if (( exit_status )); then
+          common::err $(( ERR_STATUS_START + 4 )) "Logical volume '$device' does not exist on host '$host'!"
+        fi
+      else
+        common::err $(( ERR_STATUS_START + 4 )) \
+          "Invalid DEVICE '$device' format (/dev/XXX | volume_group/logical_volume) for host '$host'!"
       fi
     done
   done
@@ -172,6 +217,11 @@ verify_parameters() {
 stage "Verify passwordless SSH to hosts, passwordless sudo via $USER, and the existence of devices on hosts..."
 verify_parameters
 
+
+readonly CEPHADM="$SCRIPT_DIR"/parallel-cephadm
+readonly DEFAULT_OUTPUT_DIR="$PWD"/cephadm_target/output
+readonly CEPH_SHELL="$CEPHADM shell --keyring $DEFAULT_OUTPUT_DIR/ceph.client.admin.keyring"
+readonly CEPH="$CEPH_SHELL -- ceph"
 
 reset_host_devices() {
   local -i idx
@@ -181,28 +231,29 @@ reset_host_devices() {
 
     for device in "${devices[@]}"; do
       common::info "> Resetting device '$device' on host '${OSD_HOSTS[idx]}'"
-      trace_on
-      # require passwordless sudo configured for $USER
-      # shellcheck disable=SC2087
-      ssh "${SSH_COMM_OPTIONS[@]}" "$USER@${OSD_HOSTS[idx]}" \
-        sudo sh <<EOF
-          pvs \
-          --noheadings \
-          --readonly \
-          --select "pv_name=$device" \
-          --options vg_name \
-            | xargs -I '{}' \
-            vgremove --force --verbose {}
+      if is_raw_block_device "$device"; then
+        trace_on
+        # require passwordless sudo configured for $USER
+        # shellcheck disable=SC2087
+        ssh "${SSH_COMM_OPTIONS[@]}" "$USER@${OSD_HOSTS[idx]}" \
+          sudo sh <<EOF
+            pvs \
+            --noheadings \
+            --readonly \
+            --select "pv_name=$device" \
+            --options vg_name \
+              | xargs -I '{}' \
+              vgremove --force --verbose {}
 EOF
-      trace_off
+        trace_off
+      else
+        trace_on
+        $CEPHADM --host "${OSD_HOSTS[idx]}" ceph-volume lvm zap "$device"
+        trace_off
+      fi
     done
   done
 }
-
-readonly CEPHADM="$SCRIPT_DIR"/parallel-cephadm
-readonly DEFAULT_OUTPUT_DIR="$PWD"/cephadm_target/output
-readonly CEPH_SHELL="$CEPHADM shell --keyring $DEFAULT_OUTPUT_DIR/ceph.client.admin.keyring"
-readonly CEPH="$CEPH_SHELL -- ceph"
 
 bootstrap_cluster() {
   trace_on
