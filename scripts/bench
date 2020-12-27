@@ -43,4 +43,17 @@ docker_install() {
 stage "Check and install docker..."
 docker_install
 
+
+create_lvs() {
+  local host ssh_cmd
+  for host in "${OSD_HOSTS[@]}"; do
+    ssh_cmd="ssh ${SSH_COMM_OPTIONS[*]} $USER@$host"
+    $ssh_cmd sfdisk
+
+  done
+}
+stage "Create logical volumes on hosts"
+create_lvs
+
+
 ceph_deploy::deploy

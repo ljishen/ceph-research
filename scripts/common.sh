@@ -25,6 +25,11 @@ alias trace_on="{ echo; set -x; } 2>/dev/null"
 alias trace_off="{ set +x; } 2>/dev/null"
 export PS4='# ${BASH_SOURCE:-"$0"}:${LINENO} - ${FUNCNAME[0]:+${FUNCNAME[0]}()} > '
 
+common::is_program_installed() {
+  local -r prog="$1"
+  command -v "$prog" >/dev/null 2>&1
+}
+
 common::print_array() {
   local -nr _arr=$1
   local joined
