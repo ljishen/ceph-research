@@ -4,17 +4,26 @@
 
 set -euo pipefail
 
-usage() {
-  cat <<EOF
-Usage: $0 -m MON_IP -o <HOST_DEVICES> [-o <HOST_DEVICES> ...]
-  -m : (\$MON_IP)             IP address for the cluster’s first monitor daemon
-  -o : (\$OSD_HOST_DEVICES)   Create OSDs on the storage devices of the host
-                             HOST_DEVICES := host:device1[,device2,...]
-  -h :                       Show this help text
+readonly ADD_OPTSTRING="p:"
+readonly ADD_OPTIONS_USAGE=(
+  "-p <CATEGORY/TYPE>"
+)
+readonly ADD_OPTIONS_USAGE_DESC=(
+  "
+  -p : (\$MACHINE_PROFILE)    Machine profile in the form of CATEGORY/TYPE.
+                             CATEGORY is the subdirectory under the dir parted_script.
+                             TYPE is the first colume of a line in the script file of the subdirectory."
+)
 
-All SSH connections to host clusters will use the user defined by '\$USER' (current: $USER).
-
-EOF
+add_options_handler() {
+  local -r option="$1" optarg="$2"
+  case $option in
+    p  )
+      readonly MACHINE_PROFILE="$optarg"
+      return 0
+      ;;
+  esac
+  return 1
 }
 
 readonly bench_SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
@@ -22,6 +31,41 @@ readonly bench_SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2
 export CMD_MODE=false
 # shellcheck source=./ceph-deploy
 . "$bench_SCRIPT_DIR"/ceph-deploy
+
+
+if [[ -z "${MACHINE_PROFILE:-}" ]]; then
+  usage
+  common::err $(( ERR_STATUS_START + 2 )) "Please specify the machine profile"
+fi
+
+EXPECTED_PARTITION=
+PARTED_SCRIPT=
+parse_machine_profile() {
+  local category_type
+  IFS='/' read -ra category_type <<< "$MACHINE_PROFILE"
+  if (( "${#category_type[@]}" != 2 )); then
+    common::err $(( ERR_STATUS_START + 3 )) \
+      "Invalid MACHINE_PROFILE format (CATEGORY/TYPE): $MACHINE_PROFILE"
+  fi
+
+  local category_dir="$bench_SCRIPT_DIR/${category_type[0]}"
+  if [[ ! -d "$category_dir" ]]; then
+    common::err $(( ERR_STATUS_START + 4 )) "Machine profile '$MACHINE_PROFILE' does not exist!"
+  fi
+
+  local line
+  if ! line="$(grep --fixed-strings -- "${category_type[1]}" "$category_dir/script")"; then
+    common::err $(( ERR_STATUS_START + 4 )) "Machine profile '$MACHINE_PROFILE' does not exist!"
+  fi
+  
+  EXPECTED_PARTITION="$(cut -f2 <<< "$line")"
+  PARTED_SCRIPT="$(cut -f3- <<< "$line")"
+}
+parse_machine_profile
+
+echo "[$EXPECTED_PARTITION]"
+echo "[$PARTED_SCRIPT]"
+exit
 
 
 docker_install() {
@@ -47,6 +91,7 @@ docker_install
 create_lvs() {
   local host ssh_cmd
   for host in "${OSD_HOSTS[@]}"; do
+    parted_script="$"
     ssh_cmd="ssh ${SSH_COMM_OPTIONS[*]} $USER@$host"
     $ssh_cmd sfdisk
 

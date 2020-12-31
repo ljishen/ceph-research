@@ -1,8 +1,0 @@
-label: gpt
-label-id: EBABE2B1-39D8-48EF-ADE8-3064A3064DC5
-device: /dev/sda
-unit: sectors
-first-lba: 34
-last-lba: 234441614
-
-/dev/sda2 : start=    33558528, size=   200883087, type=0FC63DAF-8483-4772-8E79-3D69D8477DE4, uuid=C7BB7CCD-EEB6-C949-991A-BEFE8E59262F

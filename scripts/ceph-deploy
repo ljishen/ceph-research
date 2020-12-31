@@ -14,10 +14,10 @@ readonly SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 &&
 
 usage() {
   cat <<EOF
-Usage: $0 -m MON_IP -o <HOST_OSD_DEVICE> [-o <HOST_OSD_DEVICE> ...]
+Usage: $0 -m MON_IP -o <HOST_OSD_DEVICES> [-o <HOST_OSD_DEVICES> ...]
   -m : (\$MON_IP)             IP address for the cluster’s first monitor daemon
   -o : (\$HOST_OSD_DEVICES)   Create an OSD on the storage device of the host defined by:
-                               HOST_OSD_DEVICE := host:DEVICE1[,DEVICE2,...]
+                               HOST_OSD_DEVICES := host:DEVICE1[,DEVICE2,...]
                                DEVICE := /dev/XXX | volume_group/logical_volume
                              The device can only be a raw block device or a LVM logical volume.
   -h :                       Show this help text
@@ -30,9 +30,9 @@ EOF
 HOST_OSD_DEVICES=()
 while getopts ":m:o:h" option; do
   case $option in
-    m ) readonly MON_IP=$OPTARG ;;
-    o ) HOST_OSD_DEVICES+=("$OPTARG") ;;
-    h )
+    m  ) readonly MON_IP=$OPTARG ;;
+    o  ) HOST_OSD_DEVICES+=("$OPTARG") ;;
+    h  )
       usage
       exit
       ;;
@@ -62,13 +62,13 @@ fi
 
 if (( "${#HOST_OSD_DEVICES[@]}" == 0 )); then
   usage
-  common::err $(( ERR_STATUS_START + 2 )) "Please specify HOST_OSD_DEVICEs for OSDs"
+  common::err $(( ERR_STATUS_START + 2 )) "Please specify HOST_OSD_DEVICES for OSDs"
 fi
 
 parse_osd_devices() {
-  local -n device_arr=$1
+  local -n _device_arr=$1
   # shellcheck disable=SC2034
-  IFS=',' read -ra device_arr <<< "$2"
+  IFS=',' read -ra _device_arr <<< "$2"
 }
 
 index_of_arr() {
@@ -93,7 +93,7 @@ populate_osd_host_devices() {
     IFS=':' read -ra host_devices_arr <<< "$host_devices_str"
     if (( ${#host_devices_arr[@]} != 2 )); then
       common::err $(( ERR_STATUS_START + 3 )) \
-        "Invalid HOST_OSD_DEVICE format (host:DEVICE1[,DEVICE2,...]): $host_devices_str"
+        "Invalid HOST_OSD_DEVICES format (host:DEVICE1[,DEVICE2,...]): $host_devices_str"
     fi
     if [[ "${host_devices_arr[0]}" == *@* ]]; then
       common::err $(( ERR_STATUS_START + 3 )) "All SSH connections use the user defined by '\$USER' (current: $USER)"

@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+#
+# Require bash version >= 4.4
+
+#include common.sh
+
+if parted --script --align optimal -- /dev/sda \
+  mkpart primary 33558528s 100% \
+  set 2 lvm on; then
+
+  trace_on
+  # https://github.com/ceph/ceph/blob/v16.0.0/src/ceph-volume/ceph_volume/api/lvm.py#L771
+  GROUP_NAME=ceph-"$(uuidgen)"
+  vgcreate --force --yes "$GROUP_NAME" /dev/sda2
+  trace_off
+
+  trace_on
+  # https://github.com/ceph/ceph/blob/v16.0.0/src/ceph-volume/ceph_volume/api/lvm.py#L1178
+  LV_NAME=ceph-lv-"$(uuidgen)"
+  lvcreate --yes -l 100%FREE -n "$LV_NAME" "$GROUP_NAME"
+  trace_off
+
+  lvdisplay /dev/"$GROUP_NAME"/"$LV_NAME"
+
+  common::info "Successfully created Logical Volume: $GROUP_NAME/$LV_NAME"
+else
+  common::err $(( ERR_STATUS_START + 1 )) "Partition already created."
+fi

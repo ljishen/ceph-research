@@ -31,28 +31,13 @@ if (( $# == 0 )); then
   exit
 fi
 
+
 HOST_PARAMS=()
 CEPHADM_PARAMS=()
-# loop positional params: https://unix.stackexchange.com/a/314041
-for (( idx = 1; idx <= $#; idx++ )); do
-  if [[ "${!idx}" == @(--hosts|--host) ]]; then
-    HOST_PARAMS+=("${!idx}")
-    (( idx++ ))
-    if [[ -z "${!idx:-}" ]]; then
-      usage
-      common::err $(( ERR_STATUS_START + 1 )) "Missing parameter for '${HOST_PARAMS[-1]}'"
-    fi
-    HOST_PARAMS+=("${!idx}")
-    continue
-  fi
-
-  if [[ "${!idx}" =~ ^(--hosts=|--host=) ]]; then
-    HOST_PARAMS+=("${!idx}")
-    continue
-  fi
-
-  CEPHADM_PARAMS+=("${!idx}")
-done
+handle_add_cmdline_param() {
+  CEPHADM_PARAMS+=("$1")
+}
+common::parse_cmdline_params HOST_PARAMS "$@"
 common::debug HOST_PARAMS: "$(common::print_array HOST_PARAMS)"
 common::debug CEPHADM_PARAMS: "$(common::print_array CEPHADM_PARAMS)"
 

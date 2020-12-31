@@ -1,0 +1,138 @@
+#!/usr/bin/env bash
+#
+# Require bash version >= 4.4
+#
+# This script depends on passwordless ssh and passwordless sudo via the current
+# user ($USER) on remote hosts.
+#
+# This program helps to execute a local script on remote hosts.
+
+set -euo pipefail
+
+readonly SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+# shellcheck source=./common.sh
+. "$SCRIPT_DIR/common.sh"
+
+
+usage() {
+  cat <<EOF
+Usage: $0 [--hosts HOST_FILE] [--host HOST_STRING]... -s SCRIPT_FILE
+
+Options:
+  --hosts HOST_FILE, --hosts=HOST_FILE
+                             hosts file (each line "[user@]host[:port]")
+  --host HOST_STRING, --host=HOST_STRING
+                             additional host entries ("[user@]host[:port]")
+  -s SCRIPT_FILE, --script=SCRIPT_FILE
+                             the relative path of the script file under the
+                             remote_script dir
+
+Note that the script will be executed with root privileges.
+EOF
+}
+
+usage2() {
+  cat <<EOF
+Usage: $0 [--hosts HOST_FILE] [--host HOST_STRING]...
+
+Options:
+  --hosts HOST_FILE, --hosts=HOST_FILE
+                             hosts file (each line "[user@]host[:port]")
+  --host HOST_STRING, --host=HOST_STRING
+                             additional host entries ("[user@]host[:port]")
+EOF
+}
+
+if (( $# < 2 )); then
+  # When CMD_MODE is true, this script is called from command line.
+  # Otherwise, we assume this script is called by another script.
+  if [[ "${CMD_MODE:-true}" == true ]]; then
+    usage
+  else
+    usage2
+  fi
+  exit
+fi
+
+
+SCRIPT_FILE=
+_READ_PARAM=false
+handle_add_cmdline_param() {
+  local -r param="$1"
+  if [[ "$_READ_PARAM" == true ]]; then
+    SCRIPT_FILE="$param"
+    _READ_PARAM=false
+    return 0
+  fi
+
+  if [[ "$param" == @(-s|--script) ]]; then
+    _READ_PARAM=true
+    return 0
+  fi
+
+  if [[ "$param" =~ ^--script= ]]; then
+    local -a arr
+    IFS='=' read -ra arr <<< "$param"
+    if (( ${#arr[@]} != 2 )); then
+      common::err $(( ERR_STATUS_START + 1 )) "Missing value for '--script'"
+    fi
+    SCRIPT_FILE="${arr[1]}"
+    return 0
+  fi
+
+  return $ERR_CMDLINE_PARAM_UNKNOW
+}
+HOST_PARAMS=()
+common::parse_cmdline_params HOST_PARAMS "$@"
+common::debug HOST_PARAMS: "$(common::print_array HOST_PARAMS)"
+common::debug SCRIPT_FILE: "$SCRIPT_FILE"
+
+if [[ -z "$SCRIPT_FILE" ]]; then
+  common::err $(( ERR_STATUS_START + 1 )) \
+    "Please specify a value for '-s|--script'"
+fi
+
+SCRIPT_LOCAL_PATH="$SCRIPT_DIR/remote_script/$SCRIPT_FILE"
+if ! [[ -f "$SCRIPT_LOCAL_PATH" ]]; then
+  common::err $(( ERR_STATUS_START + 2 )) \
+    "Cannot find the script file '$SCRIPT_FILE' under the remote_script dir"
+fi
+
+parse_script_content() {
+  local script_content idx_line line
+  local include_filename include_file include_file_content
+  local -i idx
+  script_content="$(cat "$SCRIPT_LOCAL_PATH")"
+
+  while read -r idx_line; do
+    idx="${idx_line%%:*}"
+    line="${idx_line#*:}"
+    include_filename="$(
+      grep --only-matching --perl-regexp \
+      '#include +\K[[:alnum:].]+' <<< "$line" || true
+    )"
+    if [[ -z "$include_filename" ]]; then
+      common::err $(( ERR_STATUS_START + 3 )) \
+        "Error processing #include directive at line $idx: syntax error"
+    fi
+
+    include_file="$SCRIPT_DIR"/remote_script/include/"$include_filename"
+    if ! [[ -f "$include_file" ]]; then
+      common::err $(( ERR_STATUS_START + 3 )) \
+        "Error processing #include directive at line $idx: file '$include_filename' not found"
+    fi
+
+    include_file_content="$(cat "$include_file")"
+    script_content="${script_content//$line/$include_file_content}"
+  done < <(grep --line-number '^#include' <<< "$script_content")
+
+  echo "$script_content"
+}
+
+SCRIPT_CONTENT="$(parse_script_content)"
+
+trace_on
+"$SCRIPT_DIR"/parallel-ssh \
+  "${HOST_PARAMS[@]}" \
+  sudo INFO_LEVEL="${INFO_LEVEL:-0}" bash <<< "$SCRIPT_CONTENT"
+trace_off

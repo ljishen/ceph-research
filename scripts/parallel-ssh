@@ -12,7 +12,7 @@ readonly SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 &&
 . "$SCRIPT_DIR/common.sh"
 
 if ! common::is_program_installed "parallel-ssh"; then
-  common::err 2 "Please install parallel-ssh"
+  common::err $(( ERR_STATUS_START + 1 )) "Please install parallel-ssh"
 fi
 
 trace_on
@@ -22,6 +22,5 @@ parallel-ssh \
   --extra-args "${SSH_COMM_OPTIONS[*]}" \
   --inline \
   --send-input \
-  --print \
-  "${PARALLEL_SSH_OPTIONS[@]}" "$@"
+  --print "$@"
 trace_off

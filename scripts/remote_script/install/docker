@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+#
+# Require bash version >= 4.4
+#
+# The installation process is following the docker docs:
+#   https://docs.docker.com/engine/install/
+
+#include common.sh
+
+get_distro() {
+  local distro
+  distro="$(head -n1 /etc/issue | awk '{ print tolower($1) }')"
+  if [[ "$distro" != @(ubuntu|debian) ]]; then
+    common::err $(( ERR_STATUS_START + 1 )) \
+      "Only support Ubuntu and Debian platforms"
+  fi
+  echo "$distro"
+}
+SYS_DISTRO="$(get_distro)"
+
+get_arch() {
+  local machine_name arch
+  machine_name="$(uname -m)"
+  if [[ "$machine_name" == "aarch64" ]]; then
+    arch=arm64
+  elif [[ "$machine_name" == "armv7l" ]]; then
+    arch=armhf
+  elif [[ "$machine_name" == "x86_64" ]]; then
+    arch=amd64
+  else
+    common::err $(( ERR_STATUS_START + 2 )) \
+      "Docker does not support architecture '$machine_name'"
+  fi
+  echo "$arch"
+}
+SYS_ARCH="$(get_arch)"
+
+
+export DEBIAN_FRONTEND=noninteractive
+
+common::info "Uninstall old versions..."
+trace_on
+apt-get --yes purge \
+  docker docker-engine docker.io containerd runc >/dev/null 2>&1 || true
+trace_off
+
+common::info "Set up Docker's repositories..."
+trace_on
+apt-get update >/dev/null
+apt-get --yes --no-install-recommends install \
+  apt-transport-https \
+  ca-certificates \
+  curl \
+  gnupg-agent \
+  software-properties-common >/dev/null
+
+# Circumvent the "Warning: apt-key output should not be parsed (stdout is not a terminal)"
+#   https://stackoverflow.com/a/49462622
+curl -fsSL https://download.docker.com/linux/"$SYS_DISTRO"/gpg \
+  | APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1 apt-key add - >/dev/null
+
+add-apt-repository --yes --update \
+  "deb [arch=$SYS_ARCH] https://download.docker.com/linux/$SYS_DISTRO \
+  $(lsb_release -cs) \
+  stable" >/dev/null
+trace_off
+
+common::info "Install docker engine..."
+trace_on
+apt-get --yes --no-install-recommends install \
+  docker-ce docker-ce-cli containerd.io >/dev/null
+trace_off
+
+common::info "Add current user ($USER) to the docker group..."
+trace_on
+usermod -aG docker "$USER"
+trace_off
+
+if [[ -d "$HOME/.docker" ]]; then
+  common::info "Fix possible permission error"
+  trace_on
+  chown "$(id --user --name)":"$(id --group --name)" "$HOME/.docker" -R
+  chmod g+rwx "$HOME/.docker" -R
+  trace_off
+fi
+
+common::info "Done!"
+
+# executing this command will replace the current shell and
+# lose our defined functions. So I put it at the end.
+newgrp docker
