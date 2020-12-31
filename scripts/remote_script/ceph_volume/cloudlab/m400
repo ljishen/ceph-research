@@ -2,35 +2,79 @@
 #
 # Require bash version >= 4.4
 
-#include common.sh
+#include include/common.sh
+
+VOLUME_IN_PARTITION=/dev/sda2
+VG_NAME_PREFIX="ceph-"
+LV_NAME_PREFIX="ceph-lv-"
 
 create_lvs() {
+  if [[ -b  "$VOLUME_IN_PARTITION" ]]; then
+    common::err $(( ERR_STATUS_START + 1 )) \
+      "Partition $VOLUME_IN_PARTITION already created."
+  fi
+
   if parted --script --align optimal -- /dev/sda \
     mkpart primary 33558528s 100% \
     set 2 lvm on; then
 
     trace_on
     # https://github.com/ceph/ceph/blob/v16.0.0/src/ceph-volume/ceph_volume/api/lvm.py#L771
-    GROUP_NAME=ceph-"$(uuidgen)"
-    vgcreate --force --yes "$GROUP_NAME" /dev/sda2
+    local -r vg_name="${VG_NAME_PREFIX}$(uuidgen)"
+    vgcreate --force --yes "$vg_name" "$VOLUME_IN_PARTITION"
     trace_off
 
     trace_on
     # https://github.com/ceph/ceph/blob/v16.0.0/src/ceph-volume/ceph_volume/api/lvm.py#L1178
-    LV_NAME=ceph-lv-"$(uuidgen)"
-    lvcreate --yes -l 100%FREE -n "$LV_NAME" "$GROUP_NAME"
+    local -r lv_name="${LV_NAME_PREFIX}$(uuidgen)"
+    lvcreate --yes -l 100%FREE -n "$lv_name" "$vg_name"
     trace_off
 
-    lvdisplay /dev/"$GROUP_NAME"/"$LV_NAME"
+    lvdisplay /dev/"$vg_name"/"$lv_name"
 
-    common::info "Successfully created Logical Volume: $GROUP_NAME/$LV_NAME"
+    common::info "Successfully created Logical Volume: $vg_name/$lv_name"
   else
-    common::err $(( ERR_STATUS_START + 1 )) "Partition already created."
+    common::err $(( ERR_STATUS_START + 1 )) \
+      "Fail to create a primary partition."
   fi
 }
 
 query_lvs() {
-  echo "query, yes!"
+  local vg_name
+  trace_on
+  # triming string with xargs
+  #   https://stackoverflow.com/a/12973694
+  vg_name="$(
+    pvs \
+      --noheadings \
+      --readonly \
+      --select "pv_name=$VOLUME_IN_PARTITION" \
+      --options vg_name | xargs
+  )"
+  trace_off
+
+  if ! [[ "$vg_name" =~ ^$VG_NAME_PREFIX ]]; then
+    common::err $(( ERR_STATUS_START + 1 )) \
+      "Unexpected volume group name: $vg_name"
+  fi
+
+  local lv_name
+  trace_on
+  lv_name="$(
+    lvs \
+      --noheadings \
+      --readonly \
+      --select "vg_name=$vg_name" \
+      --options lv_name | xargs
+  )"
+  trace_off
+
+  if ! [[ "$lv_name" =~ ^$LV_NAME_PREFIX ]]; then
+    common::err $(( ERR_STATUS_START + 1 )) \
+      "Unexpected logical volume name: $lv_name"
+  fi
+
+  common::remote_out "$vg_name/$lv_name"
 }
 
 

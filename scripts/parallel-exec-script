@@ -127,14 +127,14 @@ parse_script_content() {
     line="${idx_line#*:}"
     include_filename="$(
       grep --only-matching --perl-regexp \
-      '#include +\K[[:alnum:].]+' <<< "$line" || true
+      '#include +\K[[:alnum:]/.]+' <<< "$line" || true
     )"
     if [[ -z "$include_filename" ]]; then
       common::err $(( ERR_STATUS_START + 3 )) \
         "Error processing #include directive at line $idx: syntax error"
     fi
 
-    include_file="$SCRIPT_DIR"/remote_script/include/"$include_filename"
+    include_file="$SCRIPT_DIR"/remote_script/"$include_filename"
     if ! [[ -f "$include_file" ]]; then
       common::err $(( ERR_STATUS_START + 3 )) \
         "Error processing #include directive at line $idx: file '$include_filename' not found"

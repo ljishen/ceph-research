@@ -18,6 +18,10 @@ common::err() {
   exit "$exit_status"
 }
 
+# this function should only be used in remote scripts
+_REMOTE_OUTPUT_TAG="<REMOTE_OUTPUT>"
+common::remote_out() { printf "$_REMOTE_OUTPUT_TAG %s\\n" "$*"; }
+
 common::vergte() { printf '%s\n%s' "$1" "$2" | sort -rCV; }
 if ! common::vergte "${BASH_VERSION%%[^0-9.]*}" "4.4"; then
   common::err 1 "Require bash version >= 4.4"

@@ -200,7 +200,7 @@ verify_parameters() {
         trace_on
         $ssh_cmd sudo \
           lvs --noheadings --readonly --options lv_name \
-          "${device_vg:+--select vg_name=$device_vg}" \
+            "${device_vg:+--select vg_name=$device_vg}" \
           | grep --word-regexp "$device_lv" >/dev/null \
           || exit_status=$?
         trace_off
@@ -237,13 +237,9 @@ reset_host_devices() {
         # shellcheck disable=SC2087
         ssh "${SSH_COMM_OPTIONS[@]}" "$USER@${OSD_HOSTS[idx]}" \
           sudo sh <<EOF
-            pvs \
-            --noheadings \
-            --readonly \
-            --select "pv_name=$device" \
-            --options vg_name \
-              | xargs -I '{}' \
-              vgremove --force --verbose {}
+            pvs --noheadings --readonly --options vg_name \
+              --select "pv_name=$device" \
+            | xargs -I '{}' vgremove --force --verbose {}
 EOF
         trace_off
       else
