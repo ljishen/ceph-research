@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 #
 # Require bash version >= 4.4
+#
+# This script depends on passwordless ssh and passwordless sudo via the current
+# user ($USER) on remote hosts.
 
 set -euo pipefail
 

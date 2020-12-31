@@ -16,7 +16,7 @@ readonly SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 &&
 
 usage() {
   cat <<EOF
-Usage: $0 [--hosts HOST_FILE] [--host HOST_STRING]... -s SCRIPT_FILE
+Usage: $0 [--hosts HOST_FILE] [--host HOST_STRING]... -s SCRIPT_FILE [-e NAME=VALUE]...
 
 Options:
   --hosts HOST_FILE, --hosts=HOST_FILE
@@ -26,6 +26,9 @@ Options:
   -s SCRIPT_FILE, --script=SCRIPT_FILE
                              the relative path of the script file under the
                              remote_script dir
+  -e NAME=VALUE, --env NAME=VALUE
+                             set environment variable for remote hosts, e.g.,
+                             -e NAME1=VALUE1 -e NAME2=VALUE2
 
 Note that the script will be executed with root privileges.
 EOF
@@ -56,17 +59,31 @@ fi
 
 
 SCRIPT_FILE=
-_READ_PARAM=false
+REMOTE_ENVS=()
+_READ_PARAM=
 handle_add_cmdline_param() {
   local -r param="$1"
-  if [[ "$_READ_PARAM" == true ]]; then
-    SCRIPT_FILE="$param"
-    _READ_PARAM=false
+  if [[ -n "$_READ_PARAM" ]]; then
+    if [[ "$_READ_PARAM" == "script" ]]; then
+      SCRIPT_FILE="$param"
+    elif [[ "$_READ_PARAM" == "env" ]]; then
+      if ! [[ "$param" =~ ^.+= ]]; then
+        common::err $(( ERR_STATUS_START + 1 )) \
+          "Invalid environment variable '$param'"
+      fi
+      REMOTE_ENVS+=("$param")
+    fi
+    _READ_PARAM=
     return 0
   fi
 
   if [[ "$param" == @(-s|--script) ]]; then
-    _READ_PARAM=true
+    _READ_PARAM="script"
+    return 0
+  fi
+
+  if [[ "$param" == @(-e|--env) ]]; then
+    _READ_PARAM="env"
     return 0
   fi
 
@@ -86,6 +103,7 @@ HOST_PARAMS=()
 common::parse_cmdline_params HOST_PARAMS "$@"
 common::debug HOST_PARAMS: "$(common::print_array HOST_PARAMS)"
 common::debug SCRIPT_FILE: "$SCRIPT_FILE"
+common::debug REMOTE_ENVS: "$(common::print_array REMOTE_ENVS)"
 
 if [[ -z "$SCRIPT_FILE" ]]; then
   common::err $(( ERR_STATUS_START + 1 )) \
@@ -134,5 +152,6 @@ SCRIPT_CONTENT="$(parse_script_content)"
 trace_on
 "$SCRIPT_DIR"/parallel-ssh \
   "${HOST_PARAMS[@]}" \
-  sudo INFO_LEVEL="${INFO_LEVEL:-0}" bash <<< "$SCRIPT_CONTENT"
+  sudo INFO_LEVEL="${INFO_LEVEL:-0}" "${REMOTE_ENVS[@]}" bash \
+    <<< "$SCRIPT_CONTENT"
 trace_off
