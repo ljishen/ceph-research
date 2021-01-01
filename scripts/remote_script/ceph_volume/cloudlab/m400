@@ -77,9 +77,4 @@ query_lvs() {
   common::remote_out "$vg_name/$lv_name"
 }
 
-
-if [[ -n "${CEPH_QUERY_LVS:-}" ]]; then
-  query_lvs
-else
-  create_lvs
-fi
+#include ceph_volume/main.sh

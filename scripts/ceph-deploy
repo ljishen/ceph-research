@@ -15,7 +15,7 @@ readonly SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 &&
 usage() {
   cat <<EOF
 Usage: $0 -m MON_IP -o <HOST_OSD_DEVICES> [-o <HOST_OSD_DEVICES> ...]
-  -m : (\$MON_IP)             IP address for the cluster’s first monitor daemon
+  -m : (\$MON_IP)             IP address for the cluster’s monitor daemon
   -o : (\$HOST_OSD_DEVICES)   Create an OSD on the storage device of the host defined by:
                                HOST_OSD_DEVICES := host:DEVICE1[,DEVICE2,...]
                                DEVICE := /dev/XXX | volume_group/logical_volume
@@ -53,7 +53,8 @@ shift "$(( OPTIND - 1 ))"
 
 if [[ -z "${MON_IP:-}" ]]; then
   usage
-  common::err $(( ERR_STATUS_START + 2 )) "Please specify the IP address of the first monitor"
+  common::err $(( ERR_STATUS_START + 2 )) \
+    "Please specify the IP address of the monitor"
 fi
 
 if ! [[ "$MON_IP" =~ ^[[:digit:].]+$ ]]; then
@@ -121,8 +122,6 @@ populate_osd_host_devices() {
   done
 }
 populate_osd_host_devices
-
-stage() { printf "\\n\\n\\033[1;33m[STAGE] %s\\033[0m\\n" "$*"; }
 
 is_raw_block_device() {
   local -r device="$1"
@@ -214,7 +213,7 @@ verify_parameters() {
     done
   done
 }
-stage "Verify passwordless SSH to hosts, passwordless sudo via $USER, and the existence of devices on hosts..."
+common::stage "Verify passwordless SSH to hosts, passwordless sudo via $USER, and the existence of devices on hosts..."
 verify_parameters
 
 
@@ -276,7 +275,7 @@ bootstrap_cluster() {
 }
 
 show_status() {
-  stage "Show Cluster Status"
+  common::stage "Show Cluster Status"
   trace_on
   $CEPH --status
   trace_off
@@ -313,18 +312,18 @@ add_host_devices_as_osds() {
 
 
 ceph_deploy::deploy() {
-  stage "Reset devices on hosts..."
+  common::stage "Reset devices on hosts..."
   reset_host_devices
 
-  stage "Bootstrap a new cluster..."
+  common::stage "Bootstrap a new cluster..."
   bootstrap_cluster
 
   trap "trace_off; show_status" EXIT
 
-  stage "Add hosts to the cluster..."
+  common::stage "Add hosts to the cluster..."
   add_hosts
 
-  stage "Add OSDs to the cluster..."
+  common::stage "Add OSDs to the cluster..."
   add_host_devices_as_osds
 }
 

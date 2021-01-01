@@ -127,7 +127,7 @@ parse_script_content() {
     line="${idx_line#*:}"
     include_filename="$(
       grep --only-matching --perl-regexp \
-      '#include +\K[[:alnum:]/.]+' <<< "$line" || true
+      '#include +\K[[:alnum:]/._-]+' <<< "$line" || true
     )"
     if [[ -z "$include_filename" ]]; then
       common::err $(( ERR_STATUS_START + 3 )) \

@@ -5,7 +5,7 @@
 # The installation process is following the docker docs:
 #   https://docs.docker.com/engine/install/
 
-#include common.sh
+#include include/common.sh
 
 get_distro() {
   local distro

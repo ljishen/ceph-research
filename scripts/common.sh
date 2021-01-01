@@ -11,6 +11,7 @@ common::info() {
   printf "\\033[1;32m[INFO] %s%s\\033[0m\\n" "${_INFO_PREFIX:-}" "$*"
 }
 common::debug() { printf "\\033[1;30m[DEBUG] %s\\033[0m\\n" "$*"; }
+common::stage() { printf "\\n\\n\\033[1;33m[STAGE] %s\\033[0m\\n" "$*"; }
 common::err() {
   local -ir exit_status="$1"
   shift

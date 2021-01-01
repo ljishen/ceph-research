@@ -7,101 +7,143 @@
 
 set -euo pipefail
 
-readonly ADD_OPTSTRING="p:"
-readonly ADD_OPTIONS_USAGE=(
-  "-p <CATEGORY/TYPE>"
-)
-readonly ADD_OPTIONS_USAGE_DESC=(
-  "
-  -p : (\$MACHINE_PROFILE)    Machine profile in the form of CATEGORY/TYPE.
-                             CATEGORY is the subdirectory under the dir parted_script.
-                             TYPE is the first colume of a line in the script file of the subdirectory."
-)
+readonly SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+# shellcheck source=./common.sh
+. "$SCRIPT_DIR/common.sh"
 
-add_options_handler() {
-  local -r option="$1" optarg="$2"
-  case $option in
-    p  )
-      readonly MACHINE_PROFILE="$optarg"
-      return 0
-      ;;
-  esac
-  return 1
+
+usage() {
+  cat <<EOF
+Usage: $0 -m MON_IP -h OSD_HOST [-h OSD_HOST]... -s SCRIPT_FILE
+
+Options:
+  -m :         IP address for the cluster’s monitor daemon.
+  -h :         OSD host (e.g., -h host1 -h host2).
+  -s :         the remote script (relative path to the remote_script/ceph_volume dir)
+               for creating and querying ceph volumes on each host.
+
+Defining the LVS_PROVISION=no can skip the logical volumes provisioning on hosts.
+
+All SSH connections to host clusters will use the user defined by '\$USER' (current: $USER).
+
+EOF
 }
 
-readonly bench_SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-
-export CMD_MODE=false
-# shellcheck source=./ceph-deploy
-. "$bench_SCRIPT_DIR"/ceph-deploy
-
-
-if [[ -z "${MACHINE_PROFILE:-}" ]]; then
+if (( $# < 2 )); then
   usage
-  common::err $(( ERR_STATUS_START + 2 )) "Please specify the machine profile"
+  exit
 fi
 
-EXPECTED_PARTITION=
-PARTED_SCRIPT=
-parse_machine_profile() {
-  local category_type
-  IFS='/' read -ra category_type <<< "$MACHINE_PROFILE"
-  if (( "${#category_type[@]}" != 2 )); then
-    common::err $(( ERR_STATUS_START + 3 )) \
-      "Invalid MACHINE_PROFILE format (CATEGORY/TYPE): $MACHINE_PROFILE"
-  fi
 
-  local category_dir="$bench_SCRIPT_DIR/${category_type[0]}"
-  if [[ ! -d "$category_dir" ]]; then
-    common::err $(( ERR_STATUS_START + 4 )) "Machine profile '$MACHINE_PROFILE' does not exist!"
-  fi
+OSD_HOSTS=()
+while getopts ":m:h:s:" option; do
+  case $option in
+    m  ) readonly MON_IP=$OPTARG ;;
+    h  ) OSD_HOSTS+=("$OPTARG") ;;
+    s  ) SCRIPT_FILE=$OPTARG ;;
+    \? )
+      usage
+      common::err $(( ERR_STATUS_START + 1 )) "Invalid option: -$OPTARG"
+      ;;
+    :  )
+      usage
+      common::err $(( ERR_STATUS_START + 1 )) "Option -$OPTARG requires an argument."
+      ;;
+    *  )
+      usage
+      exit
+  esac
+done
+shift "$(( OPTIND - 1 ))"
 
-  local line
-  if ! line="$(grep --fixed-strings -- "${category_type[1]}" "$category_dir/script")"; then
-    common::err $(( ERR_STATUS_START + 4 )) "Machine profile '$MACHINE_PROFILE' does not exist!"
-  fi
-  
-  EXPECTED_PARTITION="$(cut -f2 <<< "$line")"
-  PARTED_SCRIPT="$(cut -f3- <<< "$line")"
-}
-parse_machine_profile
+if [[ -z "${MON_IP:-}" ]]; then
+  usage
+  common::err $(( ERR_STATUS_START + 2 )) \
+    "Please specify the IP address of the monitor using '-m'"
+fi
 
-echo "[$EXPECTED_PARTITION]"
-echo "[$PARTED_SCRIPT]"
-exit
+if ! [[ "$MON_IP" =~ ^[[:digit:].]+$ ]]; then
+  common::err $(( ERR_STATUS_START + 3 )) "Invalid IP address: $MON_IP"
+fi
+
+if (( "${#OSD_HOSTS[@]}" == 0 )); then
+  usage
+  common::err $(( ERR_STATUS_START + 2 )) "Please specify OSD_HOSTS using '-h'"
+fi
+
+if [[ -z "${SCRIPT_FILE:-}" ]]; then
+  common::err $(( ERR_STATUS_START + 2 )) \
+    "Please specify the SCRIPT_FILE using '-s'"
+fi
+
+if ! [[ -f "$SCRIPT_DIR/remote_script/ceph_volume/$SCRIPT_FILE" ]]; then
+  common::err $(( ERR_STATUS_START + 3 )) \
+    "Cannot find the script file '$SCRIPT_FILE' under the remote_script/ceph_volume dir"
+fi
+
+common::debug OSD_HOSTS: "$(common::print_array OSD_HOSTS)"
 
 
 docker_install() {
   local -ar all_hosts=( "$MON_IP" "${OSD_HOSTS[@]}" )
+  local -a install_hosts_param=()
+  local host
 
-  local host first_install=true
   for host in "${all_hosts[@]}"; do
     if ! ssh "${SSH_COMM_OPTIONS[@]}" "$USER@$host" \
       command -v "docker" >/dev/null 2>&1; then
-      if [[ "$first_install" == false ]]; then
-        echo
-      fi
-      common::info "> Installing docker on host '$host'"
-      INFO_LEVEL=2 "$bench_SCRIPT_DIR"/parallel-docker-install --host "$host"
-      first_install=false
+      install_hosts_param+=( --host "$host" )
     fi
   done
+
+  if (( ${#install_hosts_param[@]} )); then
+    "$SCRIPT_DIR"/parallel-docker-install "${install_hosts_param[@]}"
+  fi
 }
-stage "Check and install docker..."
-docker_install
 
+perform_ceph_lvs() {
+  local -a hosts_param
+  local host
 
-create_lvs() {
-  local host ssh_cmd
   for host in "${OSD_HOSTS[@]}"; do
-    parted_script="$"
-    ssh_cmd="ssh ${SSH_COMM_OPTIONS[*]} $USER@$host"
-    $ssh_cmd sfdisk
-
+    hosts_param+=( --host "$host" )
   done
+
+  "$SCRIPT_DIR"/parallel-exec-script \
+    --script ceph_volume/"$SCRIPT_FILE" \
+    --env CEPH_VOLUME_OPERATION=CREATE \
+    "${hosts_param[@]}"
 }
-stage "Create logical volumes on hosts"
-create_lvs
+
+deploy_ceph() {
+  local -a host_osds_param
+  local host host_lvs joined
+
+  for host in "${OSD_HOSTS[@]}"; do
+    host_lvs=("$(
+      "$SCRIPT_DIR"/parallel-exec-script \
+        --script ceph_volume/"$SCRIPT_FILE" \
+        --env CEPH_VOLUME_OPERATION=QUERY \
+        --host "$host" | common::parse_remote_out
+    )")
+
+    printf -v joined '%s,' "${host_lvs[@]}"
+    host_osds_param+=( -o "$host:${joined%,}" )
+  done
+
+  "$SCRIPT_DIR"/ceph-deploy -m "$MON_IP" "${host_osds_param[@]}"
+}
 
 
-ceph_deploy::deploy
+main() {
+  common::stage "Check and install docker..."
+  docker_install
+
+  if [[ "${LVS_PROVISION:-yes}" != "no" ]]; then
+    common::stage "Create logical volumes on OSD hosts..."
+    perform_ceph_lvs
+  fi
+
+  deploy_ceph
+}
+main
