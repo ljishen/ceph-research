@@ -19,8 +19,17 @@ common::err() {
 }
 
 # this function should only be used in remote scripts
-_REMOTE_OUTPUT_TAG="<REMOTE_OUTPUT>"
-common::remote_out() { printf "$_REMOTE_OUTPUT_TAG %s\\n" "$*"; }
+_REMOTE_OUTPUT_TAG="<REMOTE_OUTPUT> "
+common::remote_out() { printf "%s\\n" "$*" | sed "s/^/$_REMOTE_OUTPUT_TAG/"; }
+
+common::parse_remote_out() {
+  local line
+  while IFS= read -r line; do
+    if [[ "$line" =~ ^$_REMOTE_OUTPUT_TAG ]]; then
+      echo "${line/#$_REMOTE_OUTPUT_TAG}"
+    fi
+  done
+}
 
 common::vergte() { printf '%s\n%s' "$1" "$2" | sort -rCV; }
 if ! common::vergte "${BASH_VERSION%%[^0-9.]*}" "4.4"; then
