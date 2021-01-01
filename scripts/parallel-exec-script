@@ -152,6 +152,6 @@ SCRIPT_CONTENT="$(parse_script_content)"
 trace_on
 "$SCRIPT_DIR"/parallel-ssh \
   "${HOST_PARAMS[@]}" \
-  sudo INFO_LEVEL="${INFO_LEVEL:-0}" "${REMOTE_ENVS[@]}" bash \
+  sudo "${REMOTE_ENVS[@]}" bash \
     <<< "$SCRIPT_CONTENT"
 trace_off

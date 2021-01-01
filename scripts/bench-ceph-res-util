@@ -97,7 +97,9 @@ docker_install() {
   done
 
   if (( ${#install_hosts_param[@]} )); then
-    "$SCRIPT_DIR"/parallel-docker-install "${install_hosts_param[@]}"
+    "$SCRIPT_DIR"/parallel-docker-install \
+      --env INFO_LEVEL=1 \
+      "${install_hosts_param[@]}"
   fi
 }
 
@@ -111,6 +113,7 @@ perform_ceph_lvs() {
 
   "$SCRIPT_DIR"/parallel-exec-script \
     --script ceph_volume/"$SCRIPT_FILE" \
+    --env INFO_LEVEL=1 \
     --env CEPH_VOLUME_OPERATION=CREATE \
     "${hosts_param[@]}"
 }
@@ -123,6 +126,7 @@ deploy_ceph() {
     host_lvs=("$(
       "$SCRIPT_DIR"/parallel-exec-script \
         --script ceph_volume/"$SCRIPT_FILE" \
+        --env INFO_LEVEL=1 \
         --env CEPH_VOLUME_OPERATION=QUERY \
         --host "$host" | common::parse_remote_out
     )")

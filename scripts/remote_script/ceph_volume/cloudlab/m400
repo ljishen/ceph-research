@@ -10,23 +10,43 @@ LV_NAME_PREFIX="ceph-lv-"
 
 create_lvs() {
   if [[ -b  "$VOLUME_IN_PARTITION" ]]; then
-    common::err $(( ERR_STATUS_START + 1 )) \
-      "Partition $VOLUME_IN_PARTITION already created."
+    common::info "Partition $VOLUME_IN_PARTITION already created. Destroying it..."
+
+    local -i exit_status=0
+    trace_on
+    pvs --noheadings --readonly --options vg_name \
+      --select "pv_name=$VOLUME_IN_PARTITION" \
+    | xargs -I '{}' vgremove --force --verbose {} || exit_status=$?
+    trace_off
+
+    if (( exit_status )); then
+      common::err $(( ERR_STATUS_START + 1 )) \
+        "Fail to destroy the volume group for physical volume $VOLUME_IN_PARTITION"
+    fi
+
+    trace_on
+    parted --script -- /dev/sda rm 2 || exit_status=$?
+    trace_off
+
+    if (( exit_status )); then
+      common::err $(( ERR_STATUS_START + 1 )) \
+        "Fail to delete partition $VOLUME_IN_PARTITION"
+    fi
   fi
 
   if parted --script --align optimal -- /dev/sda \
     mkpart primary 33558528s 100% \
     set 2 lvm on; then
 
-    trace_on
     # https://github.com/ceph/ceph/blob/v16.0.0/src/ceph-volume/ceph_volume/api/lvm.py#L771
     local -r vg_name="${VG_NAME_PREFIX}$(uuidgen)"
+    trace_on
     vgcreate --force --yes "$vg_name" "$VOLUME_IN_PARTITION"
     trace_off
 
-    trace_on
     # https://github.com/ceph/ceph/blob/v16.0.0/src/ceph-volume/ceph_volume/api/lvm.py#L1178
     local -r lv_name="${LV_NAME_PREFIX}$(uuidgen)"
+    trace_on
     lvcreate --yes -l 100%FREE -n "$lv_name" "$vg_name"
     trace_off
 
@@ -34,7 +54,7 @@ create_lvs() {
 
     common::info "Successfully created Logical Volume: $vg_name/$lv_name"
   else
-    common::err $(( ERR_STATUS_START + 1 )) \
+    common::err $(( ERR_STATUS_START + 2 )) \
       "Fail to create a primary partition."
   fi
 }

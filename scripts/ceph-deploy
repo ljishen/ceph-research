@@ -223,7 +223,7 @@ readonly CEPH_SHELL="$CEPHADM shell --keyring $DEFAULT_OUTPUT_DIR/ceph.client.ad
 readonly CEPH="$CEPH_SHELL -- ceph"
 
 reset_host_devices() {
-  local -i idx
+  local -i idx exit_status=0
   for idx in "${!OSD_HOSTS[@]}"; do
     local -a devices
     parse_osd_devices devices "${OSD_DEVICES[idx]}"
@@ -235,12 +235,16 @@ reset_host_devices() {
         # require passwordless sudo configured for $USER
         # shellcheck disable=SC2087
         ssh "${SSH_COMM_OPTIONS[@]}" "$USER@${OSD_HOSTS[idx]}" \
-          sudo sh <<EOF
+          sudo sh <<EOF || exit_status=$?
             pvs --noheadings --readonly --options vg_name \
               --select "pv_name=$device" \
             | xargs -I '{}' vgremove --force --verbose {}
 EOF
         trace_off
+        if (( exit_status )); then
+          common::err $(( ERR_STATUS_START + 5 )) \
+            "Fail to reset device '$device' on host '${OSD_HOSTS[idx]}'"
+        fi
       else
         trace_on
         $CEPHADM --host "${OSD_HOSTS[idx]}" ceph-volume lvm zap "$device"
