@@ -84,26 +84,41 @@ fi
 common::debug OSD_HOSTS: "$(common::print_array OSD_HOSTS)"
 
 
-docker_install() {
+install_docker_sar() {
   local -ar all_hosts=( "$MON_IP" "${OSD_HOSTS[@]}" )
-  local -a install_hosts_param=()
+  local -a install_docker_hosts_param=() install_sar_hosts_param=()
   local host
 
   for host in "${all_hosts[@]}"; do
     if ! ssh "${SSH_COMM_OPTIONS[@]}" "$USER@$host" \
       command -v "docker" >/dev/null 2>&1; then
-      install_hosts_param+=( --host "$host" )
+      install_docker_hosts_param+=( --host "$host" )
+    fi
+
+    if ! ssh "${SSH_COMM_OPTIONS[@]}" "$USER@$host" \
+      command -v "sar" >/dev/null 2>&1; then
+      install_sar_hosts_param+=( --host "$host" )
     fi
   done
 
-  if (( ${#install_hosts_param[@]} )); then
+  if (( ${#install_docker_hosts_param[@]} )); then
     "$SCRIPT_DIR"/parallel-docker-install \
       --env INFO_LEVEL=1 \
-      "${install_hosts_param[@]}"
+      "${install_docker_hosts_param[@]}"
+  fi
+
+  if (( ${#install_sar_hosts_param[@]} )); then
+    CMD_MODE=false "$SCRIPT_DIR"/parallel-exec-script \
+      --script=install/sysstat \
+      --env INFO_LEVEL=1 \
+      "${install_sar_hosts_param[@]}"
   fi
 }
+common::stage "Check and install docker and sar..."
+install_docker_sar
 
-perform_ceph_lvs() {
+
+create_ceph_lvs() {
   local -a hosts_param
   local host
 
@@ -117,6 +132,11 @@ perform_ceph_lvs() {
     --env CEPH_VOLUME_OPERATION=CREATE \
     "${hosts_param[@]}"
 }
+if [[ "${LVS_PROVISION:-yes}" != "no" ]]; then
+  common::stage "Create logical volumes on OSD hosts..."
+  create_ceph_lvs
+fi
+
 
 deploy_ceph() {
   local -a host_osds_param
@@ -140,14 +160,6 @@ deploy_ceph() {
 
 
 main() {
-  common::stage "Check and install docker..."
-  docker_install
-
-  if [[ "${LVS_PROVISION:-yes}" != "no" ]]; then
-    common::stage "Create logical volumes on OSD hosts..."
-    perform_ceph_lvs
-  fi
-
   deploy_ceph
 }
 main

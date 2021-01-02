@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+#include include/common.sh
+
+if common::is_program_installed "apt-get"; then
+  # Install from Ubuntu/Debian
+  apt-get --yes --no-install-recommends install sysstat
+elif common::is_program_installed yum; then
+  # Install from RHEL/Fedora/CentOS
+  yum --assumeyes install sysstat
+fi
+
+common::info "Successfully installed the sysstat package."
