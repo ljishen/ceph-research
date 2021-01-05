@@ -3,6 +3,7 @@
 # Require bash version >= 4.4
 
 #include include/common.sh
+#include ceph_volume/interfaces.sh
 
 VOLUME_IN_PARTITION=/dev/sda2
 VG_NAME_PREFIX="ceph-"
@@ -97,4 +98,4 @@ query_lvs() {
   common::remote_out "$vg_name/$lv_name"
 }
 
-#include ceph_volume/main.sh
+ceph_volume::main

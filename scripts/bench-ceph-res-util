@@ -117,6 +117,8 @@ install_docker_sar() {
 common::stage "Check and install docker and sar..."
 install_docker_sar
 
+# shellcheck source=./remote_script/ceph_volume/interfaces.sh
+. "$SCRIPT_DIR"/remote_script/ceph_volume/interfaces.sh
 
 create_ceph_lvs() {
   local -a hosts_param
@@ -129,7 +131,7 @@ create_ceph_lvs() {
   "$SCRIPT_DIR"/parallel-exec-script \
     --script ceph_volume/"$SCRIPT_FILE" \
     --env INFO_LEVEL=1 \
-    --env CEPH_VOLUME_OPERATION=CREATE \
+    --env CEPH_VOLUME_OPERATION="$CEPH_VOLUME_OPERATION_CREATE" \
     "${hosts_param[@]}"
 }
 if [[ "${LVS_PROVISION:-yes}" != "no" ]]; then
@@ -147,7 +149,7 @@ deploy_ceph() {
       "$SCRIPT_DIR"/parallel-exec-script \
         --script ceph_volume/"$SCRIPT_FILE" \
         --env INFO_LEVEL=1 \
-        --env CEPH_VOLUME_OPERATION=QUERY \
+        --env CEPH_VOLUME_OPERATION="$CEPH_VOLUME_OPERATION_QUERY" \
         --host "$host" | common::parse_remote_out
     )")
 
