@@ -4,14 +4,18 @@
 
 set -euo pipefail
 
-if (( ${INFO_LEVEL:-0} )); then
-  _INFO_PREFIX="$(printf '%0.s>' $(seq 1 "$INFO_LEVEL")) "
-fi
 common::info() {
-  printf "\\033[1;32m[INFO] %s%s\\033[0m\\n" "${_INFO_PREFIX:-}" "$*"
+  local info_prefix=
+  if (( ${INFO_LEVEL:-0} )); then
+    info_prefix="$(printf '%0.s>' $(seq 1 "$INFO_LEVEL")) "
+  fi
+  printf "\\033[1;32m[INFO] %s%s\\033[0m\\n" "$info_prefix" "$*"
 }
 common::debug() { printf "\\033[1;30m[DEBUG] %s\\033[0m\\n" "$*"; }
-common::stage() { printf "\\n\\n\\033[1;33m[STAGE] %s\\033[0m\\n" "$*"; }
+common::stage() {
+  INFO_LEVEL=0
+  printf "\\n\\n\\033[1;33m[STAGE] %s\\033[0m\\n" "$*"
+}
 common::err() {
   local -ir exit_status="$1"
   shift

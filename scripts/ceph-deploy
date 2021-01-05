@@ -133,7 +133,8 @@ is_raw_block_device() {
 verify_parameters() {
   local -i exit_status=0
 
-  common::info "> Check the host for the monitor"
+  INFO_LEVEL=1
+  common::info "Check the host for the monitor"
   trace_on
   ssh "${SSH_COMM_OPTIONS[@]}" "$USER@$MON_IP" \
     sudo --non-interactive --validate \
@@ -143,14 +144,15 @@ verify_parameters() {
     common::err $(( ERR_STATUS_START + 4 )) "Failed to validate SSHing to the monitor IP ($MON_IP)"
   fi
 
-  common::info "> Check hosts for OSDs"
+  common::info "Check hosts for OSDs"
   local -i idx
   local host ssh_cmd
   for idx in "${!OSD_HOSTS[@]}"; do
     host="${OSD_HOSTS[idx]}"
     ssh_cmd="ssh ${SSH_COMM_OPTIONS[*]} $USER@$host"
 
-    common::info ">> Check host '$host'"
+    INFO_LEVEL=2
+    common::info "Check host '$host'"
     trace_on
     $ssh_cmd  \
       sudo --non-interactive --validate \
@@ -163,7 +165,8 @@ verify_parameters() {
     local -a devices
     parse_osd_devices devices "${OSD_DEVICES[idx]}"
     for device in "${devices[@]}"; do
-      common::info ">>> Check device '$device'"
+      INFO_LEVEL=3
+      common::info "Check device '$device'"
       if is_raw_block_device "$device"; then
         trace_on
         $ssh_cmd \
@@ -229,7 +232,8 @@ reset_host_devices() {
     parse_osd_devices devices "${OSD_DEVICES[idx]}"
 
     for device in "${devices[@]}"; do
-      common::info "> Resetting device '$device' on host '${OSD_HOSTS[idx]}'"
+      INFO_LEVEL=1
+      common::info "Resetting device '$device' on host '${OSD_HOSTS[idx]}'"
       if is_raw_block_device "$device"; then
         trace_on
         # require passwordless sudo configured for $USER
@@ -268,11 +272,12 @@ bootstrap_cluster() {
     --skip-monitoring-stack
   trace_off
 
-  common::info "> Set the default number of monitor daemons to 1"
+  INFO_LEVEL=1
+  common::info "Set the default number of monitor daemons to 1"
   trace_on
   $CEPH orch apply mon 1
   trace_off
-  common::info "> Set the default number of monitor daemons to 1"
+  common::info "Set the default number of monitor daemons to 1"
   trace_on
   $CEPH orch apply mgr 1
   trace_off
@@ -288,7 +293,8 @@ show_status() {
 add_hosts() {
   local host
   for host in "${OSD_HOSTS[@]}"; do
-    common::info "> Adding host '$host'"
+    INFO_LEVEL=1
+    common::info "Adding host '$host'"
     trace_on
     ssh-copy-id "${SSH_COMM_OPTIONS[@]}" \
       -f -i "$DEFAULT_OUTPUT_DIR"/ceph.pub \
@@ -307,7 +313,8 @@ add_host_devices_as_osds() {
     local -a devices
     parse_osd_devices devices "${OSD_DEVICES[idx]}"
 
-    common::info "> Adding devices" "$(common::print_array devices)" "on host '${OSD_HOSTS[idx]}' as OSDs"
+    INFO_LEVEL=1
+    common::info "Adding devices" "$(common::print_array devices)" "on host '${OSD_HOSTS[idx]}' as OSDs"
     trace_on
     $CEPH orch daemon add osd "${OSD_HOSTS[idx]}:${OSD_DEVICES[idx]}"
     trace_off
