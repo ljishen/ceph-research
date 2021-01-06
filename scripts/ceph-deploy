@@ -16,6 +16,7 @@ usage() {
   cat <<EOF
 Usage: $0 -m MON_IP -o <HOST_OSD_DEVICES> [-o <HOST_OSD_DEVICES> ...]
   -m : (\$MON_IP)             IP address for the cluster’s monitor daemon
+                             (must be a locally configured IP)
   -o : (\$HOST_OSD_DEVICES)   Create an OSD on the storage device of the host defined by:
                                HOST_OSD_DEVICES := host:DEVICE1[,DEVICE2,...]
                                DEVICE := /dev/XXX | volume_group/logical_volume

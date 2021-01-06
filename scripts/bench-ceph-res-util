@@ -148,7 +148,6 @@ deploy_ceph() {
     host_lvs=("$(
       "$SCRIPT_DIR"/parallel-exec-script \
         --script ceph_volume/"$SCRIPT_FILE" \
-        --env INFO_LEVEL=1 \
         --env CEPH_VOLUME_OPERATION="$CEPH_VOLUME_OPERATION_QUERY" \
         --host "$host" | common::parse_remote_out
     )")
@@ -177,7 +176,6 @@ tear_down_ceph() {
     param_hosts+=( --host "$host" )
   done
 
-  INFO_LEVEL=1
   common::info "Tearing down the Ceph Cluster (fsid: $CEPH_CLUSTER_FSID)"
   "$SCRIPT_DIR"/parallel-cephadm "${param_hosts[@]}" \
     rm-cluster \
@@ -186,8 +184,9 @@ tear_down_ceph() {
 }
 
 
-main() {
+start_bench() {
+  # loop over # of objects, # of pgs, # of failed nodes
   deploy_ceph
   tear_down_ceph
 }
-main
+start_bench
