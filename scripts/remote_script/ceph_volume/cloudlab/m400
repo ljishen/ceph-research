@@ -22,7 +22,7 @@ create_lvs() {
 
     if (( exit_status )); then
       common::err $(( ERR_STATUS_START + 1 )) \
-        "Fail to destroy the volume group for physical volume $VOLUME_IN_PARTITION"
+        "Fail to destroy the volume group for physical volume '$VOLUME_IN_PARTITION'"
     fi
 
     trace_on
@@ -74,6 +74,12 @@ query_lvs() {
   )"
   trace_off
 
+  if [[ -z "$vg_name" ]]; then
+    common::err $(( ERR_STATUS_START + 1 )) \
+      "Unable to find the volume group" \
+      "associating with physical volume '$VOLUME_IN_PARTITION'"
+  fi
+
   if ! [[ "$vg_name" =~ ^$VG_NAME_PREFIX ]]; then
     common::err $(( ERR_STATUS_START + 1 )) \
       "Unexpected volume group name: $vg_name"
@@ -89,6 +95,12 @@ query_lvs() {
       --options lv_name | xargs
   )"
   trace_off
+
+  if [[ -z "$lv_name" ]]; then
+    common::err $(( ERR_STATUS_START + 1 )) \
+      "Unable to find the logical volume" \
+      "under volume group '$vg_name'"
+  fi
 
   if ! [[ "$lv_name" =~ ^$LV_NAME_PREFIX ]]; then
     common::err $(( ERR_STATUS_START + 1 )) \

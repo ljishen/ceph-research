@@ -134,8 +134,9 @@ create_ceph_lvs() {
     --env CEPH_VOLUME_OPERATION="$CEPH_VOLUME_OPERATION_CREATE" \
     "${param_hosts[@]}"
 }
+common::stage "Create logical volumes on OSD hosts..." \
+  "$(if [[ "${LVS_PROVISION:-yes}" == "no" ]]; then echo '(skipped)'; fi;)"
 if [[ "${LVS_PROVISION:-yes}" != "no" ]]; then
-  common::stage "Create logical volumes on OSD hosts..."
   create_ceph_lvs
 fi
 
@@ -156,10 +157,20 @@ deploy_ceph() {
     param_host_osds+=( -o "$host:${joined%,}" )
   done
 
-  CEPH_CLUSTER_FSID="$(
+  local ceph_deploy_output
+  ceph_deploy_output="$(
     "$SCRIPT_DIR"/ceph-deploy -m "$MON_IP" "${param_host_osds[@]}" \
-      2>&1 | tee /dev/tty \
-      | grep --only-matching --perl-regexp "Cluster fsid: \K[[:alnum:]-]+"
+      2>&1 | tee /dev/tty
+  )"
+
+  CEPH_CLUSTER_FSID="$(
+    grep --only-matching --perl-regexp "Cluster fsid: \K[[:alnum:]-]+" \
+      <<< "$ceph_deploy_output"
+  )"
+
+  CEPH_CLUSTER_KEYRING_PATH="$(
+      grep --only-matching --perl-regexp "Wrote keyring to \K.+" \
+      <<< "$ceph_deploy_output"
   )"
 }
 
@@ -176,17 +187,36 @@ tear_down_ceph() {
     param_hosts+=( --host "$host" )
   done
 
-  common::info "Tearing down the Ceph Cluster (fsid: $CEPH_CLUSTER_FSID)"
+  common::info "Tearing down the Ceph cluster (fsid: $CEPH_CLUSTER_FSID)"
   "$SCRIPT_DIR"/parallel-cephadm "${param_hosts[@]}" \
     rm-cluster \
     --force \
     --fsid "$CEPH_CLUSTER_FSID"
 }
 
+ceph_cmd() {
+  if [[ -z "${CEPH_CLUSTER_KEYRING_PATH}" ]]; then
+    common::err $(( ERR_STATUS_START + 4 )) \
+      "Fail to read the Ceph cluster's keyring file."
+  fi
+
+  echo "$SCRIPT_DIR/parallel-cephadm shell" \
+    "--keyring $CEPH_CLUSTER_KEYRING_PATH" \
+    "--" \
+    "ceph"
+}
+
 
 start_bench() {
+  local -r pool_name="bench_failure_management_resource_utilization"
   # loop over # of objects, # of pgs, # of failed nodes
+
   deploy_ceph
+
+  trace_on
+  $(ceph_cmd) osd pool create "$pool_name"
+  trace_off
+
   tear_down_ceph
 }
 start_bench
