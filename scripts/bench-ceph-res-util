@@ -86,32 +86,32 @@ common::debug OSD_HOSTS: "$(common::print_array OSD_HOSTS)"
 
 install_docker_sar() {
   local -ar all_hosts=( "$MON_IP" "${OSD_HOSTS[@]}" )
-  local -a install_docker_hosts_param=() install_sar_hosts_param=()
+  local -a param_install_docker_hosts=() param_install_sar_hosts=()
   local host
 
   for host in "${all_hosts[@]}"; do
     if ! ssh "${SSH_COMM_OPTIONS[@]}" "$USER@$host" \
       command -v "docker" >/dev/null 2>&1; then
-      install_docker_hosts_param+=( --host "$host" )
+      param_install_docker_hosts+=( --host "$host" )
     fi
 
     if ! ssh "${SSH_COMM_OPTIONS[@]}" "$USER@$host" \
       command -v "sar" >/dev/null 2>&1; then
-      install_sar_hosts_param+=( --host "$host" )
+      param_install_sar_hosts+=( --host "$host" )
     fi
   done
 
-  if (( ${#install_docker_hosts_param[@]} )); then
+  if (( ${#param_install_docker_hosts[@]} )); then
     "$SCRIPT_DIR"/parallel-docker-install \
       --env INFO_LEVEL=1 \
-      "${install_docker_hosts_param[@]}"
+      "${param_install_docker_hosts[@]}"
   fi
 
-  if (( ${#install_sar_hosts_param[@]} )); then
+  if (( ${#param_install_sar_hosts[@]} )); then
     CMD_MODE=false "$SCRIPT_DIR"/parallel-exec-script \
       --script=install/sysstat \
       --env INFO_LEVEL=1 \
-      "${install_sar_hosts_param[@]}"
+      "${param_install_sar_hosts[@]}"
   fi
 }
 common::stage "Check and install docker and sar..."
@@ -121,18 +121,18 @@ install_docker_sar
 . "$SCRIPT_DIR"/remote_script/ceph_volume/interfaces.sh
 
 create_ceph_lvs() {
-  local -a hosts_param
+  local -a param_hosts
   local host
 
   for host in "${OSD_HOSTS[@]}"; do
-    hosts_param+=( --host "$host" )
+    param_hosts+=( --host "$host" )
   done
 
   "$SCRIPT_DIR"/parallel-exec-script \
     --script ceph_volume/"$SCRIPT_FILE" \
     --env INFO_LEVEL=1 \
     --env CEPH_VOLUME_OPERATION="$CEPH_VOLUME_OPERATION_CREATE" \
-    "${hosts_param[@]}"
+    "${param_hosts[@]}"
 }
 if [[ "${LVS_PROVISION:-yes}" != "no" ]]; then
   common::stage "Create logical volumes on OSD hosts..."
@@ -141,7 +141,7 @@ fi
 
 
 deploy_ceph() {
-  local -a host_osds_param
+  local -a param_host_osds
   local host host_lvs joined
 
   for host in "${OSD_HOSTS[@]}"; do
@@ -154,14 +154,40 @@ deploy_ceph() {
     )")
 
     printf -v joined '%s,' "${host_lvs[@]}"
-    host_osds_param+=( -o "$host:${joined%,}" )
+    param_host_osds+=( -o "$host:${joined%,}" )
   done
 
-  "$SCRIPT_DIR"/ceph-deploy -m "$MON_IP" "${host_osds_param[@]}"
+  CEPH_CLUSTER_FSID="$(
+    "$SCRIPT_DIR"/ceph-deploy -m "$MON_IP" "${param_host_osds[@]}" \
+      2>&1 | tee /dev/tty \
+      | grep --only-matching --perl-regexp "Cluster fsid: \K[[:alnum:]-]+"
+  )"
+}
+
+tear_down_ceph() {
+  if [[ -z "${CEPH_CLUSTER_FSID:-}" ]]; then
+    common::err $(( ERR_STATUS_START + 4 )) \
+      "Unable to read the cluster fsid."
+  fi
+
+  local -a param_hosts=( --host "$MON_IP" )
+  local host
+
+  for host in "${OSD_HOSTS[@]}"; do
+    param_hosts+=( --host "$host" )
+  done
+
+  INFO_LEVEL=1
+  common::info "Tearing down the Ceph Cluster (fsid: $CEPH_CLUSTER_FSID)"
+  "$SCRIPT_DIR"/parallel-cephadm "${param_hosts[@]}" \
+    rm-cluster \
+    --force \
+    --fsid "$CEPH_CLUSTER_FSID"
 }
 
 
 main() {
   deploy_ceph
+  tear_down_ceph
 }
 main
