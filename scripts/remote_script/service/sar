@@ -9,21 +9,28 @@ SERVICE_PID_FILE=/tmp/sar.service.pid
 
 restart_service() {
   common::info "Stopping existing sar daemons"
+  trace_on
   pkill -TERM --euid "$USER" --exact sar || true
+  trace_off
 
   local -ri interval_in_seconds=5
   local -r local_output_file=/tmp/sys_activity_"$(date --iso-8601=seconds)".dat
 
   common::info "Starting a new sar daemon"
+  trace_on
   S_TIME_FORMAT=ISO sar -A -o "$local_output_file" "$interval_in_seconds" >/dev/null 2>&1 &
+  trace_off
+  rm --force "$SERVICE_PID_FILE"
   echo $! >"$SERVICE_PID_FILE"
 }
 
 stop_service() {
   if [[ -f "$SERVICE_PID_FILE" ]]; then
     common::info "Stopping the sar daemon (PID: $(cat $SERVICE_PID_FILE))"
+    trace_on
     pkill -INT --euid "$USER" --pidfile "$SERVICE_PID_FILE"
     rm "$SERVICE_PID_FILE"
+    trace_off
   fi
 }
 
@@ -53,3 +60,5 @@ query_service() {
 
   common::remote_out "$local_output_file"
 }
+
+service::main

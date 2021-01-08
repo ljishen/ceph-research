@@ -201,6 +201,29 @@ stop_sys_activity_daemons() {
   done
 }
 
+shell_cmd() {
+  {
+    local -ir is_set_x=$(common::is_set_x)
+    # temporarily turn off tracing to avoid redundant output
+    if (( is_set_x == 0 )); then
+      trace_off
+    fi
+  } 2>/dev/null
+
+  if [[ -z "${CEPH_CLUSTER_KEYRING_PATH}" ]]; then
+    common::err $(( ERR_STATUS_START + 4 )) \
+      "Fail to read the Ceph cluster's keyring file."
+  fi
+
+  echo "$SCRIPT_DIR/parallel-cephadm shell" \
+    "--keyring $CEPH_CLUSTER_KEYRING_PATH" \
+    "--"
+
+  if (( is_set_x == 0 )); then
+    trace_on
+  fi
+}
+
 deploy_ceph() {
   local -a param_host_osds
   local host host_lvs joined
@@ -232,6 +255,113 @@ deploy_ceph() {
       grep --only-matching --perl-regexp "Wrote keyring to \K.+" \
       <<< "$ceph_deploy_output"
   )"
+
+  INFO_LEVEL=1 common::info "Sleep for 15 seconds"
+  sleep 15
+}
+
+load_cluster_data() {
+  local -ir pool_size=$1 num_pgs=$2 object_size_bytes=$3
+
+  local -r pool_name="bench_failure_management_resource_utilization"
+  local -i data_size_per_osd=$(( object_size_bytes * 1024 * 1024 / 2 )) \
+           data_size_per_osd_max=$(( 10 * 1024 * 1024 * 1024 ))
+
+  data_size_per_osd=$(( data_size_per_osd > data_size_per_osd_max \
+    ? data_size_per_osd_max : data_size_per_osd ))
+
+  common::stage "Prepare data on the cluster..."
+
+  INFO_LEVEL=1 common::info "Set pool attributes"
+
+  INFO_LEVEL=2
+  common::info "Create a replicated pool '$pool_name' with $num_pgs placement groups"
+  trace_on
+  $(shell_cmd) ceph osd pool create "$pool_name" "$num_pgs" "$num_pgs" replicated
+  trace_off
+
+  common::info "Disable placement groups autoscaling"
+  trace_on
+  $(shell_cmd) ceph osd pool set "$pool_name" pg_autoscale_mode off
+  trace_off
+
+  common::info "Set the number of replicas for objects in the pool to $pool_size"
+  trace_on
+  $(shell_cmd) ceph osd pool set "$pool_name" size "$pool_size"
+  trace_off
+
+  common::info "Set the minimum number of replicas required for I/O to 1"
+  trace_on
+  $(shell_cmd) ceph osd pool set "$pool_name" min_size 1
+  trace_off
+
+  common::info "Set the NOSCRUB flag"
+  trace_on
+  $(shell_cmd) ceph osd pool set "$pool_name" noscrub 1
+  trace_off
+
+  common::info "Set the NODEEP_SCRUB flag"
+  trace_on
+  $(shell_cmd) ceph osd pool set "$pool_name" nodeep-scrub 1
+  trace_off
+
+  common::info "Show details of pools"
+  trace_on
+  $(shell_cmd) ceph osd pool ls detail
+  trace_off
+
+  INFO_LEVEL=1 common::info "Loading objects" \
+    "(total data size: $(( data_size_per_osd * ${#OSD_HOSTS[@]} / 1024 / 1024 / 1024 )) GB)"
+  # -b op_size
+  # -O object_size
+  #   https://github.com/ceph/ceph/blob/v16.0.0/src/tools/rados/rados.cc#L183
+  trace_on
+  $(shell_cmd) rados bench 99999999 write \
+    --pool "$pool_name" \
+    -b $(( object_size_bytes )) \
+    -O $(( object_size_bytes )) \
+    --max-objects $(( data_size_per_osd * ${#OSD_HOSTS[@]} / object_size_bytes )) \
+    --concurrent-ios $(( ${#OSD_HOSTS[@]} * 256 )) \
+    --show-time \
+    --write-object \
+    --write-omap \
+    --write-xattr \
+    --no-cleanup
+  trace_off
+
+  common::info "Sleep for 10 seconds"
+  sleep 10
+
+  common::info "Show OSD utilization"
+  trace_on
+  $(shell_cmd) ceph osd df tree
+  trace_off
+}
+
+rm_osds() {
+  if [[ -z "${CEPH_CLUSTER_FSID:-}" ]]; then
+    common::err $(( ERR_STATUS_START + 4 )) \
+      "Unable to read the cluster fsid."
+  fi
+
+  local -ir num_rm=$1
+  local -i idx
+
+  common::stage "Removing $num_rm OSDs from the cluster"
+  for (( idx = 0; idx < ${#OSD_HOSTS[@]}; idx++ )); do
+    if (( num_rm == idx )); then
+      break
+    fi
+
+    INFO_LEVEL=1 common::info "Removing 'osd.$idx' from host '${OSD_HOSTS[$idx]}'"
+    "$SCRIPT_DIR"/parallel-cephadm \
+      --host "${OSD_HOSTS[$idx]}" \
+      rm-daemon \
+      --name osd."$idx" \
+      --fsid "$CEPH_CLUSTER_FSID" \
+      --force \
+      --force-delete-data
+  done
 }
 
 tear_down_ceph() {
@@ -243,52 +373,14 @@ tear_down_ceph() {
   local -a param_hosts=( --host "$MON_IP" )
   prepare_param_hosts param_hosts
 
-  INFO_LEVEL=1
-  common::info "Tearing down the Ceph cluster (fsid: $CEPH_CLUSTER_FSID)"
-  trace_on
+  common::stage "Tearing down the Ceph cluster (fsid: $CEPH_CLUSTER_FSID)"
   "$SCRIPT_DIR"/parallel-cephadm "${param_hosts[@]}" \
     rm-cluster \
     --force \
-    --fsid "$CEPH_CLUSTER_FSID" || true
-  trace_off
-}
+    --fsid "$CEPH_CLUSTER_FSID"
 
-rm_osds() {
-  if [[ -z "${CEPH_CLUSTER_FSID:-}" ]]; then
-    common::err $(( ERR_STATUS_START + 4 )) \
-      "Unable to read the cluster fsid."
-  fi
-
-  local -i num_rm=$1 idx
-
-  INFO_LEVEL=1
-  common:: info "Removing $num_rm OSDs from the cluster"
-  for (( idx = 0; idx < ${#OSD_HOSTS[@]}; idx++ )); do
-    if (( num_rm == idx )); then
-      break
-    fi
-
-    trace_on
-    "$SCRIPT_DIR"/parallel-cephadm \
-      --host "${OSD_HOSTS[$idx]}" \
-      rm-daemon \
-      --name osd."$idx" \
-      --fsid "$CEPH_CLUSTER_FSID" \
-      --force \
-      --force-delete-data
-    trace_off
-  done
-}
-
-shell_cmd() {
-  if [[ -z "${CEPH_CLUSTER_KEYRING_PATH}" ]]; then
-    common::err $(( ERR_STATUS_START + 4 )) \
-      "Fail to read the Ceph cluster's keyring file."
-  fi
-
-  echo "$SCRIPT_DIR/parallel-cephadm shell" \
-    "--keyring $CEPH_CLUSTER_KEYRING_PATH" \
-    "--"
+  INFO_LEVEL=1 common::info "Sleep for 10 seconds"
+  sleep 10
 }
 
 get_suggested_pg_count() {
@@ -318,8 +410,6 @@ get_suggested_pg_count() {
 
 
 bench_replicated_pool() {
-  local -r pool_name="bench_failure_management_resource_utilization"
-  local -r data_size_per_osd=$(( 3 * 1024 * 1024 ))
   local -ar object_size_bytes_arr=(
     $(( 4 * 1024 ))
     $(( 32 * 1024 ))
@@ -331,15 +421,12 @@ bench_replicated_pool() {
   local -a pool_size_arr
   IFS=' ' read -ra pool_size_arr <<< "$(seq -s ' ' 1 "${#OSD_HOSTS[@]}")"
 
-  local -i pool_size suggested_pg_count prev_suggested_pg_count=0
+  local -i pool_size suggested_pg_count
   for pool_size in "${pool_size_arr[@]}"; do
     suggested_pg_count=$(
       get_suggested_pg_count "$pool_size" ${#OSD_HOSTS[@]})
-    if (( suggested_pg_count == prev_suggested_pg_count )); then
-      continue
-    fi
-    prev_suggested_pg_count=$suggested_pg_count
-    common::debug suggested_pg_count: "$suggested_pg_count"
+    common::debug suggested_pg_count: "$suggested_pg_count" \
+      "(pool_size=$pool_size, num_osds=${#OSD_HOSTS[@]})"
 
     local -a num_pgs_arr=(
       $(( suggested_pg_count / 4 ))
@@ -356,61 +443,27 @@ bench_replicated_pool() {
         local -i num_rm_osds
         for (( num_rm_osds = 1; num_rm_osds < ${#OSD_HOSTS[@]}; num_rm_osds++ )); do
 
-          printf "\\033[1;7;39;49m[RUNNING] %s, %s, %s, %s\\033[0m\\n" \
+          (( BENCHMARK_ROUND += 1 ))
+          printf "\\n\\n\\033[1;7;39;49m[%s][RUNNING][ROUND %d/%d] %s, %s, %s, %s\\033[0m\\n\\n" \
+            "$(date --iso-8601=ns)" \
+            "$BENCHMARK_ROUND" \
+            $(( ${#pool_size_arr[@]} * ${#num_pgs_arr[@]} * ${#object_size_bytes_arr[@]} * (${#OSD_HOSTS[@]} - 1) )) \
             "pool_size=$pool_size (${pool_size_arr[0]}..${pool_size_arr[-1]})" \
             "num_pgs=$num_pgs (${num_pgs_arr[0]}..${num_pgs_arr[-1]})" \
-            "object_size_bytes=$object_size_bytes (${object_size_bytes_arr[0]}..${object_size_bytes_arr[-1]}" \
+            "object_size_bytes=$object_size_bytes (${object_size_bytes_arr[0]}..${object_size_bytes_arr[-1]})" \
             "num_rm_osds=$num_rm_osds (1..$(( ${#OSD_HOSTS[@]} - 1 )))"
 
           deploy_ceph
 
-          common::stage "Prepare data on the cluster..."
-
-          INFO_LEVEL=1
-          common::info "Set pool attributes"
-          trace_on
-          $(shell_cmd) ceph osd pool create "$pool_name" "$num_pgs" "$num_pgs" replicated
-          $(shell_cmd) ceph osd pool set "$pool_name" pg_autoscale_mode off
-          $(shell_cmd) ceph osd pool set "$pool_name" size "$pool_size"
-          $(shell_cmd) ceph osd pool set "$pool_name" min_size 1
-          $(shell_cmd) ceph osd pool set "$pool_name" noscrub 1
-          $(shell_cmd) ceph osd pool set "$pool_name" nodeep-scrub 1
-          trace_off
-
-          trace_on
-          $(shell_cmd) ceph osd pool ls detail
-          trace_off
-
-          common::info "Loading objects"
-          # -b op_size
-          # -O object_size
-          #   https://github.com/ceph/ceph/blob/v16.0.0/src/tools/rados/rados.cc#L183
-          trace_on
-          $(shell_cmd) rados bench 99999999 write \
-            --pool "$pool_name" \
-            -b $(( object_size_bytes )) \
-            -O $(( object_size_bytes )) \
-            --max-objects $(( data_size_per_osd * ${#OSD_HOSTS[@]} / object_size_bytes )) \
-            --concurrent-ios $(( ${#OSD_HOSTS[@]} * 16 )) \
-            --show-time \
-            --write-object \
-            --write-omap \
-            --write-xattr \
-            --no-cleanup
-          sleep 10
-          trace_off
-
-          trace_on
-          $(shell_cmd) ceph osd df tree
-          trace_off
+          load_cluster_data "$pool_size" "$num_pgs" "$object_size_bytes"
 
           rm_osds "$num_rm_osds"
 
           # wait for data collection...
+          echo "Waiting for data collection!!!!!!"
+          sleep 30
 
           tear_down_ceph
-
-          sleep 10
         done
       done
     done
@@ -423,8 +476,10 @@ bench_erasure_coded_pool() {
 }
 
 
-OUTPUT_DIR="$PWD/results"
 main() {
+  OUTPUT_DIR="$PWD/results"
+  BENCHMARK_ROUND=0
+
   start_sys_activity_daemons
   bench_replicated_pool
   stop_sys_activity_daemons
