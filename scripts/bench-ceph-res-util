@@ -193,9 +193,11 @@ stop_sys_activity_daemons() {
       local_output_file=osd.$host.dat
     fi
 
+    trace_on
     scp -C "${SSH_COMM_OPTIONS[@]}" -p \
       "$host":"$remote_output_file" \
       "$sys_activity_data_dir/$local_output_file"
+    trace_off
   done
 }
 
@@ -243,10 +245,39 @@ tear_down_ceph() {
 
   INFO_LEVEL=1
   common::info "Tearing down the Ceph cluster (fsid: $CEPH_CLUSTER_FSID)"
+  trace_on
   "$SCRIPT_DIR"/parallel-cephadm "${param_hosts[@]}" \
     rm-cluster \
     --force \
-    --fsid "$CEPH_CLUSTER_FSID"
+    --fsid "$CEPH_CLUSTER_FSID" || true
+  trace_off
+}
+
+rm_osds() {
+  if [[ -z "${CEPH_CLUSTER_FSID:-}" ]]; then
+    common::err $(( ERR_STATUS_START + 4 )) \
+      "Unable to read the cluster fsid."
+  fi
+
+  local -i num_rm=$1 idx
+
+  INFO_LEVEL=1
+  common:: info "Removing $num_rm OSDs from the cluster"
+  for (( idx = 0; idx < ${#OSD_HOSTS[@]}; idx++ )); do
+    if (( num_rm == idx )); then
+      break
+    fi
+
+    trace_on
+    "$SCRIPT_DIR"/parallel-cephadm \
+      --host "${OSD_HOSTS[$idx]}" \
+      rm-daemon \
+      --name osd."$idx" \
+      --fsid "$CEPH_CLUSTER_FSID" \
+      --force \
+      --force-delete-data
+    trace_off
+  done
 }
 
 shell_cmd() {
@@ -308,6 +339,7 @@ bench_replicated_pool() {
       continue
     fi
     prev_suggested_pg_count=$suggested_pg_count
+    common::debug suggested_pg_count: "$suggested_pg_count"
 
     local -a num_pgs_arr=(
       $(( suggested_pg_count / 4 ))
@@ -321,46 +353,65 @@ bench_replicated_pool() {
     for num_pgs in "${num_pgs_arr[@]}"; do
       local -i object_size_bytes
       for object_size_bytes in "${object_size_bytes_arr[@]}"; do
-        deploy_ceph
+        local -i num_rm_osds
+        for (( num_rm_osds = 1; num_rm_osds < ${#OSD_HOSTS[@]}; num_rm_osds++ )); do
 
-        common::stage "Prepare data on the cluster..."
+          printf "\\033[1;7;39;49m[RUNNING] %s, %s, %s, %s\\033[0m\\n" \
+            "pool_size=$pool_size (${pool_size_arr[0]}..${pool_size_arr[-1]})" \
+            "num_pgs=$num_pgs (${num_pgs_arr[0]}..${num_pgs_arr[-1]})" \
+            "object_size_bytes=$object_size_bytes (${object_size_bytes_arr[0]}..${object_size_bytes_arr[-1]}" \
+            "num_rm_osds=$num_rm_osds (1..$(( ${#OSD_HOSTS[@]} - 1 )))"
 
-        INFO_LEVEL=1
-        common::info "Set pool attributes"
-        trace_on
-        $(shell_cmd) ceph osd pool create "$pool_name" "$num_pgs" "$num_pgs" replicated
-        $(shell_cmd) ceph osd pool set "$pool_name" pg_autoscale_mode off
-        $(shell_cmd) ceph osd pool set "$pool_name" size "$pool_size"
-        $(shell_cmd) ceph osd pool set "$pool_name" min_size 1
-        $(shell_cmd) ceph osd pool set "$pool_name" noscrub 1
-        $(shell_cmd) ceph osd pool set "$pool_name" nodeep-scrub 1
-        trace_off
+          deploy_ceph
 
-        $(shell_cmd) ceph osd pool ls detail
+          common::stage "Prepare data on the cluster..."
 
-        common::info "Loading objects"
-        # -b op_size
-        # -O object_size
-        #   https://github.com/ceph/ceph/blob/v16.0.0/src/tools/rados/rados.cc#L183
-        trace_on
-        $(shell_cmd) rados bench 99999999 write \
-          --pool "$pool_name" \
-          -b $(( object_size_bytes )) \
-          -O $(( object_size_bytes )) \
-          --max-objects $(( data_size_per_osd * ${#OSD_HOSTS[@]} / object_size_bytes )) \
-          --concurrent-ios $(( ${#OSD_HOSTS[@]} * 16 )) \
-          --show-time \
-          --write-object \
-          --write-omap \
-          --write-xattr \
-          --no-cleanup
-        trace_off
+          INFO_LEVEL=1
+          common::info "Set pool attributes"
+          trace_on
+          $(shell_cmd) ceph osd pool create "$pool_name" "$num_pgs" "$num_pgs" replicated
+          $(shell_cmd) ceph osd pool set "$pool_name" pg_autoscale_mode off
+          $(shell_cmd) ceph osd pool set "$pool_name" size "$pool_size"
+          $(shell_cmd) ceph osd pool set "$pool_name" min_size 1
+          $(shell_cmd) ceph osd pool set "$pool_name" noscrub 1
+          $(shell_cmd) ceph osd pool set "$pool_name" nodeep-scrub 1
+          trace_off
 
-        # take down OSDs
+          trace_on
+          $(shell_cmd) ceph osd pool ls detail
+          trace_off
 
-        tear_down_ceph
+          common::info "Loading objects"
+          # -b op_size
+          # -O object_size
+          #   https://github.com/ceph/ceph/blob/v16.0.0/src/tools/rados/rados.cc#L183
+          trace_on
+          $(shell_cmd) rados bench 99999999 write \
+            --pool "$pool_name" \
+            -b $(( object_size_bytes )) \
+            -O $(( object_size_bytes )) \
+            --max-objects $(( data_size_per_osd * ${#OSD_HOSTS[@]} / object_size_bytes )) \
+            --concurrent-ios $(( ${#OSD_HOSTS[@]} * 16 )) \
+            --show-time \
+            --write-object \
+            --write-omap \
+            --write-xattr \
+            --no-cleanup
+          sleep 10
+          trace_off
 
-        sleep 10
+          trace_on
+          $(shell_cmd) ceph osd df tree
+          trace_off
+
+          rm_osds "$num_rm_osds"
+
+          # wait for data collection...
+
+          tear_down_ceph
+
+          sleep 10
+        done
       done
     done
   done
