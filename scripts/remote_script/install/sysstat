@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+#
+# Require bash version >= 4.4
 
 #include include/common.sh
 

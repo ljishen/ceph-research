@@ -23,7 +23,7 @@ Usage: $0 -m MON_IP -o <HOST_OSD_DEVICES> [-o <HOST_OSD_DEVICES> ...]
                              The device can only be a raw block device or a LVM logical volume.
   -h :                       Show this help text
 
-All SSH connections to host clusters will use the user defined by '\$USER' (current: $USER).
+All SSH connections to the cluster hosts will use the user '\$USER' (current: $USER).
 
 EOF
 }
@@ -132,6 +132,8 @@ is_raw_block_device() {
 }
 
 verify_parameters() {
+  common::stage "Verify passwordless SSH to hosts, passwordless sudo via $USER, and the existence of devices on hosts..."
+
   local -i exit_status=0
 
   INFO_LEVEL=1
@@ -217,7 +219,6 @@ verify_parameters() {
     done
   done
 }
-common::stage "Verify passwordless SSH to hosts, passwordless sudo via $USER, and the existence of devices on hosts..."
 verify_parameters
 
 
@@ -227,6 +228,8 @@ readonly CEPH_SHELL="$CEPHADM shell --keyring $DEFAULT_OUTPUT_DIR/ceph.client.ad
 readonly CEPH="$CEPH_SHELL -- ceph"
 
 reset_host_devices() {
+  common::stage "Reset devices on hosts..."
+
   local -i idx exit_status=0
   for idx in "${!OSD_HOSTS[@]}"; do
     local -a devices
@@ -260,6 +263,8 @@ EOF
 }
 
 bootstrap_cluster() {
+  common::stage "Bootstrap a new cluster..."
+
   trace_on
   mkdir -p "$DEFAULT_OUTPUT_DIR"
   $CEPHADM bootstrap \
@@ -286,12 +291,15 @@ bootstrap_cluster() {
 
 show_status() {
   common::stage "Show Cluster Status"
+
   trace_on
   $CEPH --status
   trace_off
 }
 
 add_hosts() {
+  common::stage "Add hosts to the cluster..."
+
   local host
   for host in "${OSD_HOSTS[@]}"; do
     INFO_LEVEL=1
@@ -309,6 +317,8 @@ add_hosts() {
 }
 
 add_host_devices_as_osds() {
+  common::stage "Add OSDs to the cluster..."
+
   local -i idx
   for idx in "${!OSD_HOSTS[@]}"; do
     local -a devices
@@ -324,18 +334,12 @@ add_host_devices_as_osds() {
 
 
 ceph_deploy::deploy() {
-  common::stage "Reset devices on hosts..."
   reset_host_devices
-
-  common::stage "Bootstrap a new cluster..."
   bootstrap_cluster
 
   trap "trace_off; show_status" EXIT
 
-  common::stage "Add hosts to the cluster..."
   add_hosts
-
-  common::stage "Add OSDs to the cluster..."
   add_host_devices_as_osds
 }
 

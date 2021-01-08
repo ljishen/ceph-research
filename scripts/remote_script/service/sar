@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+#
+# Require bash version >= 4.4
+
+#include include/common.sh
+#include service/interface.sh
+
+SERVICE_PID_FILE=/tmp/sar.service.pid
+
+restart_service() {
+  common::info "Stopping existing sar daemons"
+  pkill -TERM --euid "$USER" --exact sar || true
+
+  local -ri interval_in_seconds=5
+  local -r local_output_file=/tmp/sys_activity_"$(date --iso-8601=seconds)".dat
+
+  common::info "Starting a new sar daemon"
+  S_TIME_FORMAT=ISO sar -A -o "$local_output_file" "$interval_in_seconds" >/dev/null 2>&1 &
+  echo $! >"$SERVICE_PID_FILE"
+}
+
+stop_service() {
+  if [[ -f "$SERVICE_PID_FILE" ]]; then
+    common::info "Stopping the sar daemon (PID: $(cat $SERVICE_PID_FILE))"
+    pkill -INT --euid "$USER" --pidfile "$SERVICE_PID_FILE"
+    rm "$SERVICE_PID_FILE"
+  fi
+}
+
+query_service() {
+  if ! [[ -f "$SERVICE_PID_FILE" ]]; then
+    common::err $(( ERR_STATUS_START + 1 )) \
+      "Missing the PID file of the sar service"
+  fi
+
+  local -r proc_cmdline="/proc/$(cat $SERVICE_PID_FILE)/cmdline"
+  if ! [[ -f "$proc_cmdline" ]]; then
+    common::err $(( ERR_STATUS_START + 2 )) \
+      "Cannot find the PID of the sar service"
+  fi
+
+  # https://stackoverflow.com/a/13399254
+  local -r local_output_file="$(
+    xargs -0 <"$proc_cmdline" \
+      | grep --only-matching --perl-regexp -- '-o \K[[:alnum:]/.:_-]+' \
+      || true
+  )"
+
+  if ! [[ "${local_output_file:-}" =~ /sys_activity_[[:digit:]T:-]+\.dat$ ]]; then
+    common::err $(( ERR_STATUS_START + 3 )) \
+      "Unexpected output filename: $local_output_file"
+  fi
+
+  common::remote_out "$local_output_file"
+}

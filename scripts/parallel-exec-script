@@ -30,7 +30,7 @@ Options:
                              set environment variable for remote hosts, e.g.,
                              -e NAME1=VALUE1 -e NAME2=VALUE2
 
-Note that the script will be executed with root privileges.
+Note that the script will be executed with root privileges on remote hosts.
 EOF
 }
 
@@ -110,44 +110,65 @@ if [[ -z "$SCRIPT_FILE" ]]; then
     "Please specify a value for '-s|--script'"
 fi
 
-SCRIPT_LOCAL_PATH="$SCRIPT_DIR/remote_script/$SCRIPT_FILE"
-if ! [[ -f "$SCRIPT_LOCAL_PATH" ]]; then
+get_script_path() {
+  local -r script_file="$1"
+  echo "$SCRIPT_DIR/remote_script/$script_file"
+}
+
+if ! [[ -f "$(get_script_path "$SCRIPT_FILE")" ]]; then
   common::err $(( ERR_STATUS_START + 2 )) \
     "Cannot find the script file '$SCRIPT_FILE' under the remote_script dir"
 fi
 
+CURRENT_INCLUDED_DEPTH=0
 parse_script_content() {
+  (( CURRENT_INCLUDED_DEPTH += 1 ))
+  if (( CURRENT_INCLUDED_DEPTH > 100 )); then
+    common::err $(( ERR_STATUS_START + 4 )) \
+      "Reach the maximum included depth while processing script file $SCRIPT_FILE" \
+      "(circular references?)"
+  fi
+
+  local -r script_file="$1"
   local script_content idx_line line
-  local include_filename include_file include_file_content
   local -i idx
-  script_content="$(cat "$SCRIPT_LOCAL_PATH")"
+  local included_file included_file_path included_file_content
+
+  script_content="$(cat "$(get_script_path "$script_file")")"
 
   while read -r idx_line; do
     idx="${idx_line%%:*}"
     line="${idx_line#*:}"
-    include_filename="$(
+    included_file="$(
       grep --only-matching --perl-regexp \
-      '#include +\K[[:alnum:]/._-]+' <<< "$line" || true
+      '#include +\K[[:alnum:]/.:_-]+' <<< "$line" || true
     )"
-    if [[ -z "$include_filename" ]]; then
+    if [[ -z "$included_file" ]]; then
       common::err $(( ERR_STATUS_START + 3 )) \
-        "Error processing #include directive at line $idx: syntax error"
+        "Error processing #include directive ($script_file:$idx):" \
+        "syntax error"
     fi
 
-    include_file="$SCRIPT_DIR"/remote_script/"$include_filename"
-    if ! [[ -f "$include_file" ]]; then
+    included_file_path="$(get_script_path "$included_file")"
+    if ! [[ -f "$included_file_path" ]]; then
       common::err $(( ERR_STATUS_START + 3 )) \
-        "Error processing #include directive at line $idx: file '$include_filename' not found"
+        "Error processing #include directive ($script_file:$idx):" \
+        "file '$included_file' not found"
     fi
 
-    include_file_content="$(cat "$include_file")"
-    script_content="${script_content//$line/$include_file_content}"
+    included_file_content="$(parse_script_content "$included_file")"
+    local -i exit_status=$?
+    if (( exit_status )); then
+      exit $exit_status
+    fi
+
+    script_content="${script_content//$line/$included_file_content}"
   done < <(grep --line-number '^#include' <<< "$script_content")
 
   echo "$script_content"
 }
 
-SCRIPT_CONTENT="$(parse_script_content)"
+SCRIPT_CONTENT="$(parse_script_content "$SCRIPT_FILE")"
 
 trace_on
 "$SCRIPT_DIR"/parallel-ssh \

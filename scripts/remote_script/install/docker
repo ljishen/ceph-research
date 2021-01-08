@@ -8,7 +8,7 @@
 #include include/common.sh
 #include include/util.sh
 
-SYS_DISTRO="$(get_supported_distro)"
+SYS_DISTRO="$(util::get_supported_distro)"
 
 get_arch() {
   local machine_name arch

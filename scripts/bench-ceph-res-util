@@ -24,7 +24,7 @@ Options:
 
 Defining the LVS_PROVISION=no can skip the logical volumes provisioning on hosts.
 
-All SSH connections to host clusters will use the user defined by '\$USER' (current: $USER).
+All SSH connections to the cluster hosts will use the user '\$USER' (current: $USER).
 
 EOF
 }
@@ -85,6 +85,8 @@ common::debug OSD_HOSTS: "$(common::print_array OSD_HOSTS)"
 
 
 install_docker_sar() {
+  common::stage "Check and install docker and sar..."
+
   local -ar all_hosts=( "$MON_IP" "${OSD_HOSTS[@]}" )
   local -a param_install_docker_hosts=() param_install_sar_hosts=()
   local host
@@ -114,19 +116,24 @@ install_docker_sar() {
       "${param_install_sar_hosts[@]}"
   fi
 }
-common::stage "Check and install docker and sar..."
 install_docker_sar
 
-# shellcheck source=./remote_script/ceph_volume/interfaces.sh
-. "$SCRIPT_DIR"/remote_script/ceph_volume/interfaces.sh
-
-create_ceph_lvs() {
-  local -a param_hosts
+prepare_param_hosts() {
+  local -n _param_hosts=$1
   local host
 
   for host in "${OSD_HOSTS[@]}"; do
-    param_hosts+=( --host "$host" )
+    _param_hosts+=( --host "$host" )
   done
+}
+
+# shellcheck source=./remote_script/ceph_volume/interface.sh
+. "$SCRIPT_DIR"/remote_script/ceph_volume/interface.sh
+create_ceph_lvs() {
+  common::stage "Create logical volumes on OSD hosts..."
+
+  local -a param_hosts
+  prepare_param_hosts param_hosts
 
   "$SCRIPT_DIR"/parallel-exec-script \
     --script ceph_volume/"$SCRIPT_FILE" \
@@ -134,12 +141,63 @@ create_ceph_lvs() {
     --env CEPH_VOLUME_OPERATION="$CEPH_VOLUME_OPERATION_CREATE" \
     "${param_hosts[@]}"
 }
-common::stage "Create logical volumes on OSD hosts..." \
-  "$(if [[ "${LVS_PROVISION:-yes}" == "no" ]]; then echo '(skipped)'; fi;)"
 if [[ "${LVS_PROVISION:-yes}" != "no" ]]; then
   create_ceph_lvs
 fi
 
+
+# shellcheck source=./remote_script/service/interface.sh
+. "$SCRIPT_DIR"/remote_script/service/interface.sh
+start_sys_activity_daemons() {
+  common::stage "Launch system activity collector daemons on cluster hosts..."
+
+  local -a param_hosts=( --host "$MON_IP" )
+  prepare_param_hosts param_hosts
+
+  "$SCRIPT_DIR"/parallel-exec-script \
+    --script service/sar \
+    --env INFO_LEVEL=1 \
+    --env SERVICE_OPERATION="$SERVICE_OPERATION_RESTART" \
+    "${param_hosts[@]}"
+}
+
+stop_sys_activity_daemons() {
+  common::stage "Stop system activity collector daemons and gather results..."
+  local -r sys_activity_data_dir="$OUTPUT_DIR"/sys_activity
+  mkdir --parents "$sys_activity_data_dir"
+
+  local -ar all_hosts=( "$MON_IP" "${OSD_HOSTS[@]}" )
+  local host remote_output_file
+  for host in "${all_hosts[@]}"; do
+    INFO_LEVEL=1
+    common::info "Backing up system activity information from $host"
+
+    remote_output_file="$(
+      "$SCRIPT_DIR"/parallel-exec-script \
+        --script service/sar \
+        --env INFO_LEVEL=1 \
+        --env SERVICE_OPERATION="$SERVICE_OPERATION_QUERY" \
+        --host "$host" | common::parse_remote_out
+    )"
+
+    "$SCRIPT_DIR"/parallel-exec-script \
+      --script service/sar \
+      --env INFO_LEVEL=1 \
+      --env SERVICE_OPERATION="$SERVICE_OPERATION_STOP" \
+      --host "$host"
+
+    local local_output_file
+    if [[ "$host" == "$MON_IP" ]]; then
+      local_output_file=mon.$host.dat
+    else
+      local_output_file=osd.$host.dat
+    fi
+
+    scp -C "${SSH_COMM_OPTIONS[@]}" -p \
+      "$host":"$remote_output_file" \
+      "$sys_activity_data_dir/$local_output_file"
+  done
+}
 
 deploy_ceph() {
   local -a param_host_osds
@@ -181,12 +239,9 @@ tear_down_ceph() {
   fi
 
   local -a param_hosts=( --host "$MON_IP" )
-  local host
+  prepare_param_hosts param_hosts
 
-  for host in "${OSD_HOSTS[@]}"; do
-    param_hosts+=( --host "$host" )
-  done
-
+  INFO_LEVEL=1
   common::info "Tearing down the Ceph cluster (fsid: $CEPH_CLUSTER_FSID)"
   "$SCRIPT_DIR"/parallel-cephadm "${param_hosts[@]}" \
     rm-cluster \
@@ -194,7 +249,7 @@ tear_down_ceph() {
     --fsid "$CEPH_CLUSTER_FSID"
 }
 
-ceph_cmd() {
+shell_cmd() {
   if [[ -z "${CEPH_CLUSTER_KEYRING_PATH}" ]]; then
     common::err $(( ERR_STATUS_START + 4 )) \
       "Fail to read the Ceph cluster's keyring file."
@@ -202,21 +257,125 @@ ceph_cmd() {
 
   echo "$SCRIPT_DIR/parallel-cephadm shell" \
     "--keyring $CEPH_CLUSTER_KEYRING_PATH" \
-    "--" \
-    "ceph"
+    "--"
+}
+
+get_suggested_pg_count() {
+  # Logic behind PG Count
+  # See https://ceph.com/pgcalc/
+  #     https://ceph.com/pgcalc_assets/pgcalc.js (function updatePGCount)
+  #     https://docs.ceph.com/en/latest/rados/operations/placement-groups/#choosing-number-of-placement-groups
+  awk -v pool_size="$1" -v num_osds="$2" -v target_pgs_per_osd="${3:-100}" '
+    function nearestpower2(num) {
+      tmp = 2 ^ int(log(num) / log(2))
+      if (tmp < num * (1 - 0.25))
+        tmp *= 2
+      return tmp
+    }
+
+    BEGIN {
+      min_value = nearestpower2(int(num_osds / pool_size) + 1)
+      if (min_value < num_osds)
+        min_value *= 2
+
+      calc_value = nearestpower2(int(target_pgs_per_osd * num_osds / pool_size))
+
+      print (min_value > calc_value ? min_value : calc_value)
+    }
+  '
 }
 
 
-start_bench() {
+bench_replicated_pool() {
   local -r pool_name="bench_failure_management_resource_utilization"
-  # loop over # of objects, # of pgs, # of failed nodes
+  local -r data_size_per_osd=$(( 3 * 1024 * 1024 ))
+  local -ar object_size_bytes_arr=(
+    $(( 4 * 1024 ))
+    $(( 32 * 1024 ))
+    $(( 256 * 1024 ))
+    $(( 2048 * 1024 ))
+    $(( 16384 * 1024 ))
+  )
 
-  deploy_ceph
+  local -a pool_size_arr
+  IFS=' ' read -ra pool_size_arr <<< "$(seq -s ' ' 1 "${#OSD_HOSTS[@]}")"
 
-  trace_on
-  $(ceph_cmd) osd pool create "$pool_name"
-  trace_off
+  local -i pool_size suggested_pg_count prev_suggested_pg_count=0
+  for pool_size in "${pool_size_arr[@]}"; do
+    suggested_pg_count=$(
+      get_suggested_pg_count "$pool_size" ${#OSD_HOSTS[@]})
+    if (( suggested_pg_count == prev_suggested_pg_count )); then
+      continue
+    fi
+    prev_suggested_pg_count=$suggested_pg_count
 
-  tear_down_ceph
+    local -a num_pgs_arr=(
+      $(( suggested_pg_count / 4 ))
+      $(( suggested_pg_count / 2 ))
+      suggested_pg_count
+      $(( suggested_pg_count * 2 ))
+      $(( suggested_pg_count * 4 ))
+    )
+
+    local -i num_pgs
+    for num_pgs in "${num_pgs_arr[@]}"; do
+      local -i object_size_bytes
+      for object_size_bytes in "${object_size_bytes_arr[@]}"; do
+        deploy_ceph
+
+        common::stage "Prepare data on the cluster..."
+
+        INFO_LEVEL=1
+        common::info "Set pool attributes"
+        trace_on
+        $(shell_cmd) ceph osd pool create "$pool_name" "$num_pgs" "$num_pgs" replicated
+        $(shell_cmd) ceph osd pool set "$pool_name" pg_autoscale_mode off
+        $(shell_cmd) ceph osd pool set "$pool_name" size "$pool_size"
+        $(shell_cmd) ceph osd pool set "$pool_name" min_size 1
+        $(shell_cmd) ceph osd pool set "$pool_name" noscrub 1
+        $(shell_cmd) ceph osd pool set "$pool_name" nodeep-scrub 1
+        trace_off
+
+        $(shell_cmd) ceph osd pool ls detail
+
+        common::info "Loading objects"
+        # -b op_size
+        # -O object_size
+        #   https://github.com/ceph/ceph/blob/v16.0.0/src/tools/rados/rados.cc#L183
+        trace_on
+        $(shell_cmd) rados bench 99999999 write \
+          --pool "$pool_name" \
+          -b $(( object_size_bytes )) \
+          -O $(( object_size_bytes )) \
+          --max-objects $(( data_size_per_osd * ${#OSD_HOSTS[@]} / object_size_bytes )) \
+          --concurrent-ios $(( ${#OSD_HOSTS[@]} * 16 )) \
+          --show-time \
+          --write-object \
+          --write-omap \
+          --write-xattr \
+          --no-cleanup
+        trace_off
+
+        # take down OSDs
+
+        tear_down_ceph
+
+        sleep 10
+      done
+    done
+  done
 }
-start_bench
+
+bench_erasure_coded_pool() {
+  common::err $(( ERR_STATUS_START + 999 )) \
+    "Function not implemented yet!"
+}
+
+
+OUTPUT_DIR="$PWD/results"
+main() {
+  start_sys_activity_daemons
+  bench_replicated_pool
+  stop_sys_activity_daemons
+}
+main

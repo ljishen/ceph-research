@@ -3,7 +3,7 @@
 # Require bash version >= 4.4
 
 #include include/common.sh
-#include ceph_volume/interfaces.sh
+#include ceph_volume/interface.sh
 
 VOLUME_IN_PARTITION=/dev/sda2
 VG_NAME_PREFIX="ceph-"
