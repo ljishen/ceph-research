@@ -68,7 +68,7 @@ fi
 
 if (( "${#OSD_HOSTS[@]}" == 0 )); then
   usage
-  common::err $(( ERR_STATUS_START + 2 )) "Please specify OSD_HOSTS using '-h'"
+  common::err $(( ERR_STATUS_START + 2 )) "Please specify OSD_HOSTs using '-h'"
 fi
 
 if [[ -z "${SCRIPT_FILE:-}" ]]; then
@@ -169,8 +169,7 @@ stop_sys_activity_daemons() {
   local -ar all_hosts=( "$MON_IP" "${OSD_HOSTS[@]}" )
   local host remote_output_file
   for host in "${all_hosts[@]}"; do
-    INFO_LEVEL=1
-    common::info "Backing up system activity information from $host"
+    INFO_LEVEL=1 common::info "Backing up system activity information from $host"
 
     remote_output_file="$(
       "$SCRIPT_DIR"/parallel-exec-script \
@@ -201,6 +200,52 @@ stop_sys_activity_daemons() {
   done
 }
 
+deploy_ceph() {
+  CEPH_OSD_ID_TO_HOST=()
+
+  local -a param_host_osds
+  local host host_lvs joined
+
+  for host in "${OSD_HOSTS[@]}"; do
+    host_lvs=("$(
+      "$SCRIPT_DIR"/parallel-exec-script \
+        --script ceph_volume/"$SCRIPT_FILE" \
+        --env CEPH_VOLUME_OPERATION="$CEPH_VOLUME_OPERATION_QUERY" \
+        --host "$host" | common::parse_remote_out
+    )")
+
+    local -i idx
+    for (( idx = 0; idx < ${#host_lvs[@]}; idx++ )); do
+      CEPH_OSD_ID_TO_HOST+=("$host")
+    done
+
+    printf -v joined '%s,' "${host_lvs[@]}"
+    param_host_osds+=( -o "$host:${joined%,}" )
+  done
+
+  if (( ${#CEPH_OSD_ID_TO_HOST[@]} < 3 )); then
+    common::err $(( ERR_STATUS_START + 4 )) \
+      "Need >= 3 OSDs for the test (current: ${#CEPH_OSD_ID_TO_HOST[@]})"
+  fi
+  common::debug "\${#CEPH_OSD_ID_TO_HOST[@]}:" ${#CEPH_OSD_ID_TO_HOST[@]}
+
+  local ceph_deploy_output
+  ceph_deploy_output="$(
+    "$SCRIPT_DIR"/ceph-deploy -m "$MON_IP" "${param_host_osds[@]}" \
+      2>&1 | tee /dev/tty
+  )"
+
+  CEPH_CLUSTER_FSID="$(
+    grep --only-matching --perl-regexp "Cluster fsid: \K[[:alnum:]-]+" \
+      <<< "$ceph_deploy_output"
+  )"
+
+  CEPH_CLUSTER_KEYRING_PATH="$(
+      grep --only-matching --perl-regexp "Wrote keyring to \K.+" \
+      <<< "$ceph_deploy_output"
+  )"
+}
+
 shell_cmd() {
   {
     local -ir is_set_x=$(common::is_set_x)
@@ -222,42 +267,6 @@ shell_cmd() {
   if (( is_set_x == 0 )); then
     trace_on
   fi
-}
-
-deploy_ceph() {
-  local -a param_host_osds
-  local host host_lvs joined
-
-  for host in "${OSD_HOSTS[@]}"; do
-    host_lvs=("$(
-      "$SCRIPT_DIR"/parallel-exec-script \
-        --script ceph_volume/"$SCRIPT_FILE" \
-        --env CEPH_VOLUME_OPERATION="$CEPH_VOLUME_OPERATION_QUERY" \
-        --host "$host" | common::parse_remote_out
-    )")
-
-    printf -v joined '%s,' "${host_lvs[@]}"
-    param_host_osds+=( -o "$host:${joined%,}" )
-  done
-
-  local ceph_deploy_output
-  ceph_deploy_output="$(
-    "$SCRIPT_DIR"/ceph-deploy -m "$MON_IP" "${param_host_osds[@]}" \
-      2>&1 | tee /dev/tty
-  )"
-
-  CEPH_CLUSTER_FSID="$(
-    grep --only-matching --perl-regexp "Cluster fsid: \K[[:alnum:]-]+" \
-      <<< "$ceph_deploy_output"
-  )"
-
-  CEPH_CLUSTER_KEYRING_PATH="$(
-      grep --only-matching --perl-regexp "Wrote keyring to \K.+" \
-      <<< "$ceph_deploy_output"
-  )"
-
-  INFO_LEVEL=1 common::info "Sleep for 15 seconds"
-  sleep 15
 }
 
 load_cluster_data() {
@@ -311,7 +320,7 @@ load_cluster_data() {
   trace_off
 
   INFO_LEVEL=1 common::info "Loading objects" \
-    "(total data size: $(( data_size_per_osd * ${#OSD_HOSTS[@]} / 1024 / 1024 / 1024 )) GB)"
+    "(total data size: $(( data_size_per_osd * ${#CEPH_OSD_ID_TO_HOST[@]} / 1024 / 1024 / 1024 )) GB)"
   # -b op_size
   # -O object_size
   #   https://github.com/ceph/ceph/blob/v16.0.0/src/tools/rados/rados.cc#L183
@@ -320,8 +329,8 @@ load_cluster_data() {
     --pool "$pool_name" \
     -b $(( object_size_bytes )) \
     -O $(( object_size_bytes )) \
-    --max-objects $(( data_size_per_osd * ${#OSD_HOSTS[@]} / object_size_bytes )) \
-    --concurrent-ios $(( ${#OSD_HOSTS[@]} * 256 )) \
+    --max-objects $(( data_size_per_osd * ${#CEPH_OSD_ID_TO_HOST[@]} / object_size_bytes )) \
+    --concurrent-ios $(( ${#CEPH_OSD_ID_TO_HOST[@]} * 256 )) \
     --show-time \
     --write-object \
     --write-omap \
@@ -336,6 +345,11 @@ load_cluster_data() {
   trace_on
   $(shell_cmd) ceph osd df tree
   trace_off
+
+  common::info "Show cluster status"
+  trace_on
+  $(shell_cmd) ceph --status
+  trace_off
 }
 
 rm_osds() {
@@ -348,19 +362,23 @@ rm_osds() {
   local -i idx
 
   common::stage "Removing $num_rm OSDs from the cluster"
-  for (( idx = 0; idx < ${#OSD_HOSTS[@]}; idx++ )); do
+  for (( idx = 0; idx < ${#CEPH_OSD_ID_TO_HOST[@]}; idx++ )); do
     if (( num_rm == idx )); then
       break
     fi
 
-    INFO_LEVEL=1 common::info "Removing 'osd.$idx' from host '${OSD_HOSTS[$idx]}'"
+    INFO_LEVEL=1 common::info "Removing 'osd.$idx' from host '${CEPH_OSD_ID_TO_HOST[$idx]}'"
     "$SCRIPT_DIR"/parallel-cephadm \
-      --host "${OSD_HOSTS[$idx]}" \
+      --host "${CEPH_OSD_ID_TO_HOST[$idx]}" \
       rm-daemon \
       --name osd."$idx" \
       --fsid "$CEPH_CLUSTER_FSID" \
       --force \
       --force-delete-data
+
+    trace_on
+    $(shell_cmd) ceph osd out osd."$idx"
+    trace_off
   done
 }
 
@@ -418,40 +436,45 @@ bench_replicated_pool() {
     $(( 16384 * 1024 ))
   )
 
-  local -a pool_size_arr
-  IFS=' ' read -ra pool_size_arr <<< "$(seq -s ' ' 1 "${#OSD_HOSTS[@]}")"
+  local -i object_size_bytes
+  for object_size_bytes in "${object_size_bytes_arr[@]}"; do
 
-  local -i pool_size suggested_pg_count
-  for pool_size in "${pool_size_arr[@]}"; do
-    suggested_pg_count=$(
-      get_suggested_pg_count "$pool_size" ${#OSD_HOSTS[@]})
-    common::debug suggested_pg_count: "$suggested_pg_count" \
-      "(pool_size=$pool_size, num_osds=${#OSD_HOSTS[@]})"
+    local -a pool_size_arr
+    IFS=' ' read -ra pool_size_arr <<< "$(seq -s ' ' 2 $((${#CEPH_OSD_ID_TO_HOST[@]} - 1)))"
 
-    local -a num_pgs_arr=(
-      $(( suggested_pg_count / 4 ))
-      $(( suggested_pg_count / 2 ))
-      suggested_pg_count
-      $(( suggested_pg_count * 2 ))
-      $(( suggested_pg_count * 4 ))
-    )
+    local -i pool_size suggested_pg_count
+    for pool_size in "${pool_size_arr[@]}"; do
+      suggested_pg_count=$(
+        get_suggested_pg_count "$pool_size" ${#CEPH_OSD_ID_TO_HOST[@]})
+      common::debug suggested_pg_count: "$suggested_pg_count" \
+        "(pool_size=$pool_size, num_osds=${#CEPH_OSD_ID_TO_HOST[@]})"
 
-    local -i num_pgs
-    for num_pgs in "${num_pgs_arr[@]}"; do
-      local -i object_size_bytes
-      for object_size_bytes in "${object_size_bytes_arr[@]}"; do
+      local -a num_pgs_arr=(
+        $(( suggested_pg_count / 4 ))
+        $(( suggested_pg_count / 2 ))
+        suggested_pg_count
+        $(( suggested_pg_count * 2 ))
+        $(( suggested_pg_count * 4 ))
+      )
+
+      local -i num_pgs
+      for num_pgs in "${num_pgs_arr[@]}"; do
+
+        local -a num_rm_osds_arr
+        IFS=' ' read -ra num_rm_osds_arr <<< "$(seq -s ' ' 1 $((${#CEPH_OSD_ID_TO_HOST[@]} - pool_size)))"
+
         local -i num_rm_osds
-        for (( num_rm_osds = 1; num_rm_osds < ${#OSD_HOSTS[@]}; num_rm_osds++ )); do
+        for num_rm_osds in "${num_rm_osds_arr[@]}"; do
 
-          (( BENCHMARK_ROUND += 1 ))
+          (( BENCHMARK_CUR_ROUND += 1 ))
           printf "\\n\\n\\033[1;7;39;49m[%s][RUNNING][ROUND %d/%d] %s, %s, %s, %s\\033[0m\\n\\n" \
             "$(date --iso-8601=ns)" \
-            "$BENCHMARK_ROUND" \
-            $(( ${#pool_size_arr[@]} * ${#num_pgs_arr[@]} * ${#object_size_bytes_arr[@]} * (${#OSD_HOSTS[@]} - 1) )) \
+            "$BENCHMARK_CUR_ROUND" \
+            $(( ${#num_pgs_arr[@]} * ${#object_size_bytes_arr[@]} * (((${#CEPH_OSD_ID_TO_HOST[@]} - 2) + 1) * (${#CEPH_OSD_ID_TO_HOST[@]} - 2) / 2) )) \
+            "object_size_bytes=$object_size_bytes (${object_size_bytes_arr[0]}..${object_size_bytes_arr[-1]})" \
             "pool_size=$pool_size (${pool_size_arr[0]}..${pool_size_arr[-1]})" \
             "num_pgs=$num_pgs (${num_pgs_arr[0]}..${num_pgs_arr[-1]})" \
-            "object_size_bytes=$object_size_bytes (${object_size_bytes_arr[0]}..${object_size_bytes_arr[-1]})" \
-            "num_rm_osds=$num_rm_osds (1..$(( ${#OSD_HOSTS[@]} - 1 )))"
+            "num_rm_osds=$num_rm_osds (${num_rm_osds_arr[0]}..${num_rm_osds_arr[-1]})"
 
           deploy_ceph
 
@@ -462,6 +485,8 @@ bench_replicated_pool() {
           # wait for data collection...
           echo "Waiting for data collection!!!!!!"
           sleep 30
+
+          exit
 
           tear_down_ceph
         done
@@ -478,7 +503,7 @@ bench_erasure_coded_pool() {
 
 main() {
   OUTPUT_DIR="$PWD/results"
-  BENCHMARK_ROUND=0
+  BENCHMARK_CUR_ROUND=0
 
   start_sys_activity_daemons
   bench_replicated_pool

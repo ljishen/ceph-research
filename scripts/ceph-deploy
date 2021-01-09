@@ -320,12 +320,16 @@ add_host_devices_as_osds() {
     local -a devices
     parse_osd_devices devices "${OSD_DEVICES[idx]}"
 
-    INFO_LEVEL=1 common::info "Adding devices" \
+    INFO_LEVEL=1
+    common::info "Adding devices" \
       "$(common::print_array devices)" "on host '${OSD_HOSTS[idx]}' as OSDs"
     trace_on
     $CEPH orch daemon add osd "${OSD_HOSTS[idx]}:${OSD_DEVICES[idx]}"
     trace_off
   done
+
+  common::info "Sleep for 10 seconds"
+  sleep 10
 }
 
 
