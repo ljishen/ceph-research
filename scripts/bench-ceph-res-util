@@ -145,6 +145,39 @@ if [[ "${LVS_PROVISION:-yes}" != "no" ]]; then
   create_ceph_lvs
 fi
 
+query_ceph_lvs() {
+  common::stage "Query logical volumes on OSD hosts..."
+
+  CEPH_OSD_ID_TO_HOST=()
+
+  local host host_lvs
+  local -a host_id_to_host_repr
+
+  for host in "${OSD_HOSTS[@]}"; do
+    host_lvs=("$(
+      "$SCRIPT_DIR"/parallel-exec-script \
+        --script ceph_volume/"$SCRIPT_FILE" \
+        --env CEPH_VOLUME_OPERATION="$CEPH_VOLUME_OPERATION_QUERY" \
+        --host "$host" | common::parse_remote_out
+    )")
+
+    local -i idx
+    for (( idx = 0; idx < ${#host_lvs[@]}; idx++ )); do
+      host_id_to_host_repr+=("osd.${#CEPH_OSD_ID_TO_HOST[@]} => $host")
+      CEPH_OSD_ID_TO_HOST+=("$host")
+    done
+  done
+
+  if (( ${#CEPH_OSD_ID_TO_HOST[@]} < 3 )); then
+    common::err $(( ERR_STATUS_START + 4 )) \
+      "Need >= 3 OSDs for the test" \
+      "(current: $(common::print_array host_id_to_host_repr))"
+  fi
+  common::debug host_id_to_host_repr: \
+    "$(common::print_array host_id_to_host_repr)"
+}
+query_ceph_lvs
+
 
 # shellcheck source=./remote_script/service/interface.sh
 . "$SCRIPT_DIR"/remote_script/service/interface.sh
@@ -201,8 +234,6 @@ stop_sys_activity_daemons() {
 }
 
 deploy_ceph() {
-  CEPH_OSD_ID_TO_HOST=()
-
   local -a param_host_osds
   local host host_lvs joined
 
@@ -214,20 +245,9 @@ deploy_ceph() {
         --host "$host" | common::parse_remote_out
     )")
 
-    local -i idx
-    for (( idx = 0; idx < ${#host_lvs[@]}; idx++ )); do
-      CEPH_OSD_ID_TO_HOST+=("$host")
-    done
-
     printf -v joined '%s,' "${host_lvs[@]}"
     param_host_osds+=( -o "$host:${joined%,}" )
   done
-
-  if (( ${#CEPH_OSD_ID_TO_HOST[@]} < 3 )); then
-    common::err $(( ERR_STATUS_START + 4 )) \
-      "Need >= 3 OSDs for the test (current: ${#CEPH_OSD_ID_TO_HOST[@]})"
-  fi
-  common::debug "\${#CEPH_OSD_ID_TO_HOST[@]}:" ${#CEPH_OSD_ID_TO_HOST[@]}
 
   local ceph_deploy_output
   ceph_deploy_output="$(
