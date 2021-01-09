@@ -233,7 +233,7 @@ stop_sys_activity_daemons() {
   done
 }
 
-deploy_ceph() {
+deploy_cluster() {
   local -a param_host_osds
   local host host_lvs joined
 
@@ -287,6 +287,26 @@ shell_cmd() {
   if (( is_set_x == 0 )); then
     trace_on
   fi
+}
+
+config_cluster() {
+  local -ir num_rm=$1
+
+  common::stage "Configure options for the cluster..."
+
+  local -ir osd_max_backfills=$(( (${#CEPH_OSD_ID_TO_HOST[@]} - num_rm) * 2 ))
+  INFO_LEVEL=1
+  common::info "Set the number of backfill operations to/from an OSD" \
+    "(osd_max_backfills) to $osd_max_backfills"
+  trace_on
+  $(shell_cmd) ceph config set osd osd_max_backfills $osd_max_backfills
+  trace_off
+
+  common::info "Show OSD configuration options"
+  trace_on
+  $(shell_cmd) ceph config show-with-defaults osd.0 \
+    | grep "osd_max_backfills\|osd_recovery" | column -t -s ' '
+  trace_off
 }
 
 load_cluster_data() {
@@ -402,7 +422,7 @@ rm_osds() {
   done
 }
 
-tear_down_ceph() {
+tear_down_cluster() {
   if [[ -z "${CEPH_CLUSTER_FSID:-}" ]]; then
     common::err $(( ERR_STATUS_START + 4 )) \
       "Unable to read the cluster fsid."
@@ -496,7 +516,8 @@ bench_replicated_pool() {
             "num_pgs=$num_pgs (${num_pgs_arr[0]}..${num_pgs_arr[-1]})" \
             "num_rm_osds=$num_rm_osds (${num_rm_osds_arr[0]}..${num_rm_osds_arr[-1]})"
 
-          deploy_ceph
+          deploy_cluster
+          config_cluster "$num_rm_osds"
 
           load_cluster_data "$pool_size" "$num_pgs" "$object_size_bytes"
 
@@ -508,7 +529,7 @@ bench_replicated_pool() {
 
           exit
 
-          tear_down_ceph
+          tear_down_cluster
         done
       done
     done
