@@ -181,8 +181,8 @@ query_ceph_lvs
 
 # shellcheck source=./remote_script/service/interface.sh
 . "$SCRIPT_DIR"/remote_script/service/interface.sh
-start_sys_activity_daemons() {
-  common::stage "Launch system activity collector daemons on cluster hosts..."
+start_sys_activity_collection_service() {
+  common::stage "Launch the system activity collection service on cluster hosts..."
 
   local -a param_hosts=( --host "$MON_IP" )
   prepare_param_hosts param_hosts
@@ -194,16 +194,17 @@ start_sys_activity_daemons() {
     "${param_hosts[@]}"
 }
 
-stop_sys_activity_daemons() {
-  common::stage "Stop system activity collector daemons and gather results..."
+stop_sys_activity_collection_service() {
+  common::stage "Stop the system activity collection service and gather results..."
+
   local -r sys_activity_data_dir="$OUTPUT_DIR"/sys_activity
   mkdir --parents "$sys_activity_data_dir"
 
   local -ar all_hosts=( "$MON_IP" "${OSD_HOSTS[@]}" )
   local host remote_output_file
   for host in "${all_hosts[@]}"; do
-    INFO_LEVEL=1 common::info "Backing up system activity information from $host"
-
+    INFO_LEVEL=1
+    common::info "Query and stop service for $host"
     remote_output_file="$(
       "$SCRIPT_DIR"/parallel-exec-script \
         --script service/sar \
@@ -220,15 +221,16 @@ stop_sys_activity_daemons() {
 
     local local_output_file
     if [[ "$host" == "$MON_IP" ]]; then
-      local_output_file=mon.$host.dat
+      local_output_file="$sys_activity_data_dir"/mon.$host.dat
     else
-      local_output_file=osd.$host.dat
+      local_output_file="$sys_activity_data_dir"/osd.$host.dat
     fi
 
+    common::info "Backing up system activity information from $host"
     trace_on
     scp -C "${SSH_COMM_OPTIONS[@]}" -p \
       "$host":"$remote_output_file" \
-      "$sys_activity_data_dir/$local_output_file"
+      "$local_output_file"
     trace_off
   done
 }
@@ -294,7 +296,7 @@ config_cluster() {
 
   common::stage "Configure options for the cluster..."
 
-  local -ir osd_max_backfills=$(( (${#CEPH_OSD_ID_TO_HOST[@]} - num_rm) * 8 ))
+  local -ir osd_max_backfills=$(( (${#CEPH_OSD_ID_TO_HOST[@]} - num_rm) * 16 ))
   INFO_LEVEL=1
   common::info "Set the number of backfill operations to/from an OSD" \
     "(osd_max_backfills) to $osd_max_backfills"
@@ -311,7 +313,7 @@ config_cluster() {
     $osd_recovery_max_active
   trace_off
 
-  local -ir osd_recovery_max_single_start=4
+  local -ir osd_recovery_max_single_start=8
   common::info "Set the newly started recovery operations per OSD when" \
     "recovering to $osd_recovery_max_single_start"
   trace_on
@@ -437,7 +439,8 @@ rm_osds() {
       break
     fi
 
-    INFO_LEVEL=1 common::info "Removing 'osd.$idx' from host '${CEPH_OSD_ID_TO_HOST[$idx]}'"
+    INFO_LEVEL=1
+    common::info "Removing 'osd.$idx' from host '${CEPH_OSD_ID_TO_HOST[$idx]}'"
     "$SCRIPT_DIR"/parallel-cephadm \
       --host "${CEPH_OSD_ID_TO_HOST[$idx]}" \
       rm-daemon \
@@ -450,6 +453,14 @@ rm_osds() {
     $(shell_cmd) ceph osd out osd."$idx"
     trace_off
   done
+
+  common::info "Sleep for 10 seconds"
+  sleep 10
+
+  common::info "Show cluster status"
+  trace_on
+  $(shell_cmd) ceph --status
+  trace_off
 }
 
 tear_down_cluster() {
@@ -571,15 +582,15 @@ bench_erasure_coded_pool() {
     "Function not implemented yet!"
 }
 
-trap stop_sys_activity_daemons EXIT
+trap stop_sys_activity_collection_service EXIT
 
 
 main() {
   OUTPUT_DIR="$PWD/results"
   BENCHMARK_CUR_ROUND=0
 
-  start_sys_activity_daemons
+  start_sys_activity_collection_service
   bench_replicated_pool
-  stop_sys_activity_daemons
+  stop_sys_activity_collection_service
 }
 main
