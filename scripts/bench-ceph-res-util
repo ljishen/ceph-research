@@ -294,12 +294,21 @@ config_cluster() {
 
   common::stage "Configure options for the cluster..."
 
-  local -ir osd_max_backfills=$(( (${#CEPH_OSD_ID_TO_HOST[@]} - num_rm) * 2 ))
+  local -ir osd_max_backfills=$(( (${#CEPH_OSD_ID_TO_HOST[@]} - num_rm) * 8 ))
   INFO_LEVEL=1
   common::info "Set the number of backfill operations to/from an OSD" \
     "(osd_max_backfills) to $osd_max_backfills"
   trace_on
   $(shell_cmd) ceph config set osd osd_max_backfills $osd_max_backfills
+  trace_off
+
+  local -ir osd_recovery_op_priority=63
+  common::info "Increase the priority for recovery operations to" \
+    "$osd_recovery_op_priority (same as client operations)"
+  # https://github.com/ceph/ceph/blob/v16.0.0/doc/rados/configuration/osd-config-ref.rst
+  trace_on
+  $(shell_cmd) ceph config set osd osd_recovery_op_priority \
+    $osd_recovery_op_priority
   trace_off
 
   common::info "Show OSD configuration options"
