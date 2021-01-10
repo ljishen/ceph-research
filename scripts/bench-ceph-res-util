@@ -302,10 +302,26 @@ config_cluster() {
   $(shell_cmd) ceph config set osd osd_max_backfills $osd_max_backfills
   trace_off
 
+  local -ir osd_recovery_max_active=32
+  common::info "Set the number of active recovery requests per OSD at one time" \
+    "to $osd_recovery_max_active"
+  # https://github.com/ceph/ceph/blob/v16.0.0/doc/rados/configuration/osd-config-ref.rst
+  trace_on
+  $(shell_cmd) ceph config set osd osd_recovery_max_active \
+    $osd_recovery_max_active
+  trace_off
+
+  local -ir osd_recovery_max_single_start=4
+  common::info "Set the newly started recovery operations per OSD when" \
+    "recovering to $osd_recovery_max_single_start"
+  trace_on
+  $(shell_cmd) ceph config set osd osd_recovery_max_single_start \
+    $osd_recovery_max_single_start
+  trace_off
+
   local -ir osd_recovery_op_priority=63
   common::info "Increase the priority for recovery operations to" \
     "$osd_recovery_op_priority (same as client operations)"
-  # https://github.com/ceph/ceph/blob/v16.0.0/doc/rados/configuration/osd-config-ref.rst
   trace_on
   $(shell_cmd) ceph config set osd osd_recovery_op_priority \
     $osd_recovery_op_priority
@@ -539,7 +555,7 @@ bench_replicated_pool() {
 
           # wait for data collection...
           echo "Waiting for data collection!!!!!!"
-          sleep 30
+          sleep 99999999
 
           exit
 
@@ -554,6 +570,8 @@ bench_erasure_coded_pool() {
   common::err $(( ERR_STATUS_START + 999 )) \
     "Function not implemented yet!"
 }
+
+trap stop_sys_activity_daemons EXIT
 
 
 main() {
