@@ -334,6 +334,11 @@ load_cluster_data() {
   $(shell_cmd) ceph osd pool set "$pool_name" pg_autoscale_mode off
   trace_off
 
+  common::info "Set the application metadata key"
+  trace_on
+  $(shell_cmd) ceph osd pool application enable "$pool_name" banchmark
+  trace_off
+
   common::info "Set the number of replicas for objects in the pool to $pool_size"
   trace_on
   $(shell_cmd) ceph osd pool set "$pool_name" size "$pool_size"
