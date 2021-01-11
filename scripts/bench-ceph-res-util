@@ -175,6 +175,9 @@ query_ceph_lvs() {
   fi
   common::debug host_id_to_host_repr: \
     "$(common::print_array host_id_to_host_repr)"
+
+  OUTPUT_DIR="$PWD/results/num_osds=${#CEPH_OSD_ID_TO_HOST[@]}"
+  mkdir --parents "$OUTPUT_DIR"
 }
 query_ceph_lvs
 
@@ -196,6 +199,7 @@ start_sys_activity_collection_service() {
 
 stop_sys_activity_collection_service() {
   common::stage "Stop the system activity collection service and gather results..."
+  INFO_LEVEL=1
 
   local -r relative_dirpath="$1"
   local -r data_backup_dir="$OUTPUT_DIR"/"$relative_dirpath"
@@ -205,19 +209,18 @@ stop_sys_activity_collection_service() {
   local -ar all_hosts=( "$MON_IP" "${OSD_HOSTS[@]}" )
   local host remote_output_file
   for host in "${all_hosts[@]}"; do
-    INFO_LEVEL=1
     common::info "Query and stop service for $host"
     remote_output_file="$(
       "$SCRIPT_DIR"/parallel-exec-script \
         --script service/sar \
-        --env INFO_LEVEL=1 \
+        --env INFO_LEVEL=2 \
         --env SERVICE_OPERATION="$SERVICE_OPERATION_QUERY" \
         --host "$host" | common::parse_remote_out
     )"
 
     "$SCRIPT_DIR"/parallel-exec-script \
       --script service/sar \
-      --env INFO_LEVEL=1 \
+      --env INFO_LEVEL=2 \
       --env SERVICE_OPERATION="$SERVICE_OPERATION_STOP" \
       --host "$host"
 
@@ -238,7 +241,7 @@ stop_sys_activity_collection_service() {
     common::info "Backing up current environment variables"
     # https://askubuntu.com/a/275972
     trace_on
-    ( set -o posix; set ) >"$data_backup_dir"/env 2>&1
+    ( set -o posix; set ) >"$data_backup_dir"/env
     trace_off
   done
 }
@@ -303,9 +306,9 @@ config_cluster() {
   local -ir num_rm=$1
 
   common::stage "Configure options for the cluster..."
+  INFO_LEVEL=1
 
   local -ir osd_max_backfills=$(( (${#CEPH_OSD_ID_TO_HOST[@]} - num_rm) * 16 ))
-  INFO_LEVEL=1
   common::info "Set the number of backfill operations to/from an OSD" \
     "(osd_max_backfills) to $osd_max_backfills"
   trace_on
@@ -473,8 +476,8 @@ rm_osds() {
 
 wait_for_data_recovery() {
   common::stage "Wait for data recovery to finish"
-
   INFO_LEVEL=1
+
   common::info "Query pool name"
   local -r pool_name="$($(shell_cmd) rados lspools | tail -n1)"
   common::debug pool_name: "$pool_name"
@@ -488,7 +491,7 @@ wait_for_data_recovery() {
       $(shell_cmd) ceph osd pool stats "$pool_name" 2>&1 \
         | sed --quiet "/^pool $pool_name id /,\$p"
     )"
-    common::info "$pool_stats"
+    INFO_LEVEL=2 common::info "$pool_stats"
 
     if grep "nothing is going on" <<< "$pool_stats" >/dev/null; then
       common::info "Data recovery has finished!!"
@@ -567,10 +570,23 @@ bench_replicated_pool() {
       local -a num_pgs_arr=(
         $(( suggested_pg_count / 4 ))
         $(( suggested_pg_count / 2 ))
-        suggested_pg_count
+        "$suggested_pg_count"
         $(( suggested_pg_count * 2 ))
         $(( suggested_pg_count * 4 ))
       )
+
+      # PG overdose protection
+      #   https://ceph.io/community/new-luminous-pg-overdose-protection/
+      # 250 is the default value of mon_max_pg_per_osd
+      local -i idx
+      for (( idx = ${#num_pgs_arr[@]} - 1; idx >=0; idx-- )); do
+        if (( 250 * ${#CEPH_OSD_ID_TO_HOST[@]} / pool_size < ${num_pgs_arr[$idx]} )); then
+          unset 'num_pgs_arr[idx]'
+        else
+          break
+        fi
+      done
+      common::debug num_pgs_arr: "$(common::print_array num_pgs_arr)"
 
       local -i num_pgs
       for num_pgs in "${num_pgs_arr[@]}"; do
@@ -585,7 +601,7 @@ bench_replicated_pool() {
           printf "\\n\\n\\033[1;7;39;49m[%s][RUNNING][ROUND %d/%d] %s, %s, %s, %s\\033[0m\\n\\n" \
             "$(date --iso-8601=ns)" \
             "$BENCHMARK_CUR_ROUND" \
-            $(( ${#num_pgs_arr[@]} * ${#object_size_bytes_arr[@]} * (((${#CEPH_OSD_ID_TO_HOST[@]} - 2) + 1) * (${#CEPH_OSD_ID_TO_HOST[@]} - 2) / 2) )) \
+            $(( ${#object_size_bytes_arr[@]} * ${#num_pgs_arr[@]} * (((${#CEPH_OSD_ID_TO_HOST[@]} - 2) + 1) * (${#CEPH_OSD_ID_TO_HOST[@]} - 2) / 2) )) \
             "object_size_bytes=$object_size_bytes (${object_size_bytes_arr[0]}..${object_size_bytes_arr[-1]})" \
             "pool_size=$pool_size (${pool_size_arr[0]}..${pool_size_arr[-1]})" \
             "num_pgs=$num_pgs (${num_pgs_arr[0]}..${num_pgs_arr[-1]})" \
@@ -618,7 +634,6 @@ bench_erasure_coded_pool() {
 }
 
 main() {
-  OUTPUT_DIR="$PWD/results"
   BENCHMARK_CUR_ROUND=0
 
   bench_replicated_pool
