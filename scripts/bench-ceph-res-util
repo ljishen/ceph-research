@@ -362,9 +362,16 @@ load_cluster_data() {
   INFO_LEVEL=1 common::info "Set pool attributes"
 
   INFO_LEVEL=2
-  common::info "Create a replicated pool '$pool_name' with $num_pgs placement groups"
+  common::info "Create a replicated pool '$pool_name'" \
+    "($pool_size replicas, $num_pgs placement groups)"
   trace_on
-  $(shell_cmd) ceph osd pool create "$pool_name" "$num_pgs" "$num_pgs" replicated
+  $(shell_cmd) ceph osd pool create "$pool_name" "$num_pgs" "$num_pgs" \
+    replicated --size="$pool_size"
+  trace_off
+
+  common::info "Set the minimum number of replicas required for I/O to 1"
+  trace_on
+  $(shell_cmd) ceph osd pool set "$pool_name" min_size 1
   trace_off
 
   common::info "Disable placement groups autoscaling"
@@ -375,16 +382,6 @@ load_cluster_data() {
   common::info "Set the application metadata key"
   trace_on
   $(shell_cmd) ceph osd pool application enable "$pool_name" banchmark
-  trace_off
-
-  common::info "Set the number of replicas for objects in the pool to $pool_size"
-  trace_on
-  $(shell_cmd) ceph osd pool set "$pool_name" size "$pool_size"
-  trace_off
-
-  common::info "Set the minimum number of replicas required for I/O to 1"
-  trace_on
-  $(shell_cmd) ceph osd pool set "$pool_name" min_size 1
   trace_off
 
   common::info "Set the NOSCRUB flag"
