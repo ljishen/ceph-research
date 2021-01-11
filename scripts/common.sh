@@ -4,22 +4,30 @@
 
 set -euo pipefail
 
+common::now() { date --iso-8601=ns; }
+
 common::info() {
   local info_prefix=
   if (( ${INFO_LEVEL:-0} )); then
     info_prefix="$(printf '%0.s>' $(seq 1 "$INFO_LEVEL")) "
   fi
-  printf "\\033[1;32m[INFO] %s%s\\033[0m\\n" "$info_prefix" "$*"
+  printf "\\033[1;32m[%s][INFO] %s%s\\033[0m\\n" \
+    "$(common::now)" "$info_prefix" "$*"
 }
-common::debug() { printf "\\033[1;30m[DEBUG] %s\\033[0m\\n" "$*"; }
+common::debug() {
+  printf "\\033[1;30m[%s][DEBUG] %s\\033[0m\\n" \
+    "$(common::now)" "$*"
+}
 common::stage() {
   INFO_LEVEL=0
-  printf "\\n\\n\\033[1;33m[STAGE] %s\\033[0m\\n" "$*"
+  printf "\\n\\n\\033[1;33m[%s][STAGE] %s\\033[0m\\n" \
+    "$(common::now)" "$*"
 }
 common::err() {
   local -ir exit_status="$1"
   shift
-  printf "\\033[1;31m[ERROR] %s\\033[0m\\n" "$*" >&2
+  printf "\\033[1;31m[%s][ERROR] %s\\033[0m\\n" \
+    "$(common::now)" "$*" >&2
   exit "$exit_status"
 }
 

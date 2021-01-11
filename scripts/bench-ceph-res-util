@@ -471,6 +471,32 @@ rm_osds() {
   trace_off
 }
 
+wait_for_data_recovery() {
+  common::stage "Wait for data recovery to finish"
+
+  INFO_LEVEL=1
+  common::info "Query pool name"
+  local -r pool_name="$($(shell_cmd) rados lspools | tail -n1)"
+  common::debug pool_name: "$pool_name"
+
+  common::info "Show pool stats"
+  local pool_stats
+  while true; do
+    sleep 20
+
+    pool_stats="$(
+      $(shell_cmd) ceph osd pool stats "$pool_name" 2>&1 \
+        | sed --quiet "/^pool $pool_name id /,\$p"
+    )"
+    common::info "$pool_stats"
+
+    if grep "nothing is going on" <<< "$pool_stats" >/dev/null; then
+      common::info "Data recovery has finished!!"
+      break
+    fi
+  done
+}
+
 tear_down_cluster() {
   if [[ -z "${CEPH_CLUSTER_FSID:-}" ]]; then
     common::err $(( ERR_STATUS_START + 4 )) \
@@ -574,9 +600,7 @@ bench_replicated_pool() {
 
           rm_osds "$num_rm_osds"
 
-          # wait for data collection...
-          echo "Waiting for data collection!!!!!!"
-          sleep 99999999
+          wait_for_data_recovery
 
           tear_down_cluster
 
