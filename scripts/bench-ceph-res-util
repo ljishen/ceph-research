@@ -261,6 +261,19 @@ stop_sys_activity_collection_service() {
   done
 }
 
+drop_os_cache() {
+  common::stage "Drop the OS cache from all cluster hosts..."
+
+  local -a param_hosts=( --host "$MON_IP" )
+  prepare_param_hosts param_hosts
+
+  # https://www.kernel.org/doc/Documentation/sysctl/vm.txt
+  "$SCRIPT_DIR"/parallel-ssh \
+    "${param_hosts[@]}" \
+    sudo bash \
+    <<< "sync && echo 3 > /proc/sys/vm/drop_caches"
+}
+
 deploy_cluster() {
   local -a param_host_osds
   local host host_lvs joined
@@ -619,15 +632,16 @@ bench_replicated_pool() {
             "num_pgs=$num_pgs (${num_pgs_arr[0]}..${num_pgs_arr[-1]})" \
             "num_rm_osds=$num_rm_osds (${num_rm_osds_arr[0]}..${num_rm_osds_arr[-1]})"
 
+          # TODO: Do we need to precondition the ceph volumes?
+
           start_sys_activity_collection_service
 
           deploy_cluster
           config_cluster "$num_rm_osds"
 
+          drop_os_cache
           load_cluster_data "$pool_size" "$num_pgs" "$object_size_bytes"
-
           rm_osds "$num_rm_osds"
-
           wait_for_data_recovery
 
           tear_down_cluster
