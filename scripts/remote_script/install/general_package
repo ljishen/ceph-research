@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+#
+# Require bash version >= 4.4
+
+#include include/common.sh
+
+apt_verify_package_version() {
+  common::info "Checking version of package $APT_PACKAGE_NAME"
+
+  local -r installed_version="$(
+    apt-cache policy "$APT_PACKAGE_NAME" \
+      | grep --perl-regexp --only-matching 'Installed: +\K.+' \
+      || true
+  )"
+
+  if [[ -n "$installed_version" ]]; then
+    common::info "Existing version of package $APT_PACKAGE_NAME:" \
+      "$installed_version"
+  fi
+  common::vergte "$installed_version" "$APT_MIN_PACKAGE_VERSION"
+}
+
+yum_verify_package_version() {
+  common::info "Checking version of package $YUM_PACKAGE_NAME"
+
+  local -r installed_version="$(
+    yum list installed "$YUM_PACKAGE_NAME" 2>/dev/null \
+      | tail -n1 \
+      | awk '{ print $2 }' \
+      || true
+  )"
+
+  if [[ -n "$installed_version" ]]; then
+    common::info "Existing version of package $YUM_PACKAGE_NAME:" \
+      "$installed_version"
+  fi
+  common::vergte "$installed_version" "$YUM_MIN_PACKAGE_VERSION"
+}
+
+apt_install_package() {
+  common::info "Installing/Upgrading package $APT_PACKAGE_NAME"
+
+  trace_on
+  # Install from Ubuntu/Debian
+  apt-get --yes --no-install-recommends install "$APT_PACKAGE_NAME" >/dev/null
+  trace_off
+
+  common::info "Successfully installed/upgraded package ${APT_PACKAGE_NAME}."
+}
+
+yum_install_package() {
+  common::info "Installing/Upgrading package $YUM_PACKAGE_NAME"
+
+  trace_on
+  # Install from RHEL/Fedora/CentOS
+  yum --assumeyes install "$YUM_PACKAGE_NAME" >/dev/null
+  trace_off
+
+  common::info "Successfully installed/upgraded package ${YUM_PACKAGE_NAME}."
+}
+
+
+if [[ -z "${APT_PACKAGE_NAME:-}" ]]; then
+  APT_PACKAGE_NAME="${PACKAGE_NAME:-}"
+fi
+if [[ -z "${YUM_PACKAGE_NAME:-}" ]]; then
+  YUM_PACKAGE_NAME="${PACKAGE_NAME:-}"
+fi
+if [[ -z "${APT_MIN_PACKAGE_VERSION:-}" ]]; then
+  APT_MIN_PACKAGE_VERSION="${MIN_PACKAGE_VERSION:-}"
+fi
+if [[ -z "${YUM_MIN_PACKAGE_VERSION:-}" ]]; then
+  YUM_MIN_PACKAGE_VERSION="${MIN_PACKAGE_VERSION:-}"
+fi
+
+if [[ -z "$APT_PACKAGE_NAME" ]]; then
+  common::err $(( ERR_STATUS_START + 1 )) \
+    "Please specify the package name for Ubuntu/Debian system."
+fi
+if [[ -z "$YUM_PACKAGE_NAME" ]]; then
+  common::err $(( ERR_STATUS_START + 1 )) \
+    "Please specify the package name for RHEL/Fedora/CentOS system."
+fi
+if [[ -z "$APT_MIN_PACKAGE_VERSION" ]]; then
+  common::err $(( ERR_STATUS_START + 2 )) \
+    "Please specify the required package version for Ubuntu/Debian system."
+fi
+if [[ -z "$YUM_MIN_PACKAGE_VERSION" ]]; then
+  common::err $(( ERR_STATUS_START + 2 )) \
+    "Please specify the required package version for RHEL/Fedora/CentOS system."
+fi
+
+
+if common::is_program_installed "apt-get"; then
+  PKG_MGR="apt"
+elif common::is_program_installed yum; then
+  PKG_MGR="yum"
+fi
+
+if ! ${PKG_MGR}_verify_package_version; then
+  ${PKG_MGR}_install_package >/dev/null
+fi

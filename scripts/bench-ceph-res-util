@@ -70,6 +70,7 @@ if (( "${#OSD_HOSTS[@]}" == 0 )); then
   usage
   common::err $(( ERR_STATUS_START + 2 )) "Please specify OSD_HOSTs using '-h'"
 fi
+common::debug OSD_HOSTS: "$(common::print_array OSD_HOSTS)"
 
 if [[ -z "${SCRIPT_FILE:-}" ]]; then
   common::err $(( ERR_STATUS_START + 2 )) \
@@ -81,43 +82,6 @@ if ! [[ -f "$SCRIPT_DIR/remote_script/ceph_volume/$SCRIPT_FILE" ]]; then
     "Cannot find the script file '$SCRIPT_FILE' under the remote_script/ceph_volume dir"
 fi
 
-common::debug OSD_HOSTS: "$(common::print_array OSD_HOSTS)"
-
-
-install_docker_sar() {
-  common::stage "Check and install docker and sar..."
-
-  local -ar all_hosts=( "$MON_IP" "${OSD_HOSTS[@]}" )
-  local -a param_install_docker_hosts=() param_install_sar_hosts=()
-  local host
-
-  for host in "${all_hosts[@]}"; do
-    if ! ssh "${SSH_COMM_OPTIONS[@]}" "$USER@$host" \
-      command -v "docker" >/dev/null 2>&1; then
-      param_install_docker_hosts+=( --host "$host" )
-    fi
-
-    if ! ssh "${SSH_COMM_OPTIONS[@]}" "$USER@$host" \
-      command -v "sar" >/dev/null 2>&1; then
-      param_install_sar_hosts+=( --host "$host" )
-    fi
-  done
-
-  if (( ${#param_install_docker_hosts[@]} )); then
-    "$SCRIPT_DIR"/parallel-docker-install \
-      --env INFO_LEVEL=1 \
-      "${param_install_docker_hosts[@]}"
-  fi
-
-  if (( ${#param_install_sar_hosts[@]} )); then
-    CMD_MODE=false "$SCRIPT_DIR"/parallel-exec-script \
-      --script=install/sysstat \
-      --env INFO_LEVEL=1 \
-      "${param_install_sar_hosts[@]}"
-  fi
-}
-install_docker_sar
-
 prepare_param_hosts() {
   local -n _param_hosts=$1
   local host
@@ -127,6 +91,33 @@ prepare_param_hosts() {
   done
 }
 
+
+install_dependent_packages() {
+  common::stage "Check and install dependent packages..."
+
+  local -a param_hosts=( --host "$MON_IP" )
+  prepare_param_hosts param_hosts
+
+  "$SCRIPT_DIR"/parallel-docker-install \
+    --env INFO_LEVEL=1 \
+    "${param_hosts[@]}"
+
+  CMD_MODE=false "$SCRIPT_DIR"/parallel-exec-script \
+    --script=install/general_package \
+    --env PACKAGE_NAME=sysstat \
+    --env MIN_PACKAGE_VERSION=12.0.0 \
+    --env INFO_LEVEL=1 \
+    "${param_hosts[@]}"
+
+  CMD_MODE=false "$SCRIPT_DIR"/parallel-exec-script \
+    --script=install/general_package \
+    --env PACKAGE_NAME=lshw \
+    --env MIN_PACKAGE_VERSION=02.17-1 \
+    --env INFO_LEVEL=1 \
+    "${param_hosts[@]}"
+}
+install_dependent_packages
+
 # shellcheck source=./remote_script/ceph_volume/interface.sh
 . "$SCRIPT_DIR"/remote_script/ceph_volume/interface.sh
 create_ceph_lvs() {
@@ -135,7 +126,7 @@ create_ceph_lvs() {
   local -a param_hosts
   prepare_param_hosts param_hosts
 
-  "$SCRIPT_DIR"/parallel-exec-script \
+  CMD_MODE=false "$SCRIPT_DIR"/parallel-exec-script \
     --script ceph_volume/"$SCRIPT_FILE" \
     --env INFO_LEVEL=1 \
     --env CEPH_VOLUME_OPERATION="$CEPH_VOLUME_OPERATION_CREATE" \
@@ -175,11 +166,36 @@ query_ceph_lvs() {
   fi
   common::debug host_id_to_host_repr: \
     "$(common::print_array host_id_to_host_repr)"
-
-  OUTPUT_DIR="$PWD/results/num_osds=${#CEPH_OSD_ID_TO_HOST[@]}"
-  mkdir --parents "$OUTPUT_DIR"
 }
 query_ceph_lvs
+
+dump_hardware_info() {
+  OUTPUT_DIR="$PWD/output/num_osds=${#CEPH_OSD_ID_TO_HOST[@]}"
+  mkdir --parents "$OUTPUT_DIR"
+
+  common::stage "Dump hardware information from cluster hosts..."
+
+  local -r hardware_info_dir="$OUTPUT_DIR"/lshw
+  mkdir --parents "$hardware_info_dir"
+
+  local -a param_hosts=( --host "$MON_IP" )
+  prepare_param_hosts param_hosts
+
+  local host local_output_file
+  for host in "${param_hosts[@]}"; do
+    if [[ "$host" == "$MON_IP" ]]; then
+      local_output_file="$hardware_info_dir"/mon.$host.html
+    else
+      local_output_file="$hardware_info_dir"/osd.$host.html
+    fi
+
+    trace_on
+    ssh "${SSH_COMM_OPTIONS[@]}" "$USER@$host" \
+      sudo lshw -html >"$local_output_file"
+    trace_off
+  done
+}
+dump_hardware_info
 
 
 # shellcheck source=./remote_script/service/interface.sh
@@ -190,7 +206,7 @@ start_sys_activity_collection_service() {
   local -a param_hosts=( --host "$MON_IP" )
   prepare_param_hosts param_hosts
 
-  "$SCRIPT_DIR"/parallel-exec-script \
+  CMD_MODE=false "$SCRIPT_DIR"/parallel-exec-script \
     --script service/sar \
     --env INFO_LEVEL=1 \
     --env SERVICE_OPERATION="$SERVICE_OPERATION_RESTART" \
@@ -202,12 +218,12 @@ stop_sys_activity_collection_service() {
   INFO_LEVEL=1
 
   local -r relative_dirpath="$1"
-  local -r data_backup_dir="$OUTPUT_DIR"/"$relative_dirpath"
-  local -r sys_activity_backup_dir="$data_backup_dir"/sys_activity
+  local -r benchmark_data_backup_dir="$OUTPUT_DIR"/benchmark/"$relative_dirpath"
+  local -r sys_activity_backup_dir="$benchmark_data_backup_dir"/sys_activity
   mkdir --parents "$sys_activity_backup_dir"
 
   local -ar all_hosts=( "$MON_IP" "${OSD_HOSTS[@]}" )
-  local host remote_output_file
+  local host remote_output_file local_output_file
   for host in "${all_hosts[@]}"; do
     common::info "Query and stop service for $host"
     remote_output_file="$(
@@ -218,13 +234,12 @@ stop_sys_activity_collection_service() {
         --host "$host" | common::parse_remote_out
     )"
 
-    "$SCRIPT_DIR"/parallel-exec-script \
+    CMD_MODE=false "$SCRIPT_DIR"/parallel-exec-script \
       --script service/sar \
       --env INFO_LEVEL=2 \
       --env SERVICE_OPERATION="$SERVICE_OPERATION_STOP" \
       --host "$host"
 
-    local local_output_file
     if [[ "$host" == "$MON_IP" ]]; then
       local_output_file="$sys_activity_backup_dir"/mon.$host.dat
     else
@@ -241,7 +256,7 @@ stop_sys_activity_collection_service() {
     common::info "Backing up current environment variables"
     # https://askubuntu.com/a/275972
     trace_on
-    ( set -o posix; set ) >"$data_backup_dir"/env
+    ( set -o posix; set ) >"$benchmark_data_backup_dir"/env
     trace_off
   done
 }
@@ -269,12 +284,12 @@ deploy_cluster() {
   )"
 
   CEPH_CLUSTER_FSID="$(
-    grep --only-matching --perl-regexp "Cluster fsid: \K[[:alnum:]-]+" \
+    grep --perl-regexp --only-matching "Cluster fsid: \K[[:alnum:]-]+" \
       <<< "$ceph_deploy_output"
   )"
 
   CEPH_CLUSTER_KEYRING_PATH="$(
-      grep --only-matching --perl-regexp "Wrote keyring to \K.+" \
+      grep --perl-regexp --only-matching "Wrote keyring to \K.+" \
       <<< "$ceph_deploy_output"
   )"
 }

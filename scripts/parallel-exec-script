@@ -103,6 +103,22 @@ HOST_PARAMS=()
 common::parse_cmdline_params HOST_PARAMS "$@"
 common::debug HOST_PARAMS: "$(common::print_array HOST_PARAMS)"
 common::debug SCRIPT_FILE: "$SCRIPT_FILE"
+
+add_default_remote_envs() {
+  local env has_info_level=false
+  for env in "${REMOTE_ENVS[@]}"; do
+    if [[ "$env" =~ ^INFO_LEVEL=[[:digit:]]+$ ]]; then
+      has_info_level=true
+    elif [[ "$env" =~ ^INFO_LEVEL=$ ]]; then
+      has_info_level=false
+    fi
+  done
+
+  if [[ "$has_info_level" == false ]]; then
+    REMOTE_ENVS+=( INFO_LEVEL=0 )
+  fi
+}
+add_default_remote_envs
 common::debug REMOTE_ENVS: "$(common::print_array REMOTE_ENVS)"
 
 if [[ -z "$SCRIPT_FILE" ]]; then
@@ -140,7 +156,7 @@ parse_script_content() {
     idx="${idx_line%%:*}"
     line="${idx_line#*:}"
     included_file="$(
-      grep --only-matching --perl-regexp \
+      grep --perl-regexp --only-matching \
       '#include +\K[[:alnum:]/.:_-]+' <<< "$line" || true
     )"
     if [[ -z "$included_file" ]]; then

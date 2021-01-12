@@ -49,7 +49,7 @@ query_service() {
   # https://stackoverflow.com/a/13399254
   local -r local_output_file="$(
     xargs -0 <"$proc_cmdline" \
-      | grep --only-matching --perl-regexp -- '-o \K[[:alnum:]/.:_-]+' \
+      | grep --perl-regexp --only-matching -- '-o \K[[:alnum:]/.:_-]+' \
       || true
   )"
 

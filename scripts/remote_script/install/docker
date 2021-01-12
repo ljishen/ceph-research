@@ -8,7 +8,30 @@
 #include include/common.sh
 #include include/util.sh
 
+common::info "Checking/Installing docker"
+(( INFO_LEVEL += 1 ))
+
 SYS_DISTRO="$(util::get_supported_distro)"
+
+DOCKER_CLIENT_VERSION="$(
+  docker version --format '{{ .Client.Version }}' 2>/dev/null || true
+)"
+DOCKER_SERVER_VERSION="$(
+  docker version --format '{{ .Server.Version }}' 2>/dev/null || true
+)"
+
+if [[ -n "$DOCKER_CLIENT_VERSION" ]] \
+  && [[ -n "$DOCKER_SERVER_VERSION" ]]; then
+  common::info "Existing version of docker:" \
+    "$DOCKER_CLIENT_VERSION (client)," \
+    "$DOCKER_SERVER_VERSION (server)"
+
+  if common::vergte "$DOCKER_CLIENT_VERSION" "19.03.8" \
+    && common::vergte "$DOCKER_SERVER_VERSION" "19.03.8"; then
+    exit
+  fi
+fi
+
 
 get_arch() {
   local machine_name arch
@@ -20,7 +43,7 @@ get_arch() {
   elif [[ "$machine_name" == "x86_64" ]]; then
     arch=amd64
   else
-    common::err $(( ERR_STATUS_START + 2 )) \
+    common::err $(( ERR_STATUS_START + 1 )) \
       "Docker does not support architecture '$machine_name'"
   fi
   echo "$arch"
@@ -76,7 +99,7 @@ if [[ -d "$HOME/.docker" ]]; then
   trace_off
 fi
 
-common::info "Done!"
+common::info "Successfully installed/upgraded docker."
 
 # executing this command will replace the current shell and
 # lose our defined functions. So I put it at the end.
