@@ -83,7 +83,13 @@ trace_off
 common::info "Install docker engine..."
 trace_on
 apt-get --yes --no-install-recommends install \
-  docker-ce docker-ce-cli containerd.io >/dev/null
+  docker-ce docker-ce-cli containerd.io >/dev/null \
+  || {
+    EXIT_STATUS=$?
+    sleep 20
+    systemctl status docker || true
+    exit $EXIT_STATUS
+  }
 trace_off
 
 common::info "Add current user ($USER) to the docker group..."

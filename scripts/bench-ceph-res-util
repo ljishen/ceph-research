@@ -178,11 +178,10 @@ dump_hardware_info() {
   local -r hardware_info_dir="$OUTPUT_DIR"/lshw
   mkdir --parents "$hardware_info_dir"
 
-  local -a param_hosts=( --host "$MON_IP" )
-  prepare_param_hosts param_hosts
-
+  local -ar all_hosts=( "$MON_IP" "${OSD_HOSTS[@]}" )
   local host local_output_file
-  for host in "${param_hosts[@]}"; do
+
+  for host in "${all_hosts[@]}"; do
     if [[ "$host" == "$MON_IP" ]]; then
       local_output_file="$hardware_info_dir"/mon.$host.html
     else
@@ -224,6 +223,7 @@ stop_sys_activity_collection_service() {
 
   local -ar all_hosts=( "$MON_IP" "${OSD_HOSTS[@]}" )
   local host remote_output_file local_output_file
+
   for host in "${all_hosts[@]}"; do
     common::info "Query and stop service for $host"
     remote_output_file="$(

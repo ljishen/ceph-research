@@ -7,11 +7,16 @@
 apt_verify_package_version() {
   common::info "Checking version of package $APT_PACKAGE_NAME"
 
-  local -r installed_version="$(
+  local installed_version
+  installed_version="$(
     apt-cache policy "$APT_PACKAGE_NAME" \
       | grep --perl-regexp --only-matching 'Installed: +\K.+' \
       || true
   )"
+
+  if [[ "$installed_version" == *none* ]]; then
+    installed_version=""
+  fi
 
   if [[ -n "$installed_version" ]]; then
     common::info "Existing version of package $APT_PACKAGE_NAME:" \
@@ -39,6 +44,8 @@ yum_verify_package_version() {
 
 apt_install_package() {
   common::info "Installing/Upgrading package $APT_PACKAGE_NAME"
+
+  export DEBIAN_FRONTEND=noninteractive
 
   trace_on
   # Install from Ubuntu/Debian
@@ -98,5 +105,5 @@ elif common::is_program_installed yum; then
 fi
 
 if ! ${PKG_MGR}_verify_package_version; then
-  ${PKG_MGR}_install_package >/dev/null
+  ${PKG_MGR}_install_package
 fi
