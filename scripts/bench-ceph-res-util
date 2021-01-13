@@ -105,7 +105,7 @@ install_dependent_packages() {
   CMD_MODE=false "$SCRIPT_DIR"/parallel-exec-script \
     --script=install/general_package \
     --env PACKAGE_NAME=sysstat \
-    --env MIN_PACKAGE_VERSION=12.0.0 \
+    --env MIN_PACKAGE_VERSION=12.1.5 \
     --env INFO_LEVEL=1 \
     "${param_hosts[@]}"
 
