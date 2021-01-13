@@ -1,0 +1,95 @@
+BASH=/usr/bin/bash
+BASHOPTS=checkwinsize:cmdhist:complete_fullquote:expand_aliases:extquote:force_fignore:globasciiranges:hostcomplete:interactive_comments:progcomp:promptvars:sourcepath
+BASH_ALIASES=()
+BASH_ARGC=([0]="10")
+BASH_ARGV=([0]="node-3.arm.ucsc-cmps107-pg0.utah.cloudlab.us" [1]="-h" [2]="cloudlab/m400" [3]="-s" [4]="node-1.arm.ucsc-cmps107-pg0.utah.cloudlab.us" [5]="-h" [6]="node-2.arm.ucsc-cmps107-pg0.utah.cloudlab.us" [7]="-h" [8]="10.10.1.2" [9]="-m")
+BASH_CMDS=()
+BASH_LINENO=([0]="636" [1]="651" [2]="653" [3]="0")
+BASH_REMATCH=([0]="10.10.1.2")
+BASH_SOURCE=([0]="./bench-ceph-res-util" [1]="./bench-ceph-res-util" [2]="./bench-ceph-res-util" [3]="./bench-ceph-res-util")
+BASH_VERSINFO=([0]="5" [1]="0" [2]="16" [3]="1" [4]="release" [5]="aarch64-unknown-linux-gnu")
+BASH_VERSION='5.0.16(1)-release'
+BENCHMARK_CUR_ROUND=9
+CEPH_CLUSTER_FSID=8f7b458a-5533-11eb-b72a-2d65d19e75f1
+CEPH_CLUSTER_KEYRING_PATH=/users/ljishen/Downloads/ceph-research/scripts/cephadm_target/output/ceph.client.admin.keyring
+CEPH_OSD_ID_TO_HOST=([0]="node-2.arm.ucsc-cmps107-pg0.utah.cloudlab.us" [1]="node-1.arm.ucsc-cmps107-pg0.utah.cloudlab.us" [2]="node-3.arm.ucsc-cmps107-pg0.utah.cloudlab.us")
+CEPH_VOLUME_OPERATION_CREATE=CREATE
+CEPH_VOLUME_OPERATION_QUERY=QUERY
+DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/20001/bus
+DIRSTACK=()
+ERR_CMDLINE_PARAM_MISSING=3
+ERR_CMDLINE_PARAM_UNKNOW=2
+ERR_STATUS_START=4
+EUID=20001
+FUNCNAME=([0]="stop_sys_activity_collection_service" [1]="bench_replicated_pool" [2]="main" [3]="main")
+GROUPS=()
+HOME=/users/ljishen
+HOSTNAME=node-0.arm.ucsc-cmps107-pg0.utah.cloudlab.us
+HOSTTYPE=aarch64
+IFS=' 	
+'
+INFO_LEVEL=1
+LANG=en_US.UTF-8
+LESS=-R
+LINENO=259
+LOGNAME=ljishen
+LSCOLORS=Gxfxcxdxbxegedabagacad
+LS_COLORS='rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'
+MACHTYPE=aarch64-unknown-linux-gnu
+MON_IP=10.10.1.2
+MOTD_SHOWN=pam
+OLDPWD=/users/ljishen/Downloads/ceph-research/scripts/remote_script/install
+OPTERR=1
+OPTIND=11
+OSD_HOSTS=([0]="node-2.arm.ucsc-cmps107-pg0.utah.cloudlab.us" [1]="node-1.arm.ucsc-cmps107-pg0.utah.cloudlab.us" [2]="node-3.arm.ucsc-cmps107-pg0.utah.cloudlab.us")
+OSTYPE=linux-gnu
+OUTPUT_DIR=/users/ljishen/Downloads/ceph-research/scripts/output/num_osds=3
+PAGER=less
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games
+PIPESTATUS=([0]="0")
+POSIXLY_CORRECT=y
+PPID=7256
+PS4='# ${BASH_SOURCE:-"$0"}:${LINENO} - ${FUNCNAME[0]:+${FUNCNAME[0]}()} > '
+PWD=/users/ljishen/Downloads/ceph-research/scripts
+SCRIPT_DIR=/users/ljishen/Downloads/ceph-research/scripts
+SCRIPT_FILE=cloudlab/m400
+SERVICE_OPERATION_QUERY=QUERY
+SERVICE_OPERATION_RESTART=RESTART
+SERVICE_OPERATION_STOP=STOP
+SHELL=/bin/zsh
+SHELLOPTS=braceexpand:errexit:hashall:interactive-comments:nounset:pipefail:posix:xtrace
+SHLVL=3
+SSH_CLIENT='128.114.255.150 50965 22'
+SSH_COMM_OPTIONS=([0]="-o" [1]="GlobalKnownHostsFile=/dev/null" [2]="-o" [3]="LogLevel=ERROR" [4]="-o" [5]="PasswordAuthentication=no" [6]="-o" [7]="StrictHostKeyChecking=no" [8]="-o" [9]="UserKnownHostsFile=/dev/null")
+SSH_CONNECTION='128.114.255.150 50965 128.110.153.23 22'
+SSH_TTY=/dev/pts/0
+TERM=screen-256color
+TMUX=/tmp//tmux-20001/default,7015,0
+TMUX_PANE=%0
+UID=20001
+USER=ljishen
+XDG_RUNTIME_DIR=/run/user/20001
+XDG_SESSION_CLASS=user
+XDG_SESSION_ID=34
+XDG_SESSION_TYPE=tty
+ZSH=/users/ljishen/.oh-my-zsh
+_=posix
+_REMOTE_OUTPUT_TAG='<REMOTE_OUTPUT> '
+all_hosts=([0]="10.10.1.2" [1]="node-2.arm.ucsc-cmps107-pg0.utah.cloudlab.us" [2]="node-1.arm.ucsc-cmps107-pg0.utah.cloudlab.us" [3]="node-3.arm.ucsc-cmps107-pg0.utah.cloudlab.us")
+benchmark_data_backup_dir=/users/ljishen/Downloads/ceph-research/scripts/output/num_osds=3/benchmark/object_size_bytes=262144/pool_size=2/num_pgs=32/num_rm_osds=1
+host=node-3.arm.ucsc-cmps107-pg0.utah.cloudlab.us
+idx=3
+local_output_file=/users/ljishen/Downloads/ceph-research/scripts/output/num_osds=3/benchmark/object_size_bytes=262144/pool_size=2/num_pgs=32/num_rm_osds=1/sys_activity/osd.node-3.arm.ucsc-cmps107-pg0.utah.cloudlab.us.dat
+num_pgs=32
+num_pgs_arr=([0]="32" [1]="64" [2]="128" [3]="256")
+num_rm_osds=1
+num_rm_osds_arr=([0]="1")
+object_size_bytes=262144
+object_size_bytes_arr=([0]="4096" [1]="32768" [2]="262144" [3]="2097152" [4]="16777216")
+option='?'
+pool_size=2
+pool_size_arr=([0]="2")
+relative_dirpath=object_size_bytes=262144/pool_size=2/num_pgs=32/num_rm_osds=1
+remote_output_file=/tmp/sys_activity_2021-01-12T17:08:53-07:00.dat
+suggested_pg_count=128
+sys_activity_backup_dir=/users/ljishen/Downloads/ceph-research/scripts/output/num_osds=3/benchmark/object_size_bytes=262144/pool_size=2/num_pgs=32/num_rm_osds=1/sys_activity
