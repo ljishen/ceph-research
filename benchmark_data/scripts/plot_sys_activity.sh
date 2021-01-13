@@ -25,20 +25,34 @@ if ! common::vergte "$SADF_VERSION" "12.1.5"; then
     "Require the sysstat package version >= 12.1.5"
 fi
 
+is_tar_file() {
+  local -r file="$1"
+  [[ "$file" =~ \.tar\.gz$ ]]
+}
+
 BENCHMARK_DATA_DIR="$SCRIPT_DIR"/../data
 # How to loop the results returned by find
 #   https://stackoverflow.com/a/9612232
-find "$BENCHMARK_DATA_DIR" -type f -path '*/sys_activity/*.dat.tar.gz' -print0 |
+find "$BENCHMARK_DATA_DIR" -type f \
+  -path '*/sys_activity/*.dat' -o -path '*/sys_activity/*.dat.tar.gz' -print0 |
   while IFS= read -r -d '' file; do
-    SVG_FILE="${file/%.dat.tar.gz/.svg}"
+    SVG_FILE="${file/%.dat*/.svg}"
     if ! [[ -f "$SVG_FILE" ]]; then
       common::info "Generating SVG for file '$(readlink --canonicalize "$file")'"
-      tar --extract --overwrite --gzip --file="$file" \
-        --directory="$(dirname "$file")"
       DAT_FILE="${file/%.tar.gz}"
+
+      if is_tar_file "$file"; then
+        tar --extract --overwrite --gzip --file="$file" \
+          --directory="$(dirname "$file")"
+      fi
+
       sadf -g -O autoscale,showidle,showinfo,showtoc -T "$DAT_FILE" -- -A -h \
         >"$SVG_FILE"
-      rm "$DAT_FILE"
+
+      # we can safely delete the datafile because we have the .tar.gz backup
+      if is_tar_file "$file"; then
+        rm "$DAT_FILE"
+      fi
     fi
   done
 
