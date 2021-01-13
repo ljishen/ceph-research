@@ -30,11 +30,12 @@ is_tar_file() {
   [[ "$file" =~ \.tar\.gz$ ]]
 }
 
-BENCHMARK_DATA_DIR="$SCRIPT_DIR"/../data
+: "${BENCHMARK_DATA_DIR:="$SCRIPT_DIR"/../data}"
 # How to loop the results returned by find
 #   https://stackoverflow.com/a/9612232
 find "$BENCHMARK_DATA_DIR" -type f \
-  -path '*/sys_activity/*.dat' -o -path '*/sys_activity/*.dat.tar.gz' -print0 |
+  \( -path '*/sys_activity/*.dat' -o -path '*/sys_activity/*.dat.tar.gz' \) \
+  -print0 |
   while IFS= read -r -d '' file; do
     SVG_FILE="${file/%.dat*/.svg}"
     if ! [[ -f "$SVG_FILE" ]]; then

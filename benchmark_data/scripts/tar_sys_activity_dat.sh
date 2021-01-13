@@ -14,7 +14,7 @@ if ! common::is_program_installed tar; then
     "Please install the tar package"
 fi
 
-BENCHMARK_DATA_DIR="$SCRIPT_DIR"/../data
+: "${BENCHMARK_DATA_DIR:="$SCRIPT_DIR"/../data}"
 # How to loop the results returned by find
 #   https://stackoverflow.com/a/9612232
 find "$BENCHMARK_DATA_DIR" -type f -path '*/sys_activity/*.dat' -print0 |
