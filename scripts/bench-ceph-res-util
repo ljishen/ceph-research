@@ -379,11 +379,19 @@ load_cluster_data() {
   local -ir pool_size=$1 num_pgs=$2 object_size_bytes=$3
 
   local -r pool_name="bench_failure_management_resource_utilization"
-  local -i data_size_per_osd=$(( object_size_bytes * 1024 * 1024 / 2 )) \
-           data_size_per_osd_max=$(( 10 * 1024 * 1024 * 1024 ))
+  local -i data_size_per_osd
+  data_size_per_osd=$(
+    awk -v object_size_bytes="$object_size_bytes" '
+      BEGIN { print int(log(object_size_bytes / 1024) / log(4)) * (1024 ^ 3) }
+    '
+  )
+  local -ir data_size_per_osd_max=$(( 10 * ( 1024 ** 3 ) )) \
+            data_size_per_osd_min=$(( 2 * ( 1024 ** 3 ) ))
 
   data_size_per_osd=$(( data_size_per_osd > data_size_per_osd_max \
     ? data_size_per_osd_max : data_size_per_osd ))
+  data_size_per_osd=$(( data_size_per_osd < data_size_per_osd_min \
+    ? data_size_per_osd_min : data_size_per_osd ))
 
   common::stage "Prepare data on the cluster..."
 
@@ -573,9 +581,11 @@ get_suggested_pg_count() {
 bench_replicated_pool() {
   local -ar object_size_bytes_arr=(
     $(( 4 * 1024 ))
-    $(( 32 * 1024 ))
+    $(( 16 * 1024 ))
+    $(( 64 * 1024 ))
     $(( 256 * 1024 ))
-    $(( 2048 * 1024 ))
+    $(( 1024 * 1024 ))
+    $(( 4096 * 1024 ))
     $(( 16384 * 1024 ))
   )
 
