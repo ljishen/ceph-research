@@ -2,8 +2,8 @@
 #
 # Require bash version >= 4.4
 #
-# This script depends on passwordless ssh and passwordless sudo via the current
-# user ($USER) on remote hosts.
+# This script depends on passwordless ssh and passwordless sudo via
+# the current user ($USER) on remote hosts.
 
 set -euo pipefail
 
@@ -59,7 +59,7 @@ if (( "${#HOST_PARAMS[@]}" )); then
   trace_on
   "$SCRIPT_DIR"/parallel-ssh \
     "${HOST_PARAMS[@]}" \
-    "sudo python3 -u - ${CEPHADM_PARAMS[*]}" < "${CEPHADM}"
+    "sudo python3 -u - ${CEPHADM_PARAMS[*]}" <"${CEPHADM}"
   trace_off
 else
   trace_on

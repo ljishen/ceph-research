@@ -2,8 +2,8 @@
 #
 # Require bash version >= 4.4
 #
-# This script depends on passwordless ssh and passwordless sudo via the current
-# user ($USER) on remote hosts.
+# This script depends on passwordless ssh and passwordless sudo via
+# the current user ($USER) on remote hosts.
 
 set -euo pipefail
 
@@ -380,11 +380,10 @@ load_cluster_data() {
 
   local -r pool_name="bench_failure_management_resource_utilization"
   local -i data_size_per_osd
-  data_size_per_osd=$(
-    awk -v object_size_bytes="$object_size_bytes" '
+  data_size_per_osd=$(awk -v object_size_bytes="$object_size_bytes" '
       BEGIN { print int(log(object_size_bytes / 1024) / log(4)) * (1024 ^ 3) }
-    '
-  )
+  ')
+  # max is 10GB, min is 2GB
   local -ir data_size_per_osd_max=$(( 10 * ( 1024 ** 3 ) )) \
             data_size_per_osd_min=$(( 2 * ( 1024 ** 3 ) ))
 
