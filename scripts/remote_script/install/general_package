@@ -52,7 +52,7 @@ apt_install_package() {
   apt-get --yes --no-install-recommends install "$APT_PACKAGE_NAME" >/dev/null
   trace_off
 
-  common::info "Successfully installed/upgraded package ${APT_PACKAGE_NAME}."
+  common::info "Successfully installed/upgraded package ${APT_PACKAGE_NAME}." $'\n'
 }
 
 yum_install_package() {
@@ -63,7 +63,7 @@ yum_install_package() {
   yum --assumeyes install "$YUM_PACKAGE_NAME" >/dev/null
   trace_off
 
-  common::info "Successfully installed/upgraded package ${YUM_PACKAGE_NAME}."
+  common::info "Successfully installed/upgraded package ${YUM_PACKAGE_NAME}." $'\n'
 }
 
 
@@ -106,4 +106,6 @@ fi
 
 if ! ${PKG_MGR}_verify_package_version; then
   ${PKG_MGR}_install_package
+else
+  common::info "System has installed satisfied version of package."
 fi

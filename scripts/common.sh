@@ -6,34 +6,44 @@ set -euo pipefail
 
 common::now() { date --iso-8601=ns; }
 
+common::err() {
+  local -ir exit_status="$1"
+  shift
+  printf '\033[1;31m[%s][%s][ERROR] %s\033[0m\n' \
+    "$(common::now)" "${PSSH_HOST:-$(hostname)}" "$*" >&2
+  exit "$exit_status"
+}
+
+# Prevent sourcing the script multiple times in the same namespace
+_MAGIC_KEY=OBdJ5O2rWrBnRkvdpxD5FsVAmWo4DrJDxDDpnH3ajMWJQem5eR
+if [[ "${_MAGIC_METADATA:-}" == "$_MAGIC_KEY" ]]; then
+  common:err 1 "Script has already been sourced: ${BASH_SOURCE[0]}"
+fi
+_MAGIC_METADATA="$_MAGIC_KEY"
+
 common::info() {
   local info_prefix=
   if (( ${INFO_LEVEL:-0} )); then
     info_prefix="$(printf '%0.s>' $(seq 1 "$INFO_LEVEL")) "
   fi
-  printf "\\033[1;32m[%s][INFO] %s%s\\033[0m\\n" \
-    "$(common::now)" "$info_prefix" "$*"
+  printf '\n\033[1;32m[INFO][%s][%s] %s%s\033[0m\n' \
+    "$(common::now)" "${PSSH_HOST:-$(hostname)}" "$info_prefix" "$*"
 }
 common::debug() {
-  printf "\\033[1;30m[%s][DEBUG] %s\\033[0m\\n" \
-    "$(common::now)" "$*"
+  printf '\033[1;30m[DEBUG][%s][%s] %s\033[0m\n' \
+    "$(common::now)" "${PSSH_HOST:-$(hostname)}" "$*"
 }
 common::stage() {
   INFO_LEVEL=0
-  printf "\\n\\n\\033[1;33m[%s][STAGE] %s\\033[0m\\n" \
-    "$(common::now)" "$*"
-}
-common::err() {
-  local -ir exit_status="$1"
-  shift
-  printf "\\033[1;31m[%s][ERROR] %s\\033[0m\\n" \
-    "$(common::now)" "$*" >&2
-  exit "$exit_status"
+  printf '\n\n\033[1;33m[STAGE][%s][%s] %s\033[0m\n' \
+    "$(common::now)" "${PSSH_HOST:-$(hostname)}" "$*"
 }
 
 # this function should only be used in remote scripts
 _REMOTE_OUTPUT_TAG="<REMOTE_OUTPUT> "
-common::remote_out() { printf "%s\\n" "$*" | sed "s/^/$_REMOTE_OUTPUT_TAG/"; }
+common::remote_out() {
+  printf '%s\n' "$*" | sed "s/^/$_REMOTE_OUTPUT_TAG/"
+}
 
 common::parse_remote_out() {
   local line
@@ -46,13 +56,13 @@ common::parse_remote_out() {
 
 common::vergte() { printf '%s\n%s' "$1" "$2" | sort -rCV; }
 if ! common::vergte "${BASH_VERSION%%[^0-9.]*}" "4.4"; then
-  common::err 1 "Require bash version >= 4.4"
+  common::err 2 "Require bash version >= 4.4"
 fi
 
 
 # https://stackoverflow.com/a/51548669
 shopt -s expand_aliases
-alias trace_on="{ echo; set -x; } 2>/dev/null"
+alias trace_on="{ set -x; } 2>/dev/null"
 alias trace_off="{ set +x; } 2>/dev/null"
 export PS4='# ${BASH_SOURCE:-"$0"}:${LINENO} - ${FUNCNAME[0]:+${FUNCNAME[0]}()} > '
 
@@ -73,8 +83,8 @@ common::print_array() {
   echo "[${joined%, }]"
 }
 
-readonly ERR_CMDLINE_PARAM_UNKNOW=2
-readonly ERR_CMDLINE_PARAM_MISSING=3
+readonly ERR_CMDLINE_PARAM_UNKNOW=3
+readonly ERR_CMDLINE_PARAM_MISSING=4
 common::parse_cmdline_params() {
   local -n _param_arr=$1
   shift
@@ -119,4 +129,4 @@ export SSH_COMM_OPTIONS=(
   -o "StrictHostKeyChecking=no"
   -o "UserKnownHostsFile=/dev/null"
 )
-export ERR_STATUS_START=4
+export ERR_STATUS_START=5

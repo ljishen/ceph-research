@@ -28,6 +28,7 @@ if [[ -n "$DOCKER_CLIENT_VERSION" ]] \
 
   if common::vergte "$DOCKER_CLIENT_VERSION" "19.03.8" \
     && common::vergte "$DOCKER_SERVER_VERSION" "19.03.8"; then
+    common::info "System has installed satisfied version of docker."
     exit
   fi
 fi
@@ -105,7 +106,7 @@ if [[ -d "$HOME/.docker" ]]; then
   trace_off
 fi
 
-common::info "Successfully installed/upgraded docker."
+common::info "Successfully installed/upgraded docker." $'\n'
 
 # executing this command will replace the current shell and
 # lose our defined functions. So I put it at the end.
