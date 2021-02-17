@@ -148,7 +148,7 @@ verify_parameters() {
     || exit_status=$?
   trace_off
   if (( exit_status )); then
-    common::err $(( ERR_STATUS_START + 4 )) \
+    common::err $exit_status \
       "Failed to validate SSHing to the monitor IP ($MON_IP)"
   fi
 
@@ -166,7 +166,7 @@ verify_parameters() {
       || exit_status=$?
     trace_off
     if (( exit_status )); then
-      common::err $(( ERR_STATUS_START + 4 )) \
+      common::err $exit_status \
         "Failed to validate SSHing to host '$host'"
     fi
 
@@ -181,7 +181,7 @@ verify_parameters() {
           || exit_status=$?
         trace_off
         if (( exit_status )); then
-          common::err $(( ERR_STATUS_START + 4 )) \
+          common::err $exit_status \
             "Raw block device '$device' does not exist on host '$host'!"
         fi
 
@@ -192,7 +192,7 @@ verify_parameters() {
           || exit_status=$?
         trace_off
         if (( exit_status )); then
-          common::err $(( ERR_STATUS_START + 4 )) \
+          common::err $exit_status \
             "'$device' is not a raw block device, please pass LVs or raw block devices for host '$host'"
         fi
       elif [[ "$device" =~ ^[^[:space:]/]+/[^[:space:]/]+$ ]]; then
@@ -215,7 +215,7 @@ verify_parameters() {
           || exit_status=$?
         trace_off
         if (( exit_status )); then
-          common::err $(( ERR_STATUS_START + 4 )) \
+          common::err $exit_status \
             "Logical volume '$device' does not exist on host '$host'!"
         fi
       else
@@ -251,11 +251,11 @@ reset_host_devices() {
           sudo sh <<EOF || exit_status=$?
             pvs --noheadings --readonly --options vg_name \
               --select "pv_name=$device" \
-            | xargs -I '{}' vgremove --force --verbose {}
+            | xargs -I '{}' vgremove --force --verbose '{}'
 EOF
         trace_off
         if (( exit_status )); then
-          common::err $(( ERR_STATUS_START + 5 )) \
+          common::err $exit_status \
             "Fail to reset device '$device' on host '${OSD_HOSTS[idx]}'"
         fi
       else

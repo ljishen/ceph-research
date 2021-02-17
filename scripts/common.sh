@@ -9,8 +9,8 @@ common::now() { date --iso-8601=ns; }
 common::err() {
   local -ir exit_status="$1"
   shift
-  printf '\033[1;31m[%s][%s][ERROR] %s\033[0m\n' \
-    "$(common::now)" "${PSSH_HOST:-$(hostname)}" "$*" >&2
+  printf '\033[1;31m%s\t[%s] ERROR: %s\033[0m\n' \
+    "${PSSH_HOST:-$(hostname)}" "$(common::now)" "$*" >&2
   exit "$exit_status"
 }
 
@@ -26,17 +26,17 @@ common::info() {
   if (( ${INFO_LEVEL:-0} )); then
     info_prefix="$(printf '%0.s>' $(seq 1 "$INFO_LEVEL")) "
   fi
-  printf '\n\033[1;32m[INFO][%s][%s] %s%s\033[0m\n' \
-    "$(common::now)" "${PSSH_HOST:-$(hostname)}" "$info_prefix" "$*"
+  printf '\n\033[1;32m%s\t[%s] INFO: %s%s\033[0m\n' \
+    "${PSSH_HOST:-$(hostname)}" "$(common::now)" "$info_prefix" "$*"
 }
 common::debug() {
-  printf '\033[1;30m[DEBUG][%s][%s] %s\033[0m\n' \
-    "$(common::now)" "${PSSH_HOST:-$(hostname)}" "$*"
+  printf '\033[1;30m%s\t[%s] DEBUG: %s\033[0m\n' \
+    "${PSSH_HOST:-$(hostname)}" "$(common::now)" "$*"
 }
 common::stage() {
   INFO_LEVEL=0
-  printf '\n\n\033[1;33m[STAGE][%s][%s] %s\033[0m\n' \
-    "$(common::now)" "${PSSH_HOST:-$(hostname)}" "$*"
+  printf '\n\n\033[1;33m%s\t[%s] STAGE: %s\033[0m\n' \
+    "${PSSH_HOST:-$(hostname)}" "$(common::now)" "$*"
 }
 
 # this function should only be used in remote scripts
@@ -44,7 +44,6 @@ _REMOTE_OUTPUT_TAG="<REMOTE_OUTPUT> "
 common::remote_out() {
   printf '%s\n' "$*" | sed "s/^/$_REMOTE_OUTPUT_TAG/"
 }
-
 common::parse_remote_out() {
   local line
   while IFS= read -r line; do
@@ -62,9 +61,29 @@ fi
 
 # https://stackoverflow.com/a/51548669
 shopt -s expand_aliases
-alias trace_on="{ set -x; } 2>/dev/null"
-alias trace_off="{ set +x; } 2>/dev/null"
+# Write xtrace output to stdout instead of stderr
+# (requires bash-4.1)
+#   https://tiswww.case.edu/php/chet/bash/CHANGES
+#   https://stackoverflow.com/a/55010029/2926646
+#   https://stackoverflow.com/a/32689974/2926646
+exec {BASH_XTRACEFD}>&1
+# shellcheck disable=SC2139
+alias trace_on="
+  exec $BASH_XTRACEFD>&1
+  BASH_XTRACEFD=$BASH_XTRACEFD
+  set -x
+"
+# Also discard the stderr in case some operations (e.g., LVM(8)) may
+# close the BASH_XTRACEFD descriptor and switch the output of xtrace
+# back to stderr.
+# shellcheck disable=SC2139
+alias trace_off="{ set +x; } $BASH_XTRACEFD>/dev/null 2>/dev/null"
 export PS4='# ${BASH_SOURCE:-"$0"}:${LINENO} - ${FUNCNAME[0]:+${FUNCNAME[0]}()} > '
+
+# Suppress leaked file descriptor warnings in LVM commands.
+#   https://man7.org/linux/man-pages/man8/lvm.8.html
+export LVM_SUPPRESS_FD_WARNINGS=1
+
 
 common::is_set_x() {
   [[ "$-" == *x* ]]

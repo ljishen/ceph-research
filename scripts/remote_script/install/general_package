@@ -107,5 +107,5 @@ fi
 if ! ${PKG_MGR}_verify_package_version; then
   ${PKG_MGR}_install_package
 else
-  common::info "System has installed satisfied version of package."
+  common::info "System has installed satisfied version of package." $'\n'
 fi

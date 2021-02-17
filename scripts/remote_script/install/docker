@@ -28,7 +28,7 @@ if [[ -n "$DOCKER_CLIENT_VERSION" ]] \
 
   if common::vergte "$DOCKER_CLIENT_VERSION" "19.03.8" \
     && common::vergte "$DOCKER_SERVER_VERSION" "19.03.8"; then
-    common::info "System has installed satisfied version of docker."
+    common::info "System has installed satisfied version of docker." $'\n'
     exit
   fi
 fi

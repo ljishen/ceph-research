@@ -632,8 +632,8 @@ bench_replicated_pool() {
         for num_rm_osds in "${num_rm_osds_arr[@]}"; do
 
           (( BENCHMARK_CUR_ROUND += 1 ))
-          printf "\\n\\n\\033[1;7;39;49m[%s][RUNNING][ROUND %d/%d] %s, %s, %s, %s\\033[0m\\n\\n" \
-            "$(date --iso-8601=ns)" \
+          printf '\n\n\033[1;7;39;49m[%s][RUNNING][ROUND %d/%d] %s, %s, %s, %s\033[0m\n' \
+            "$(common::now)" \
             "$BENCHMARK_CUR_ROUND" \
             $(( ${#object_size_bytes_arr[@]} * ${#num_pgs_arr[@]} * (((${#CEPH_OSD_ID_TO_HOST[@]} - 2) + 1) * (${#CEPH_OSD_ID_TO_HOST[@]} - 2) / 2) )) \
             "object_size_bytes=$object_size_bytes (${object_size_bytes_arr[0]}..${object_size_bytes_arr[-1]})" \
