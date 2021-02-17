@@ -39,13 +39,13 @@ create_lvs() {
     mkpart primary 33558528s 100% \
     set 2 lvm on; then
 
-    # https://github.com/ceph/ceph/blob/v16.0.0/src/ceph-volume/ceph_volume/api/lvm.py#L771
+    # https://github.com/ceph/ceph/blob/v17.0.0/src/ceph-volume/ceph_volume/api/lvm.py#L624
     local -r vg_name="${VG_NAME_PREFIX}$(uuidgen)"
     trace_on
     vgcreate --force --yes "$vg_name" "$VOLUME_IN_PARTITION"
     trace_off
 
-    # https://github.com/ceph/ceph/blob/v16.0.0/src/ceph-volume/ceph_volume/api/lvm.py#L1178
+    # https://github.com/ceph/ceph/blob/v17.0.0/src/ceph-volume/ceph_volume/api/lvm.py#L942
     local -r lv_name="${LV_NAME_PREFIX}$(uuidgen)"
     trace_on
     lvcreate --yes -l 100%FREE -n "$lv_name" "$vg_name"

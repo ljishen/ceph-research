@@ -192,12 +192,14 @@ verify_parameters() {
           || exit_status=$?
         trace_off
         if (( exit_status )); then
+          # OSD devices can only be LVs or raw block devices:
+          #   https://github.com/ceph/ceph/blob/v17.0.0/src/ceph-volume/ceph_volume/util/arg_validators.py#L55
           common::err $exit_status \
             "'$device' is not a raw block device, please pass LVs or raw block devices for host '$host'"
         fi
       elif [[ "$device" =~ ^[^[:space:]/]+/[^[:space:]/]+$ ]]; then
         # device is a LVM logical volume
-        # https://github.com/ceph/ceph/blob/v16.0.0/src/ceph-volume/ceph_volume/api/lvm.py#L1298
+        #   https://github.com/ceph/ceph/blob/v17.0.0/src/ceph-volume/ceph_volume/util/device.py#L162
         local device_vglv device_vg device_lv
         IFS='/' read -ra device_vglv <<< "$device"
         if (( ${#device_vglv[@]} != 2 )); then

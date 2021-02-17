@@ -346,7 +346,7 @@ config_cluster() {
   local -ir osd_recovery_max_active=32
   common::info "Set the number of active recovery requests per OSD at one time" \
     "to $osd_recovery_max_active"
-  # https://github.com/ceph/ceph/blob/v16.0.0/doc/rados/configuration/osd-config-ref.rst
+  # https://github.com/ceph/ceph/blob/v17.0.0/doc/rados/configuration/osd-config-ref.rst
   trace_on
   $(shell_cmd) ceph config set osd osd_recovery_max_active \
     $osd_recovery_max_active
@@ -438,7 +438,7 @@ load_cluster_data() {
     "(total data size: $(( data_size_per_osd * ${#CEPH_OSD_ID_TO_HOST[@]} / 1024 / 1024 / 1024 )) GB)"
   # -b op_size
   # -O object_size
-  #   https://github.com/ceph/ceph/blob/v16.0.0/src/tools/rados/rados.cc#L183
+  #   https://github.com/ceph/ceph/blob/v17.0.0/src/tools/rados/rados.cc#L184
   trace_on
   $(shell_cmd) rados bench 99999999 write \
     --pool "$pool_name" \
