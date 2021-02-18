@@ -149,7 +149,8 @@ query_ceph_lvs() {
       "$SCRIPT_DIR"/parallel-exec-script \
         --script ceph_volume/"$SCRIPT_FILE" \
         --env CEPH_VOLUME_OPERATION="$CEPH_VOLUME_OPERATION_QUERY" \
-        --host "$host" | common::parse_remote_out
+        --host "$host" \
+        2>&1 | tee /dev/tty | common::parse_remote_out
     )")
 
     local -i idx
@@ -205,11 +206,13 @@ start_sys_activity_collection_service() {
   local -a param_hosts=( --host "$MON_IP" )
   prepare_param_hosts param_hosts
 
+  trace_on
   CMD_MODE=false "$SCRIPT_DIR"/parallel-exec-script \
     --script service/sar \
     --env INFO_LEVEL=1 \
     --env SERVICE_OPERATION="$SERVICE_OPERATION_RESTART" \
     "${param_hosts[@]}"
+  trace_off
 }
 
 stop_sys_activity_collection_service() {
@@ -231,7 +234,8 @@ stop_sys_activity_collection_service() {
         --script service/sar \
         --env INFO_LEVEL=2 \
         --env SERVICE_OPERATION="$SERVICE_OPERATION_QUERY" \
-        --host "$host" | common::parse_remote_out
+        --host "$host" \
+        2>&1 | tee /dev/tty | common::parse_remote_out
     )"
 
     CMD_MODE=false "$SCRIPT_DIR"/parallel-exec-script \
@@ -252,13 +256,13 @@ stop_sys_activity_collection_service() {
       "$host":"$remote_output_file" \
       "$local_output_file"
     trace_off
-
-    common::info "Backing up current environment variables"
-    # https://askubuntu.com/a/275972
-    trace_on
-    ( set -o posix; set ) >"$benchmark_data_backup_dir"/env
-    trace_off
   done
+
+  common::info "Backing up current environment variables"
+  # https://askubuntu.com/a/275972
+  trace_on
+  ( set -o posix; set ) >"$benchmark_data_backup_dir"/env
+  trace_off
 }
 
 drop_os_cache() {
@@ -672,5 +676,7 @@ main() {
   BENCHMARK_CUR_ROUND=0
 
   bench_replicated_pool
+
+  common::stage "All benchmarks have successfully completed."
 }
 main

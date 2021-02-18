@@ -12,15 +12,16 @@ restart_service() {
   trace_on
   pkill -TERM --euid "$USER" --exact sar || true
   trace_off
+  rm --force "$SERVICE_PID_FILE"
 
   local -ri interval_in_seconds=5
   local -r local_output_file=/tmp/sys_activity_"$(date --iso-8601=seconds)".dat
 
   common::info "Starting a new sar daemon"
-  trace_on
-  S_TIME_FORMAT=ISO sar -A -o "$local_output_file" "$interval_in_seconds" >/dev/null 2>&1 &
+  trace_on_normal
+  S_TIME_FORMAT=ISO sar -A -o "$local_output_file" "$interval_in_seconds" \
+    >/dev/null 2>&1 &
   trace_off
-  rm --force "$SERVICE_PID_FILE"
   echo $! >"$SERVICE_PID_FILE"
 }
 

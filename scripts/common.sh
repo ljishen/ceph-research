@@ -73,6 +73,14 @@ alias trace_on="
   BASH_XTRACEFD=$BASH_XTRACEFD
   set -x
 "
+# This alias enables xtrace output to the default file descriptor
+# (stderr), which is required to use before operations such as
+# sshing to remote to run background tasks.
+# shellcheck disable=SC2139
+alias trace_on_normal="
+  exec $BASH_XTRACEFD>&-
+  set -x
+"
 # Also discard the stderr in case some operations (e.g., LVM(8)) may
 # close the BASH_XTRACEFD descriptor and switch the output of xtrace
 # back to stderr.
