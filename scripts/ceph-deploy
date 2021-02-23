@@ -282,7 +282,8 @@ bootstrap_cluster() {
     --allow-overwrite \
     --allow-fqdn-hostname \
     --orphan-initial-daemons \
-    --skip-monitoring-stack
+    --skip-monitoring-stack \
+    --container-init
   trace_off
 
   INFO_LEVEL=1
