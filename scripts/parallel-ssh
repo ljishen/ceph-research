@@ -14,12 +14,22 @@ if ! common::is_program_installed "parallel-ssh"; then
   common::err $(( ERR_STATUS_START + 1 )) "Please install parallel-ssh"
 fi
 
+# Test whether stdin has input using [ -t 0 ]
+#   https://stackoverflow.com/a/2456870/2926646
+#   https://unix.stackexchange.com/a/15683
+if [[ -t 0 ]]; then
+  common::debug "command from cmdline"
+else
+  common::debug "command from stdin"
+  _SEND_INPUT="--send-input"
+fi
+
 trace_on
 parallel-ssh \
   --par "${PARALLEL_SSH_THREADS:-5}" \
   --timeout 0 \
   --extra-args "${SSH_COMM_OPTIONS[*]}" \
   --inline \
-  --send-input \
+  ${_SEND_INPUT:-} \
   --print "$@"
 trace_off
