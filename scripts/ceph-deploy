@@ -12,6 +12,8 @@ readonly SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 &&
 . "$SCRIPT_DIR/common.sh"
 
 
+# MON_IP much be a locally configured IP
+#   https://github.com/ceph/ceph/blob/v17.0.0/src/cephadm/cephadm#L3199
 usage() {
   cat <<EOF
 Usage: $0 -m MON_IP -o <HOST_OSD_DEVICES> [-o <HOST_OSD_DEVICES> ...]
@@ -348,7 +350,13 @@ ceph_deploy::deploy() {
   reset_host_devices
   bootstrap_cluster
 
-  trap "trace_off; show_status" EXIT
+  exit_trap() {
+    local exit_status=$?
+    trace_off
+    show_status
+    exit $exit_status
+  }
+  trap exit_trap EXIT
 
   add_hosts
   add_host_devices_as_osds
