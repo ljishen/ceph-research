@@ -8,4 +8,5 @@
 set -euo pipefail
 
 readonly SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-CMD_MODE=false "$SCRIPT_DIR"/parallel-exec-script --script=install/docker "$@"
+CMD_MODE=false "$SCRIPT_DIR"/parallel-exec-script \
+  -e EFFECTIVE_USER="${EFFECTIVE_USER:-$USER}" --script=install/docker "$@"
