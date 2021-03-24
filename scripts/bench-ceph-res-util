@@ -312,13 +312,7 @@ deploy_cluster() {
 }
 
 shell_cmd() {
-  {
-    local -ir is_set_x=$(common::is_set_x)
-    # temporarily turn off tracing to avoid redundant output
-    if (( is_set_x == 0 )); then
-      trace_off
-    fi
-  } 2>/dev/null
+  trace_off
 
   if [[ -z "${CEPH_CLUSTER_KEYRING_PATH}" ]]; then
     common::err $(( ERR_STATUS_START + 4 )) \
@@ -329,9 +323,7 @@ shell_cmd() {
     "--keyring $CEPH_CLUSTER_KEYRING_PATH" \
     "--"
 
-  if (( is_set_x == 0 )); then
-    trace_on
-  fi
+  trace_resume
 }
 
 config_cluster() {
@@ -457,8 +449,8 @@ load_cluster_data() {
     --no-cleanup
   trace_off
 
-  common::info "Sleep for 10 seconds"
-  sleep 10
+  common::info "Sleep for 60 seconds"
+  sleep 60
 
   common::info "Show OSD utilization"
   trace_on

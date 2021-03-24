@@ -81,21 +81,28 @@ alias trace_on_normal="
   exec $BASH_XTRACEFD>&-
   set -x
 "
+alias trace_resume="
+  if [[ -n \${_XTRACE_ENABLED:-} && \${_XTRACE_ENABLED:-1} -eq 0 ]]; then
+    trace_on
+  fi
+"
 # Also discard the stderr in case some operations (e.g., LVM(8)) may
 # close the BASH_XTRACEFD descriptor and switch the output of xtrace
 # back to stderr.
 # shellcheck disable=SC2139
-alias trace_off="{ set +x; } $BASH_XTRACEFD>/dev/null 2>/dev/null"
+alias trace_off="
+  {
+    _XTRACE_ENABLED=0
+    [[ \$- == *x* ]] || _XTRACE_ENABLED=\$?
+    set +x
+  } $BASH_XTRACEFD>/dev/null 2>/dev/null
+"
 export PS4='# ${BASH_SOURCE:-"$0"}:${LINENO} - ${FUNCNAME[0]:+${FUNCNAME[0]}()} > '
 
 # Suppress leaked file descriptor warnings in LVM commands.
 #   https://man7.org/linux/man-pages/man8/lvm.8.html
 export LVM_SUPPRESS_FD_WARNINGS=1
 
-
-common::is_set_x() {
-  [[ "$-" == *x* ]]
-}
 
 common::is_program_installed() {
   local -r prog="$1"
