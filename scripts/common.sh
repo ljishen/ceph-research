@@ -104,6 +104,14 @@ export PS4='# ${BASH_SOURCE:-"$0"}:${LINENO} - ${FUNCNAME[0]:+${FUNCNAME[0]}()} 
 export LVM_SUPPRESS_FD_WARNINGS=1
 
 
+common::create_stdout_dup() { exec {_STDOUT_DUP}>&1; }
+common::to_stdout_dup() {
+  tee /dev/fd/${_STDOUT_DUP:=1}
+  if (( _STDOUT_DUP != 1 )); then
+    exec {_STDOUT_DUP}>&-
+  fi
+}
+
 common::is_program_installed() {
   local -r prog="$1"
   command -v "$prog" >/dev/null 2>&1

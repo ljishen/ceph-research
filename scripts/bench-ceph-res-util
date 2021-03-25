@@ -144,13 +144,14 @@ query_ceph_lvs() {
   local host host_lvs
   local -a host_id_to_host_repr
 
+  common::create_stdout_dup
   for host in "${OSD_HOSTS[@]}"; do
     host_lvs=("$(
       "$SCRIPT_DIR"/parallel-exec-script \
         --script ceph_volume/"$SCRIPT_FILE" \
         --env CEPH_VOLUME_OPERATION="$CEPH_VOLUME_OPERATION_QUERY" \
         --host "$host" \
-        2>&1 | tee /dev/tty | common::parse_remote_out
+        2>&1 | common::to_stdout_dup | common::parse_remote_out
     )")
 
     local -i idx
@@ -227,6 +228,7 @@ stop_sys_activity_collection_service() {
   local -ar all_hosts=( "$MON_IP" "${OSD_HOSTS[@]}" )
   local host remote_output_file local_output_file
 
+  common::create_stdout_dup
   for host in "${all_hosts[@]}"; do
     common::info "Query and stop service for $host"
     remote_output_file="$(
@@ -235,7 +237,7 @@ stop_sys_activity_collection_service() {
         --env INFO_LEVEL=2 \
         --env SERVICE_OPERATION="$SERVICE_OPERATION_QUERY" \
         --host "$host" \
-        2>&1 | tee /dev/tty | common::parse_remote_out
+        2>&1 | common::to_stdout_dup | common::parse_remote_out
     )"
 
     CMD_MODE=false "$SCRIPT_DIR"/parallel-exec-script \
@@ -295,9 +297,10 @@ deploy_cluster() {
   done
 
   local ceph_deploy_output
+  common::create_stdout_dup
   ceph_deploy_output="$(
     "$SCRIPT_DIR"/ceph-deploy -m "$MON_IP" "${param_host_osds[@]}" \
-      2>&1 | tee /dev/tty
+      2>&1 | common::to_stdout_dup
   )"
 
   CEPH_CLUSTER_FSID="$(
