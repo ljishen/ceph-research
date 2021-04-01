@@ -46,18 +46,6 @@ Options:
 EOF
 }
 
-if (( $# < 2 )); then
-  # When CMD_MODE is true, this script is called from command line.
-  # Otherwise, we assume this script is called by another script.
-  if [[ "${CMD_MODE:-true}" == true ]]; then
-    usage
-  else
-    usage2
-  fi
-  exit
-fi
-
-
 SCRIPT_FILE=
 REMOTE_ENVS=()
 _READ_PARAM=
@@ -104,6 +92,26 @@ common::parse_cmdline_params HOST_PARAMS "$@"
 common::debug HOST_PARAMS: "$(common::print_array HOST_PARAMS)"
 common::debug SCRIPT_FILE: "$SCRIPT_FILE"
 
+if [[ -z "$SCRIPT_FILE" ]] || (( ${#HOST_PARAMS[@]} == 0 )); then
+  # When CMD_MODE is true, this script is called from command line.
+  # Otherwise, we assume this script is called by another script.
+  if [[ "${CMD_MODE:-true}" == true ]]; then
+    usage
+  else
+    usage2
+  fi
+
+  if [[ -z "$SCRIPT_FILE" ]]; then
+    common::err $(( ERR_STATUS_START + 1 )) \
+      "Please specify a value for '-s|--script'"
+  elif (( ${#HOST_PARAMS[@]} == 0 )); then
+    common::err $(( ERR_STATUS_START + 1 )) \
+      "Please specify hosts with '--host|--hosts'"
+  fi
+  exit $ERR_CMDLINE_PARAM_MISSING
+fi
+
+
 add_default_remote_envs() {
   local env has_info_level=false
   for env in "${REMOTE_ENVS[@]}"; do
@@ -120,11 +128,6 @@ add_default_remote_envs() {
 }
 add_default_remote_envs
 common::debug REMOTE_ENVS: "$(common::print_array REMOTE_ENVS)"
-
-if [[ -z "$SCRIPT_FILE" ]]; then
-  common::err $(( ERR_STATUS_START + 1 )) \
-    "Please specify a value for '-s|--script'"
-fi
 
 get_script_path() {
   local -r script_file="$1"
