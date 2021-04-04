@@ -400,7 +400,7 @@ load_cluster_data() {
     "($pool_size replicas, $num_pgs placement groups)"
   trace_on
   $(shell_cmd) ceph osd pool create "$pool_name" "$num_pgs" "$num_pgs" \
-    replicated --size="$pool_size"
+    replicated --size "$pool_size" --pg-num-min "$num_pgs"
   trace_off
 
   common::info "Set the minimum number of replicas required for I/O to 1"
@@ -476,6 +476,12 @@ rm_osds() {
   local -i idx
 
   common::stage "Removing $num_rm OSDs from the cluster"
+  local confirm
+  read -rp "Continue? (y/n): " confirm
+  if ! [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]]; then
+    common::err 0 "User requests to terminate the program."
+  fi
+
   for (( idx = 0; idx < ${#CEPH_OSD_ID_TO_HOST[@]}; idx++ )); do
     if (( num_rm == idx )); then
       break
