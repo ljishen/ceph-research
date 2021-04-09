@@ -49,7 +49,7 @@ if ! [[ -x "$CEPHADM" ]]; then
   (
     mkdir -p "$DEFAULT_BIN_DIR" \
       && cd "$DEFAULT_BIN_DIR" \
-      && curl --silent --remote-name --location https://github.com/ceph/ceph/raw/octopus/src/cephadm/cephadm \
+      && curl --silent --remote-name --location https://github.com/ceph/ceph/raw/pacific/src/cephadm/cephadm \
       && chmod +x cephadm
   )
   trace_off
