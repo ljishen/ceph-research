@@ -232,9 +232,9 @@ verify_parameters() {
 verify_parameters
 
 
+readonly CONFIG_OUTPUT_DIR="$DEPLOYMENT_DATA_ROOT"/etc/ceph
 readonly CEPHADM="$SCRIPT_DIR"/parallel-cephadm
-readonly DEFAULT_OUTPUT_DIR="$PWD"/cephadm_target/output
-readonly CEPH_SHELL="$CEPHADM shell --keyring $DEFAULT_OUTPUT_DIR/ceph.client.admin.keyring"
+readonly CEPH_SHELL="$CEPHADM shell --keyring $CONFIG_OUTPUT_DIR/ceph.client.admin.keyring"
 readonly CEPH="$CEPH_SHELL -- ceph"
 
 reset_host_devices() {
@@ -275,10 +275,9 @@ bootstrap_cluster() {
   common::stage "Bootstrap a new cluster..."
 
   trace_on
-  mkdir -p "$DEFAULT_OUTPUT_DIR"
   $CEPHADM bootstrap \
     --mon-ip "$MON_IP" \
-    --output-dir "$DEFAULT_OUTPUT_DIR" \
+    --output-dir "$CONFIG_OUTPUT_DIR" \
     --ssh-user "$USER" \
     --skip-dashboard \
     --allow-overwrite \
@@ -314,7 +313,7 @@ add_hosts() {
     INFO_LEVEL=1 common::info "Adding host '$host'"
     trace_on
     ssh-copy-id "${SSH_COMM_OPTIONS[@]}" \
-      -f -i "$DEFAULT_OUTPUT_DIR"/ceph.pub \
+      -f -i "$CONFIG_OUTPUT_DIR"/ceph.pub \
       "$USER@$host"
     trace_off
 
@@ -340,8 +339,8 @@ add_host_devices_as_osds() {
     trace_off
   done
 
-  common::info "Sleep for 15 seconds"
-  sleep 15
+  common::info "Sleep for 20 seconds"
+  sleep 20
 }
 
 

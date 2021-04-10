@@ -41,14 +41,14 @@ common::parse_cmdline_params HOST_PARAMS "$@"
 common::debug HOST_PARAMS: "$(common::print_array HOST_PARAMS)"
 common::debug CEPHADM_PARAMS: "$(common::print_array CEPHADM_PARAMS)"
 
-readonly DEFAULT_BIN_DIR="$PWD"/cephadm_target/bin
-: "${CEPHADM:="$DEFAULT_BIN_DIR"/cephadm}"
+readonly USER_SBIN_DIR="$DEPLOYMENT_DATA_ROOT"/usr/sbin
+: "${CEPHADM:="$USER_SBIN_DIR"/cephadm}"
 if ! [[ -x "$CEPHADM" ]]; then
   common::debug "download cephadm"
   trace_on
   (
-    mkdir -p "$DEFAULT_BIN_DIR" \
-      && cd "$DEFAULT_BIN_DIR" \
+    mkdir -p "$USER_SBIN_DIR" \
+      && cd "$USER_SBIN_DIR" \
       && curl --silent --remote-name --location https://github.com/ceph/ceph/raw/pacific/src/cephadm/cephadm \
       && chmod +x cephadm
   )

@@ -164,6 +164,9 @@ common::parse_cmdline_params() {
 }
 
 
+if [[ -z "${DEPLOYMENT_DATA_ROOT:-}" ]]; then
+  export DEPLOYMENT_DATA_ROOT="$PWD"/deployment_data_root
+fi
 export SSH_COMM_OPTIONS=(
   -o "GlobalKnownHostsFile=/dev/null"
   -o "LogLevel=ERROR"
