@@ -308,8 +308,19 @@ show_status() {
 add_hosts() {
   common::stage "Add hosts to the cluster..."
 
-  local host
+  local host skip added_host added_hosts=()
   for host in "${OSD_HOSTS[@]}"; do
+    skip=false
+    for added_host in "${added_hosts[@]}"; do
+      if [[ "$host" == "$added_host" ]]; then
+        skip=true
+        break
+      fi
+    done
+    if [[ "$skip" == true ]]; then
+      continue
+    fi
+
     INFO_LEVEL=1 common::info "Adding host '$host'"
     trace_on
     ssh-copy-id "${SSH_COMM_OPTIONS[@]}" \
@@ -320,6 +331,8 @@ add_hosts() {
     trace_on
     $CEPH orch host add "$host"
     trace_off
+
+    added_hosts+=("$host")
   done
 }
 
