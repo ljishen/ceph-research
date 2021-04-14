@@ -276,6 +276,7 @@ bootstrap_cluster() {
 
   trace_on
   $CEPHADM bootstrap \
+    --config "$SCRIPT_DIR"/ceph.conf \
     --mon-ip "$MON_IP" \
     --output-dir "$CONFIG_OUTPUT_DIR" \
     --ssh-user "$USER" \
