@@ -281,6 +281,7 @@ bootstrap_cluster() {
     --output-dir "$CONFIG_OUTPUT_DIR" \
     --ssh-user "$USER" \
     --skip-dashboard \
+    --no-minimize-config \
     --allow-overwrite \
     --allow-fqdn-hostname \
     --orphan-initial-daemons \
