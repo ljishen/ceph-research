@@ -289,10 +289,12 @@ bootstrap_cluster() {
   trace_off
 
   INFO_LEVEL=1
+
   common::info "Set the default number of monitor daemons to 1"
   trace_on
   $CEPH orch apply mon 1
   trace_off
+
   common::info "Set the default number of manager daemons to 1"
   trace_on
   $CEPH orch apply mgr 1
