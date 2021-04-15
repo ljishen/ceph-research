@@ -49,7 +49,8 @@ if ! [[ -x "$CEPHADM" ]]; then
   (
     mkdir -p "$USER_SBIN_DIR" \
       && cd "$USER_SBIN_DIR" \
-      && curl --silent --remote-name --location https://github.com/ceph/ceph/raw/pacific/src/cephadm/cephadm \
+      && curl --silent --remote-name \
+        --location https://github.com/ceph/ceph/raw/"${CEPHADM_RELEASE:-pacific}"/src/cephadm/cephadm \
       && chmod +x cephadm
   )
   trace_off
