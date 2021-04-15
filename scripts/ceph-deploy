@@ -16,7 +16,7 @@ readonly SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 &&
 #   https://github.com/ceph/ceph/blob/v17.0.0/src/cephadm/cephadm#L3199
 usage() {
   cat <<EOF
-Usage: $0 -m MON_IP -o <HOST_OSD_DEVICES> [-o <HOST_OSD_DEVICES> ...]
+Usage: $0 -m MON_IP -o HOST_OSD_DEVICES [-o HOST_OSD_DEVICES]...
   -m : (\$MON_IP)             IP address for the cluster’s monitor daemon
                              (must be a locally configured IP)
   -o : (\$HOST_OSD_DEVICES)   Create an OSD on the storage device of the host defined by:
