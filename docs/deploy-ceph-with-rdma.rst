@@ -1,0 +1,230 @@
+.. _deploy-ceph-with-RDMA-support:
+
+===============================
+ Deploy Ceph with RDMA support
+===============================
+
+Prerequisites
+-------------
+
+- RDMA connectivity between all nodes intended for running the Ceph cluster. ::
+
+    Server: rping –s –v server_ip
+    Client: rping –c –v –a server_ip
+
+- Docker engine installed on all cluster nodes.
+
+- The ``$USER`` on the monitor node can passwordless ssh to all the other nodes on the same user.
+
+- The same user on each node has passwordless sudo privileges.
+
+
+Deploy a vanilla Ceph cluster
+-----------------------------
+
+You can use whatever tools you like. Here is one way of using the `ceph-deploy`_ script::
+
+  $ CEPHADM_RELEASE=master ./ceph-deploy -m MON_IP -o HOST_OSD_DEVICES [-o HOST_OSD_DEVICES]...
+
+where
+
+MON_IP
+  The IP address of the Ceph monitor. It must be the address of the host where the current script is running on.
+
+HOST_OSD_DEVICES := host:DEVICE1[,DEVICE2,...]
+  ``DEVICE`` is defined by ``DEVICE := /dev/XXX | volume_group/logical_volume``. It must be either a raw block device (not a partition) or a LVM logical volume.
+
+An example of using this script to deploy OSDs on pre-created volume groups and logical volumes on cluster nodes::
+
+  $ CEPHADM_RELEASE=master ./ceph-deploy -m 10.10.1.2 \
+      -o xl170-1.rdma.ucsc-cmps107-pg0.utah.cloudlab.us:ceph-e0353ee5-9b26-4016-8656-a7d74dfdc086/ceph-lv-7ee534d3-fcc4-47a2-a913-91cb89658948 \
+      -o xl170-2.rdma.ucsc-cmps107-pg0.utah.cloudlab.us:ceph-0ddba72d-ac93-4f3c-86d4-ff25fedcae74/ceph-lv-ff294044-1756-4512-91de-135d1f181fcb \
+      -o xl170-3.rdma.ucsc-cmps107-pg0.utah.cloudlab.us:ceph-891e9205-fbd7-4f0a-b3d1-e7aa03d4672c/ceph-lv-b02b46de-dbd2-477d-b116-49273dfccba4
+
+Make sure the cluster is up and running by checking with script `parallel_cephadm`_ on the mon node::
+
+  $ ./parallel-cephadm shell --keyring "$(pwd)"/deployment_data_root/etc/ceph/ceph.client.admin.keyring -- ceph --status
+
+.. _ceph-deploy: ../scripts/ceph-deploy
+.. _parallel_cephadm: ../scripts/parallel_cephadm
+
+
+.. _add-rdma-configuration:
+
+Add RDMA configuration
+----------------------
+
+- Stop the daemons on each cluster node::
+
+    $ sudo systemctl stop ceph.target
+
+  You can also use the `parallel-ssh`_ script to stop all daemons at once::
+
+    $ ./parallel-ssh --hosts ~/hosts sudo systemctl stop ceph.target
+
+  where the ``~/hosts`` file containers the list of hostnames/IPs of all Ceph nodes.
+
+- Add the following options to the ``[global]`` section of the Ceph ``config`` for each daemon, including mon, mgr, and osd::
+
+    # ceph/src/common/options/global.yaml.in:
+    #   ms_type  -- for both the public and the internal network
+    #   ms_public_type  -- for the public network
+    #   ms_cluster_type  -- for the internal cluster network
+    ms_public_type = async+rdma
+
+    ms_async_rdma_device_name = <ib_dev>
+    ms_async_rdma_port_num = <ib_port>
+    ms_async_rdma_local_gid = <gid_index>
+
+  The above IB values can be found by running the ``show_gids`` command on the deamon node. The location of the ``config`` file is ``/var/lib/ceph/<fsid>/<daemon_name>/config``, e.g.,
+
+    /var/lib/ceph/a95675b8-9dc4-11eb-a50c-719848d6105e/mon.xl170-0.rdma.ucsc-cmps107-pg0.utah.cloudlab.us/config
+
+- Add ``--privileged`` to the docker run command of the mgr daemon in file ``/var/lib/ceph/<fsid>/<mgr_daemon_name>/unit.run``
+
+- Enable unlimited memlock (locked-in-memory size) for docker containers by adding the following to ``/etc/docker/daemon.json`` [#]_ on each node::
+
+    {
+      "default-ulimits": {
+        "memlock": {
+          "Hard": -1,
+          "Name": "memlock",
+          "Soft": -1
+        }
+      }
+    }
+
+  Then restart the docker service with::
+
+    $ sudo systemctl restart docker
+
+.. _daemon configuration file: https://docs.docker.com/engine/reference/commandline/dockerd/#daemon-configuration-file
+
+- Start the cluster by running the following on each cluster node::
+
+    $ sudo systemctl start ceph.target
+
+  or, with `parallel-ssh`_ you can do::
+
+    $ ./parallel-ssh --hosts ~/hosts sudo systemctl start ceph.target
+
+  Now check whether the cluster is back online::
+
+    $ ./parallel-cephadm shell --keyring "$(pwd)"/deployment_data_root/etc/ceph/ceph.client.admin.keyring -- ceph --status
+
+.. _parallel-ssh: ../scripts/parallel-ssh
+
+
+Verify RDMA communication
+-------------------------
+
+On the monitor node, run ::
+
+  $ ./parallel-cephadm shell --keyring "$(pwd)"/deployment_data_root/etc/ceph/ceph.client.admin.keyring -- \
+      ceph --admin-daemon /var/run/ceph/ceph-<mon_daemon_name>.asok config show | grep ms_public_type
+    "ms_public_type": "async+rdma"
+
+  $ ./parallel-cephadm shell --keyring "$(pwd)"/deployment_data_root/etc/ceph/ceph.client.admin.keyring -- \
+      ceph daemon <mon_daemon_name> perf dump AsyncMessenger::RDMAWorker-1
+  {
+    "AsyncMessenger::RDMAWorker-1": {
+        "tx_no_mem": 0,
+        "tx_parital_mem": 0,
+        "tx_failed_post": 0,
+        "tx_chunks": 1239,
+        "tx_bytes": 1185281,
+        "rx_chunks": 1248,
+        "rx_bytes": 139032,
+        "pending_sent_conns": 0
+    }
+
+
+Access the cluster with RDMA from client servers
+---------------------------------------------
+
+- Install the docker engine on the ARM server.
+
+- Git clone the repository::
+
+    $ git clone https://github.com/ljishen/ceph-research.git
+
+- Copy the ``deployment_data_root`` folder from the monitor node into ``ceph-research/scripts/`` of the client server.
+
+- Update the ``deployment_data_root/etc/ceph/ceph.conf`` by adding the local RDMA information in the same way as in the second step of `add-rdma-configuration`_
+
+- Check the status of the cluster::
+
+    $ cd ceph-research/scripts
+    $ export CEPHADM_IMAGE=ceph/ceph:v15  # only need for ARM servers
+    $ ./parallel-cephadm shell \
+        --keyring deployment_data_root/etc/ceph/ceph.client.admin.keyring \
+        --config deployment_data_root/etc/ceph/ceph.conf \
+        --fsid <fsid> -- ceph --status
+
+
+Miscellaneous
+-------------
+
+- If for some reasons the daemons fail to start for more than 5 times in 30min, ``systemctl start ceph.target`` will not start the daemons within the duration, unless ::
+
+    $ sudo systemctl daemon-reload
+
+- A bash script to monitor the local RDMA throughput ::
+
+    cat <<'EOF' >rdma_throughput.sh
+    #!/usr/bin/env bash
+
+    set -euo pipefail
+
+    readonly DEVICE_NAME="$1"
+    readonly DEVICE_PORT="${2:-1}"
+
+    readonly COUNTER_FILE_XMIT=/sys/class/infiniband/"$DEVICE_NAME"/ports/"$DEVICE_PORT"/counters/port_xmit_data
+    readonly COUNTER_FILE_RCV=/sys/class/infiniband/"$DEVICE_NAME"/ports/"$DEVICE_PORT"/counters/port_rcv_data
+
+    print_throughput() {
+      local -a xmit_count=(0 0) rcv_count=(0 0)
+      echo
+      while :; do
+        xmit_count[1]=$(cat "$COUNTER_FILE_XMIT")
+        rcv_count[1]=$(cat "$COUNTER_FILE_RCV")
+
+        if (( xmit_count[0] != 0 )); then
+          awk \
+            -v xmit_count_prev="${xmit_count[0]}" -v xmit_count_cur="${xmit_count[1]}" \
+            -v rcv_count_prev="${rcv_count[0]}" -v rcv_count_cur="${rcv_count[1]}" '
+            BEGIN {
+              xmit_tp = (xmit_count_cur - xmit_count_prev) / 1024 / 1024
+              rcv_tp = (rcv_count_cur - rcv_count_prev) / 1024 / 1024
+              printf "xmit: %f MB/s \trcv: %f MB/s\n", xmit_tp, rcv_tp
+            }
+          '
+        fi
+        xmit_count[0]="${xmit_count[1]}"
+        rcv_count[0]="${rcv_count[1]}"
+        sleep 1
+      done
+    }
+    print_throughput
+    EOF
+    chmod +x rdma_throughput.sh
+    ./rdma_throughput.sh <ib_dev> <ib_port>
+
+
+Known issues
+------------
+
+- Pacific version (v16.2.0): unable to start the monitor after adding the RDMA configuation
+
+- Octopus version (v15.2.10): cluster can start, but exception when checking the status with ``ceph -s``
+
+
+References
+----------
+
+- How to enable Ceph with RDMA: https://www.hwchiu.com/ceph-with-rdma.html
+
+- Bring Up Ceph RDMA - Developer's Guide: https://community.mellanox.com/s/article/bring-up-ceph-rdma---developer-s-guide
+
+
+.. [#] A full example of the docker `daemon configuration file`_
