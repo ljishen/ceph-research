@@ -24,6 +24,8 @@ Deploy a vanilla Ceph cluster
 
 You can use whatever tools you like. Here is one way of using the `ceph-deploy`_ script::
 
+  $ git clone https://github.com/ljishen/ceph-research.git
+  $ cd ceph-research/scripts
   $ CEPHADM_RELEASE=master ./ceph-deploy -m MON_IP -o HOST_OSD_DEVICES [-o HOST_OSD_DEVICES]...
 
 where
@@ -41,12 +43,12 @@ An example of using this script to deploy OSDs on pre-created volume groups and 
       -o xl170-2.rdma.ucsc-cmps107-pg0.utah.cloudlab.us:ceph-0ddba72d-ac93-4f3c-86d4-ff25fedcae74/ceph-lv-ff294044-1756-4512-91de-135d1f181fcb \
       -o xl170-3.rdma.ucsc-cmps107-pg0.utah.cloudlab.us:ceph-891e9205-fbd7-4f0a-b3d1-e7aa03d4672c/ceph-lv-b02b46de-dbd2-477d-b116-49273dfccba4
 
-Make sure the cluster is up and running by checking with script `parallel_cephadm`_ on the mon node::
+Make sure the cluster is up and running by checking with script `ceph-shell`_ on the monitor node::
 
-  $ ./parallel-cephadm shell --keyring "$(pwd)"/deployment_data_root/etc/ceph/ceph.client.admin.keyring -- ceph --status
+  $ ./ceph-shell ceph --status
 
 .. _ceph-deploy: ../scripts/ceph-deploy
-.. _parallel_cephadm: ../scripts/parallel_cephadm
+.. _ceph-shell: ../scripts/ceph-shell
 
 
 .. _add-rdma-configuration:
@@ -64,7 +66,8 @@ Add RDMA configuration
 
   where the ``~/hosts`` file containers the list of hostnames/IPs of all Ceph nodes.
 
-- Add the following options to the ``[global]`` section of the Ceph ``config`` for each daemon, including mon, mgr, and osd::
+- Add the following options to the ``[global]`` section of the Ceph ``config`` for each daemon,
+  including mon, mgr, and osd, and for file ``deployment_data_root/etc/ceph/ceph.conf``::
 
     # ceph/src/common/options/global.yaml.in:
     #   ms_type  -- for both the public and the internal network
@@ -76,7 +79,8 @@ Add RDMA configuration
     ms_async_rdma_port_num = <ib_port>
     ms_async_rdma_local_gid = <gid_index>
 
-  The above IB values can be found by running the ``show_gids`` command on the deamon node. The location of the ``config`` file is ``/var/lib/ceph/<fsid>/<daemon_name>/config``, e.g.,
+  The above IB values can be found by running the ``show_gids`` command on the deamon node.
+  The location of the daemon ``config`` file is ``/var/lib/ceph/<fsid>/<daemon_name>/config``, e.g.,
 
     /var/lib/ceph/a95675b8-9dc4-11eb-a50c-719848d6105e/mon.xl170-0.rdma.ucsc-cmps107-pg0.utah.cloudlab.us/config
 
@@ -108,9 +112,9 @@ Add RDMA configuration
 
     $ ./parallel-ssh --hosts ~/hosts sudo systemctl start ceph.target
 
-  Now check whether the cluster is back online::
+  Now we can check whether the cluster is back online. On the monitor node, run::
 
-    $ ./parallel-cephadm shell --keyring "$(pwd)"/deployment_data_root/etc/ceph/ceph.client.admin.keyring -- ceph --status
+    $ ./ceph-shell ceph --status
 
 .. _parallel-ssh: ../scripts/parallel-ssh
 
@@ -120,12 +124,10 @@ Verify RDMA communication
 
 On the monitor node, run ::
 
-  $ ./parallel-cephadm shell --keyring "$(pwd)"/deployment_data_root/etc/ceph/ceph.client.admin.keyring -- \
-      ceph --admin-daemon /var/run/ceph/ceph-<mon_daemon_name>.asok config show | grep ms_public_type
+  $ ./ceph-shell ceph --admin-daemon /var/run/ceph/ceph-<mon_daemon_name>.asok config show | grep ms_public_type
     "ms_public_type": "async+rdma"
 
-  $ ./parallel-cephadm shell --keyring "$(pwd)"/deployment_data_root/etc/ceph/ceph.client.admin.keyring -- \
-      ceph daemon <mon_daemon_name> perf dump AsyncMessenger::RDMAWorker-1
+  $ ./ceph-shell ceph daemon <mon_daemon_name> perf dump AsyncMessenger::RDMAWorker-1
   {
     "AsyncMessenger::RDMAWorker-1": {
         "tx_no_mem": 0,
@@ -152,14 +154,11 @@ Access the cluster with RDMA from client servers
 
 - Update the ``deployment_data_root/etc/ceph/ceph.conf`` by adding the local RDMA information in the same way as in the second step of `add-rdma-configuration`_
 
-- Check the status of the cluster::
+- Check the status of the cluster from client::
 
     $ cd ceph-research/scripts
     $ export CEPHADM_IMAGE=ceph/ceph:v15  # only need for ARM servers
-    $ ./parallel-cephadm shell \
-        --keyring deployment_data_root/etc/ceph/ceph.client.admin.keyring \
-        --config deployment_data_root/etc/ceph/ceph.conf \
-        --fsid <fsid> -- ceph --status
+    $ ./ceph-shell ceph --status
 
 
 Miscellaneous
@@ -209,6 +208,11 @@ Miscellaneous
     EOF
     chmod +x rdma_throughput.sh
     ./rdma_throughput.sh <ib_dev> <ib_port>
+
+- To tear down the cluster, on the monitor node, run::
+
+    $ ./parallel-cephadm --hosts ~/hosts rm-cluster --force \
+        --fsid $(grep -oP 'fsid = \K.+' deployment_data_root/etc/ceph/ceph.conf)
 
 
 Known issues
