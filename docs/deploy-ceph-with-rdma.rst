@@ -22,11 +22,13 @@ Prerequisites
 Deploy a vanilla Ceph cluster
 -----------------------------
 
-You can use whatever tools you like. Here is one way of using the `ceph-deploy`_ script::
+You can use whatever tools you like. Here is one way of using the `ceph-deploy`_ script:
+
+.. parsed-literal::
 
   $ git clone https://github.com/ljishen/ceph-research.git
   $ cd ceph-research/scripts
-  $ CEPHADM_RELEASE=master ./ceph-deploy -m MON_IP -o HOST_OSD_DEVICES [-o HOST_OSD_DEVICES]...
+  $ CEPHADM_RELEASE=\ |CEPHADM_RELEASE| ./ceph-deploy -m MON_IP -o HOST_OSD_DEVICES [-o HOST_OSD_DEVICES]...
 
 where
 
@@ -36,11 +38,13 @@ MON_IP
 HOST_OSD_DEVICES := host:DEVICE1[,DEVICE2,...]
   ``DEVICE`` is defined by ``DEVICE := /dev/XXX | volume_group/logical_volume``. It must be either a raw block device (not a partition) or a LVM logical volume.
 
-An example of using this script to deploy OSDs on pre-created volume groups and logical volumes on cluster nodes::
+An example of using this script to deploy OSDs on pre-created volume groups and logical volumes on cluster nodes:
 
-  $ CEPHADM_RELEASE=master ./ceph-deploy -m 10.10.1.2 \
-      -o xl170-1.rdma.ucsc-cmps107-pg0.utah.cloudlab.us:ceph-e0353ee5-9b26-4016-8656-a7d74dfdc086/ceph-lv-7ee534d3-fcc4-47a2-a913-91cb89658948 \
-      -o xl170-2.rdma.ucsc-cmps107-pg0.utah.cloudlab.us:ceph-0ddba72d-ac93-4f3c-86d4-ff25fedcae74/ceph-lv-ff294044-1756-4512-91de-135d1f181fcb \
+.. parsed-literal::
+
+  $ CEPHADM_RELEASE=\ |CEPHADM_RELEASE| ./ceph-deploy -m 10.10.1.2 \\
+      -o xl170-1.rdma.ucsc-cmps107-pg0.utah.cloudlab.us:ceph-e0353ee5-9b26-4016-8656-a7d74dfdc086/ceph-lv-7ee534d3-fcc4-47a2-a913-91cb89658948 \\
+      -o xl170-2.rdma.ucsc-cmps107-pg0.utah.cloudlab.us:ceph-0ddba72d-ac93-4f3c-86d4-ff25fedcae74/ceph-lv-ff294044-1756-4512-91de-135d1f181fcb \\
       -o xl170-3.rdma.ucsc-cmps107-pg0.utah.cloudlab.us:ceph-891e9205-fbd7-4f0a-b3d1-e7aa03d4672c/ceph-lv-b02b46de-dbd2-477d-b116-49273dfccba4
 
 Make sure the cluster is up and running by checking with script `ceph-shell`_ on the monitor node::
@@ -49,9 +53,8 @@ Make sure the cluster is up and running by checking with script `ceph-shell`_ on
 
 .. _ceph-deploy: ../scripts/ceph-deploy
 .. _ceph-shell: ../scripts/ceph-shell
+.. |CEPHADM_RELEASE| replace:: f3a4166379b12d4a7bba667fe761e5b660552db1
 
-
-.. _add-rdma-configuration:
 
 Add RDMA configuration
 ----------------------
@@ -125,7 +128,7 @@ Verify RDMA communication
 On the monitor node, run ::
 
   $ ./ceph-shell ceph --admin-daemon /var/run/ceph/ceph-<mon_daemon_name>.asok config show | grep ms_public_type
-    "ms_public_type": "async+rdma"
+      "ms_public_type": "async+rdma"
 
   $ ./ceph-shell ceph daemon <mon_daemon_name> perf dump AsyncMessenger::RDMAWorker-1
   {
@@ -152,7 +155,7 @@ Access the cluster with RDMA from client servers
 
 - Copy the ``deployment_data_root`` folder from the monitor node into ``ceph-research/scripts/`` of the client server.
 
-- Update the ``deployment_data_root/etc/ceph/ceph.conf`` by adding the local RDMA information in the same way as in the second step of `add-rdma-configuration`_
+- Update the ``deployment_data_root/etc/ceph/ceph.conf`` by adding the local RDMA information in the same way as in the second step of `Add RDMA configuration`_.
 
 - Check the status of the cluster from client::
 
@@ -167,6 +170,8 @@ Miscellaneous
 - If for some reasons the daemons fail to start for more than 5 times in 30min, ``systemctl start ceph.target`` will not start the daemons within the duration, unless ::
 
     $ sudo systemctl daemon-reload
+    $ sudo systemctl stop ceph.target
+    $ sudo systemctl start ceph.target
 
 - A bash script to monitor the local RDMA throughput ::
 
