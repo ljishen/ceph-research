@@ -9,4 +9,4 @@ readonly CEPH_FSID="$(grep -oP 'fsid = \K.+' deployment_data_root/etc/ceph/ceph.
 
 ./parallel-cephadm shell \
   --keyring deployment_data_root/etc/ceph/ceph.client.admin.keyring \
-  --config deployment_data_root/etc/ceph/ceph.conf --fsid "$CEPH_FSID" -- "$@"
+  --config deployment_data_root/etc/ceph/ceph.conf --fsid "$CEPH_FSID" "$@"
