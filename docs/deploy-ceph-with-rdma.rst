@@ -9,8 +9,8 @@ Prerequisites
 
 - RDMA connectivity between all nodes intended for running the Ceph cluster. ::
 
-    Server: rping –s –v server_ip
-    Client: rping –c –v –a server_ip
+    Server: rping -s -v server_ip
+    Client: rping -c -v –a server_ip
 
 - Docker engine installed on all cluster nodes.
 
