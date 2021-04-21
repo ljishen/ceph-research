@@ -49,7 +49,7 @@ An example of using this script to deploy OSDs on pre-created volume groups and 
 
 Make sure the cluster is up and running by checking with script `ceph-shell`_ on the monitor node::
 
-  $ ./ceph-shell ceph --status
+  $ ./ceph-shell -- ceph --status
 
 .. _ceph-deploy: ../scripts/ceph-deploy
 .. _ceph-shell: ../scripts/ceph-shell
@@ -117,7 +117,7 @@ Add RDMA configuration
 
   Now we can check whether the cluster is back online. On the monitor node, run::
 
-    $ ./ceph-shell ceph --status
+    $ ./ceph-shell -- ceph --status
 
 .. _parallel-ssh: ../scripts/parallel-ssh
 
@@ -127,10 +127,10 @@ Verify RDMA communication
 
 On the monitor node, run ::
 
-  $ ./ceph-shell ceph --admin-daemon /var/run/ceph/ceph-<mon_daemon_name>.asok config show | grep ms_public_type
+  $ ./ceph-shell -- ceph --admin-daemon /var/run/ceph/ceph-<mon_daemon_name>.asok config show | grep ms_public_type
       "ms_public_type": "async+rdma"
 
-  $ ./ceph-shell ceph daemon <mon_daemon_name> perf dump AsyncMessenger::RDMAWorker-1
+  $ ./ceph-shell -- ceph daemon <mon_daemon_name> perf dump AsyncMessenger::RDMAWorker-1
   {
     "AsyncMessenger::RDMAWorker-1": {
         "tx_no_mem": 0,
@@ -160,8 +160,8 @@ Access the cluster with RDMA from client servers
 - Check the status of the cluster from client::
 
     $ cd ceph-research/scripts
-    $ export CEPHADM_IMAGE=ceph/ceph:v15  # only need for ARM servers
-    $ ./ceph-shell ceph --status
+    $ export CEPHADM_IMAGE=ceph/ceph:v15
+    $ ./ceph-shell -- ceph --status
 
 
 Miscellaneous

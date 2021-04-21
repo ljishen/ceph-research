@@ -7,7 +7,8 @@
 
 set -euo pipefail
 
-readonly SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+readonly SCRIPT_DIR
 # shellcheck source=./common.sh
 . "$SCRIPT_DIR/common.sh"
 
@@ -415,7 +416,7 @@ load_cluster_data() {
 
   common::info "Set the application metadata key"
   trace_on
-  $(shell_cmd) ceph osd pool application enable "$pool_name" banchmark
+  $(shell_cmd) ceph osd pool application enable "$pool_name" benchmark
   trace_off
 
   common::info "Set the NOSCRUB flag"

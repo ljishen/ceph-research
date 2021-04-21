@@ -1,12 +1,113 @@
 #!/usr/bin/env bash
+#
+# Require bash version >= 4.4
 
 set -euo pipefail
 
-readonly SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+readonly SCRIPT_DIR
+# shellcheck source=./common.sh
+. "$SCRIPT_DIR/common.sh"
+
+
+CONFIG_OUTPUT_DIR="$DEPLOYMENT_DATA_ROOT"/etc/ceph
+CEPH_CONF_FILE="$CONFIG_OUTPUT_DIR"/ceph.conf
+CEPH_SHELL_ARG_FILE="$DEPLOYMENT_DATA_ROOT"/.ceph-shell
+CEPH_KEYRING_FILE="$CONFIG_OUTPUT_DIR"/ceph.client.admin.keyring
+readonly CONFIG_OUTPUT_DIR \
+         CEPH_CONF_FILE \
+         CEPH_SHELL_ARG_FILE \
+         CEPH_KEYRING_FILE
+
+if ! [[ -f "$CEPH_CONF_FILE" ]]; then
+  common::err $(( ERR_STATUS_START + 1 )) "File $CEPH_CONF_FILE does not exist."
+fi
+
+if ! [[ -f "$CEPH_KEYRING_FILE" ]]; then
+  common::err $(( ERR_STATUS_START + 1 )) "File $CEPH_KEYRING_FILE does not exist."
+fi
+
+
+if ! [[ -f "$CEPH_SHELL_ARG_FILE" ]] \
+  || [[ "$(stat --format=%y "$CEPH_CONF_FILE")" != "$(stat --format=%y "$CEPH_SHELL_ARG_FILE")" ]]; then
+  sed --in-place '/keyring *= */d' "$CEPH_CONF_FILE"  \
+    && printf -- '--config %s --keyring %s ' \
+        "$CEPH_CONF_FILE" "$CEPH_KEYRING_FILE" >"$CEPH_SHELL_ARG_FILE"
+
+  awk -v data_root="$DEPLOYMENT_DATA_ROOT" '
+    function getvalue(str) {
+      value = substr(str, index(str, "=") + 1)
+      gsub(/^[ \t]+|[ \t]+$/, "", value)
+      return value
+    }
+
+    function run(cmd) {
+      cmd | getline output
+      close(cmd)
+      return output
+    }
+
+    function exist(dir) {
+      return run(sprintf("test -d \"%s\"; echo $?", dir))
+    }
+
+    function realpath(path) {
+      return run(sprintf("realpath --canonicalize-missing \"%s\"", path))
+    }
+
+    function bind_mount(dir) {
+      if (exist(dir) == 0)
+        mount_args = mount_args dir ":" dir " "
+      else
+        mount_args = mount_args data_root dir ":" dir " "
+    }
+
+    function dirname(path) {
+      return run(sprintf("dirname -- \"%s\"", path))
+    }
+
+    BEGIN {
+      in_section = 0
+      mount_args = ""
+    }
+
+    /^\[client\]|^\[global\]/ {
+      in_section = 1
+      next
+    }
+
+    in_section && /^\[/ {
+      in_section = 0
+      next
+    }
+
+    !in_section { next }
+
+    /fsid *=/ {
+      printf "--fsid %s", getvalue($0)
+      next
+    }
+
+    /dir *=/ {
+      dir = realpath(getvalue($0))
+      bind_mount(dir)
+    }
+
+    /log file* =|admin socket *=/ {
+      dir = realpath(dirname(getvalue($0)))
+      bind_mount(dir)
+    }
+
+    END {
+      if (mount_args)
+        printf " --mount %s", mount_args
+    }
+  ' "$CEPH_CONF_FILE" >>"$CEPH_SHELL_ARG_FILE"
+
+  touch --reference="$CEPH_CONF_FILE" "$CEPH_SHELL_ARG_FILE"
+fi
+
+IFS=" " read -ra CEPH_SHELL_ARGS <<< "$(cat "$CEPH_SHELL_ARG_FILE")"
 cd "$SCRIPT_DIR"
-
-readonly CEPH_FSID="$(grep -oP 'fsid = \K.+' deployment_data_root/etc/ceph/ceph.conf)"
-
 ./parallel-cephadm shell \
-  --keyring deployment_data_root/etc/ceph/ceph.client.admin.keyring \
-  --config deployment_data_root/etc/ceph/ceph.conf --fsid "$CEPH_FSID" "$@"
+  "${CEPH_SHELL_ARGS[@]}" "$@"
