@@ -1,0 +1,27 @@
+[1;30mlocalhost.localdomain	[2021-04-21T06:44:05,153453970+00:00] DEBUG: HOST_PARAMS: [][0m
+[1;30mlocalhost.localdomain	[2021-04-21T06:44:05,159643647+00:00] DEBUG: CEPHADM_PARAMS: ['shell', '--fsid', '4d42ec4e-d871-4320-adcc-c184d96a111f', '--config', '/home/ubuntu/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.conf', '--keyring', '/home/ubuntu/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.client.admin.keyring', '--mount', '/home/ubuntu/ceph-research/scripts/deployment_data_root/out/ceph-asok.QQSsrB:/home/ubuntu/ceph-research/scripts/deployment_data_root/out/ceph-asok.QQSsrB', '--', 'rados', 'bench', '99999999', 'seq', '--pool', 'bench_failure_management_resource_utilization', '--concurrent-ios', '32', '--show-time'][0m
+# ./parallel-cephadm:68 -  > sudo /home/ubuntu/ceph-research/scripts/deployment_data_root/usr/sbin/cephadm shell --fsid 4d42ec4e-d871-4320-adcc-c184d96a111f --config /home/ubuntu/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.conf --keyring /home/ubuntu/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.client.admin.keyring --mount /home/ubuntu/ceph-research/scripts/deployment_data_root/out/ceph-asok.QQSsrB:/home/ubuntu/ceph-research/scripts/deployment_data_root/out/ceph-asok.QQSsrB -- rados bench 99999999 seq --pool bench_failure_management_resource_utilization --concurrent-ios 32 --show-time
+Using recent ceph image ceph/ceph@sha256:7bda5ef5bf4c06e8b720afefe24b22dd0fe2fdf7f3c34da265dc9238578563ff
+2021-04-21T06:44:06.905+0000 ffff86b54010 -1 WARNING: all dangerous and experimental features are enabled.
+2021-04-21T06:44:07.697+0000 ffff86b54010 -1 WARNING: all dangerous and experimental features are enabled.
+2021-04-21T06:44:07.697+0000 ffff86b54010 -1 WARNING: all dangerous and experimental features are enabled.
+hints = 1
+2021-04-21T06:44:07.723140+0000   sec Cur ops   started  finished  avg MB/s  cur MB/s last lat(s)  avg lat(s)
+2021-04-21T06:44:07.723140+0000     0       0         0         0         0         0           -           0
+2021-04-21T06:44:08.723336+0000     1      31     10519     10488   1310.55      1311  0.00166515  0.00300754
+2021-04-21T06:44:09.723556+0000     2      31     22852     22821   1425.91   1541.62  0.00197359  0.00276482
+2021-04-21T06:44:10.723748+0000     3      31     33595     33564   1398.15   1342.88  0.00484683   0.0028178
+2021-04-21T06:44:11.724005+0000     4      32     45188     45156   1410.77      1449  0.00108728  0.00279439
+2021-04-21T06:44:12.724207+0000     5      32     55985     55953   1398.49   1349.62  0.00808881  0.00281859
+2021-04-21T06:44:13.724441+0000 Total time run:       5.95787
+Total reads made:     65536
+Read size:            131072
+Object size:          131072
+Bandwidth (MB/sec):   1374.99
+Average IOPS:         10999
+Stddev IOPS:          760.775
+Max IOPS:             12333
+Min IOPS:             10488
+Average Latency(s):   0.00286774
+Max latency(s):       0.0214565
+Min latency(s):       0.000489744

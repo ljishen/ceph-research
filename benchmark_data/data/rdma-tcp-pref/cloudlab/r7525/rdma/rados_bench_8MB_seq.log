@@ -1,0 +1,39 @@
+[1;30mlocalhost.localdomain	[2021-04-21T07:03:23,109300991+00:00] DEBUG: HOST_PARAMS: [][0m
+[1;30mlocalhost.localdomain	[2021-04-21T07:03:23,116118446+00:00] DEBUG: CEPHADM_PARAMS: ['shell', '--fsid', '4f2a5dda-7ac2-4eae-b487-ccc1b0731a15', '--config', '/home/ubuntu/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.conf', '--keyring', '/home/ubuntu/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.client.admin.keyring', '--mount', '/home/ubuntu/ceph-research/scripts/deployment_data_root/out/ceph-asok.49qwzx:/home/ubuntu/ceph-research/scripts/deployment_data_root/out/ceph-asok.49qwzx', '--', 'rados', 'bench', '99999999', 'seq', '--pool', 'bench_failure_management_resource_utilization', '--concurrent-ios', '32', '--show-time'][0m
+# ./parallel-cephadm:68 -  > sudo /home/ubuntu/ceph-research/scripts/deployment_data_root/usr/sbin/cephadm shell --fsid 4f2a5dda-7ac2-4eae-b487-ccc1b0731a15 --config /home/ubuntu/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.conf --keyring /home/ubuntu/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.client.admin.keyring --mount /home/ubuntu/ceph-research/scripts/deployment_data_root/out/ceph-asok.49qwzx:/home/ubuntu/ceph-research/scripts/deployment_data_root/out/ceph-asok.49qwzx -- rados bench 99999999 seq --pool bench_failure_management_resource_utilization --concurrent-ios 32 --show-time
+Using recent ceph image ceph/ceph@sha256:7bda5ef5bf4c06e8b720afefe24b22dd0fe2fdf7f3c34da265dc9238578563ff
+2021-04-21T07:03:24.575+0000 ffff8587b010 -1 WARNING: all dangerous and experimental features are enabled.
+2021-04-21T07:03:25.375+0000 ffff8587b010 -1 WARNING: all dangerous and experimental features are enabled.
+2021-04-21T07:03:25.375+0000 ffff8587b010 -1 WARNING: all dangerous and experimental features are enabled.
+hints = 1
+2021-04-21T07:03:25.407175+0000   sec Cur ops   started  finished  avg MB/s  cur MB/s last lat(s)  avg lat(s)
+2021-04-21T07:03:25.407175+0000     0       0         0         0         0         0           -           0
+2021-04-21T07:03:26.407392+0000     1      31       137       106   847.655       848    0.255339    0.243856
+2021-04-21T07:03:27.407640+0000     2      31       249       218   871.714       896    0.289139     0.26046
+2021-04-21T07:03:28.408147+0000     3      31       365       334   890.321       928    0.265408    0.265568
+2021-04-21T07:03:29.410026+0000     4      31       487       456   911.307       976    0.253688    0.264265
+2021-04-21T07:03:30.410299+0000     5      31       604       573   916.193       936    0.273959    0.264573
+2021-04-21T07:03:31.412272+0000     6      31       724       693   923.186       960    0.262816    0.264329
+2021-04-21T07:03:32.416279+0000     7      31       841       810   924.487       936    0.280732    0.264748
+2021-04-21T07:03:33.419663+0000     8      31       958       927   925.533       936    0.266166    0.265809
+2021-04-21T07:03:34.422185+0000     9      31      1072      1041   923.773       912    0.259667    0.267236
+2021-04-21T07:03:35.422407+0000    10      31      1190      1159   925.772       944    0.280967    0.266721
+2021-04-21T07:03:36.424985+0000    11      31      1311      1280   929.388       968    0.261267    0.266571
+2021-04-21T07:03:37.425278+0000    12      31      1425      1394   927.919       912    0.280666    0.267007
+2021-04-21T07:03:38.425543+0000    13      31      1539      1508   926.677       912    0.280055    0.267729
+2021-04-21T07:03:39.425841+0000    14      31      1650      1619   923.898       888    0.296495    0.268562
+2021-04-21T07:03:40.426347+0000    15      31      1765      1734   923.608       920    0.277581    0.268938
+2021-04-21T07:03:41.426594+0000    16      31      1875      1844   920.871       880    0.264344     0.27013
+2021-04-21T07:03:42.426852+0000    17      31      1992      1961   921.746       936     0.26007    0.270206
+2021-04-21T07:03:43.427204+0000 Total time run:       17.645
+Total reads made:     2048
+Read size:            8388608
+Object size:          8388608
+Bandwidth (MB/sec):   928.538
+Average IOPS:         116
+Stddev IOPS:          4.09178
+Max IOPS:             122
+Min IOPS:             106
+Average Latency(s):   0.269251
+Max latency(s):       0.541036
+Min latency(s):       0.100572

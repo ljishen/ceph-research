@@ -1,12 +1,15 @@
 These are tests between two c6420 nodes using TCP (default) as the messenger type.
 
 
-# add the following ceph.conf configuation to vstart.sh
+# add the following ceph.conf configuation to vstart.sh (near the line of "osd objectstore = ...")
 memstore_device_bytes = 107374182400    # 100 GB
 
 
 # start a memstore Ceph cluster
 ../src/stop.sh && rm -rf out dev && MON=1 OSD=3 MDS=0 MGR=1 FS=0 RGW=0 ../src/vstart.sh -d -n -x -i 10.10.1.1 --without-dashboard --memstore
+
+
+# copy the generated ceph.conf and keyring file to the client node.
 
 
 # configure the cluster
@@ -29,7 +32,7 @@ pool_size=2
 ./ceph-shell -- ceph osd pool ls detail
 
 
-# benchmark commands run on the other node
+# benchmark commands run on the client node
 output_file=sys_activity_4KB_write.dat
 rm -rf "$output_file"
 S_TIME_FORMAT=ISO sar -A -o "$output_file" 2 >/dev/null 2>&1 &
