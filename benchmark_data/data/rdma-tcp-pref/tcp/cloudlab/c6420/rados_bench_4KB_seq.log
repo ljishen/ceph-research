@@ -1,0 +1,32 @@
+[1;30mxl170-1.c6420.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-04-25T01:25:37,417562206-04:00] DEBUG: HOST_PARAMS: [][0m
+[1;30mxl170-1.c6420.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-04-25T01:25:37,423900437-04:00] DEBUG: CEPHADM_PARAMS: ['shell', '--config', '/mnt/sda4/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.conf', '--keyring', '/mnt/sda4/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.client.admin.keyring', '--fsid', '5db8629a-88f2-456d-a6d8-9482da94a0af', '--mount', '/mnt/sda4/ceph-research/scripts/deployment_data_root/mnt/sda4/ceph/build/lib:/mnt/sda4/ceph/build/lib', '/mnt/sda4/ceph-research/scripts/deployment_data_root/mnt/sda4/ceph/build/lib:/mnt/sda4/ceph/build/lib', '/mnt/sda4/ceph-research/scripts/deployment_data_root/mnt/sda4/ceph/build/out:/mnt/sda4/ceph/build/out', '/mnt/sda4/ceph-research/scripts/deployment_data_root/mnt/sda4/ceph/build/out:/mnt/sda4/ceph/build/out', '/mnt/sda4/ceph-research/scripts/deployment_data_root/mnt/sda4/ceph/build/out:/mnt/sda4/ceph/build/out', '/mnt/sda4/ceph-research/scripts/deployment_data_root/tmp/ceph-asok.uis5rN:/tmp/ceph-asok.uis5rN', '--', 'rados', 'bench', '99999999', 'seq', '--pool', 'bench_failure_management_resource_utilization', '--concurrent-ios', '32', '--show-time'][0m
+# ./parallel-cephadm:68 -  > sudo /mnt/sda4/ceph-research/scripts/deployment_data_root/usr/sbin/cephadm shell --config /mnt/sda4/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.conf --keyring /mnt/sda4/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.client.admin.keyring --fsid 5db8629a-88f2-456d-a6d8-9482da94a0af --mount /mnt/sda4/ceph-research/scripts/deployment_data_root/mnt/sda4/ceph/build/lib:/mnt/sda4/ceph/build/lib /mnt/sda4/ceph-research/scripts/deployment_data_root/mnt/sda4/ceph/build/lib:/mnt/sda4/ceph/build/lib /mnt/sda4/ceph-research/scripts/deployment_data_root/mnt/sda4/ceph/build/out:/mnt/sda4/ceph/build/out /mnt/sda4/ceph-research/scripts/deployment_data_root/mnt/sda4/ceph/build/out:/mnt/sda4/ceph/build/out /mnt/sda4/ceph-research/scripts/deployment_data_root/mnt/sda4/ceph/build/out:/mnt/sda4/ceph/build/out /mnt/sda4/ceph-research/scripts/deployment_data_root/tmp/ceph-asok.uis5rN:/tmp/ceph-asok.uis5rN -- rados bench 99999999 seq --pool bench_failure_management_resource_utilization --concurrent-ios 32 --show-time
+Using recent ceph image quay.ceph.io/ceph-ci/ceph@sha256:adf2f14eb26de8f5cfc43e59b5bbadde5f56a22edc61d1a129ccfd183585edf4
+2021-04-25T05:25:39.921+0000 7fafda36ed00 -1 WARNING: all dangerous and experimental features are enabled.
+2021-04-25T05:25:39.929+0000 7fafda36ed00 -1 WARNING: all dangerous and experimental features are enabled.
+2021-04-25T05:25:39.929+0000 7fafda36ed00 -1 WARNING: all dangerous and experimental features are enabled.
+hints = 1
+2021-04-25T05:25:39.944506+0000   sec Cur ops   started  finished  avg MB/s  cur MB/s last lat(s)  avg lat(s)
+2021-04-25T05:25:39.944506+0000     0       0         0         0         0         0           -           0
+2021-04-25T05:25:40.944682+0000     1      32     46520     46488   181.541   181.594 0.000930014 0.000684429
+2021-04-25T05:25:41.944864+0000     2      31     94913     94882   185.273   189.039 0.000406406 0.000670802
+2021-04-25T05:25:42.945059+0000     3      31    143704    143673   187.033    190.59 0.000341251  0.00066458
+2021-04-25T05:25:43.945221+0000     4      31    194044    194013   189.427   196.641 0.000670497 0.000656239
+2021-04-25T05:25:44.945384+0000     5      32    244752    244720    191.15   198.074 0.000408325 0.000650392
+2021-04-25T05:25:45.945550+0000     6      31    295320    295289   192.208   197.535  0.00111344 0.000646844
+2021-04-25T05:25:46.945718+0000     7      31    346574    346543   193.347   200.211  0.00049954 0.000643053
+2021-04-25T05:25:47.945896+0000     8      31    396040    396009   193.327   193.227 0.000658678 0.000643129
+2021-04-25T05:25:48.946090+0000     9      32    447570    447538   194.207   201.285 0.000600553 0.000640216
+2021-04-25T05:25:49.946255+0000    10      32    497498    497466   194.287   195.031 0.000783927 0.000639977
+2021-04-25T05:25:50.946512+0000 Total time run:       10.5414
+Total reads made:     524288
+Read size:            4096
+Object size:          4096
+Bandwidth (MB/sec):   194.281
+Average IOPS:         49735
+Stddev IOPS:          1522.89
+Max IOPS:             51529
+Min IOPS:             46488
+Average Latency(s):   0.00064
+Max latency(s):       0.0207782
+Min latency(s):       0.000220029
