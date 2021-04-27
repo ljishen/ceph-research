@@ -2,11 +2,21 @@
 
 set -euo pipefail
 
-readonly DEVICE_NAME="$1"
-readonly DEVICE_PORT="${2:-1}"
+if (( "$#" < 1 )); then
+  cat <<EOF
+Usage: $0 IB_DEVICE [IB_PORT]
 
-readonly COUNTER_FILE_XMIT=/sys/class/infiniband/"$DEVICE_NAME"/ports/"$DEVICE_PORT"/counters/port_xmit_data
-readonly COUNTER_FILE_RCV=/sys/class/infiniband/"$DEVICE_NAME"/ports/"$DEVICE_PORT"/counters/port_rcv_data
+The default IB_PORT is 1 if not specified.
+
+EOF
+  exit
+fi
+
+readonly IB_DEVICE="$1"
+readonly IB_PORT="${2:-1}"
+
+readonly COUNTER_FILE_XMIT=/sys/class/infiniband/"$IB_DEVICE"/ports/"$IB_PORT"/counters/port_xmit_data
+readonly COUNTER_FILE_RCV=/sys/class/infiniband/"$IB_DEVICE"/ports/"$IB_PORT"/counters/port_rcv_data
 
 print_throughput() {
   local -a xmit_count=(0 0) rcv_count=(0 0)

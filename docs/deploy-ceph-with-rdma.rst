@@ -173,46 +173,12 @@ Miscellaneous
     $ sudo systemctl stop ceph.target
     $ sudo systemctl start ceph.target
 
-- A bash script to monitor the local RDMA throughput ::
+- A bash script to monitor the throughput of a local RDMA device ::
 
-    cat <<'EOF' >rdma_throughput.sh
-    #!/usr/bin/env bash
+    $ ./rdma_throughput
+    Usage: ./rdma-throughput IB_DEVICE [IB_PORT]
 
-    set -euo pipefail
-
-    readonly DEVICE_NAME="$1"
-    readonly DEVICE_PORT="${2:-1}"
-
-    readonly COUNTER_FILE_XMIT=/sys/class/infiniband/"$DEVICE_NAME"/ports/"$DEVICE_PORT"/counters/port_xmit_data
-    readonly COUNTER_FILE_RCV=/sys/class/infiniband/"$DEVICE_NAME"/ports/"$DEVICE_PORT"/counters/port_rcv_data
-
-    print_throughput() {
-      local -a xmit_count=(0 0) rcv_count=(0 0)
-      echo
-      while :; do
-        xmit_count[1]=$(cat "$COUNTER_FILE_XMIT")
-        rcv_count[1]=$(cat "$COUNTER_FILE_RCV")
-
-        if (( xmit_count[0] != 0 )); then
-          awk \
-            -v xmit_count_prev="${xmit_count[0]}" -v xmit_count_cur="${xmit_count[1]}" \
-            -v rcv_count_prev="${rcv_count[0]}" -v rcv_count_cur="${rcv_count[1]}" '
-            BEGIN {
-              xmit_tp = (xmit_count_cur - xmit_count_prev) / 1024 / 1024
-              rcv_tp = (rcv_count_cur - rcv_count_prev) / 1024 / 1024
-              printf "xmit: %f MB/s \trcv: %f MB/s\n", xmit_tp, rcv_tp
-            }
-          '
-        fi
-        xmit_count[0]="${xmit_count[1]}"
-        rcv_count[0]="${rcv_count[1]}"
-        sleep 1
-      done
-    }
-    print_throughput
-    EOF
-    chmod +x rdma_throughput.sh
-    ./rdma_throughput.sh <ib_dev> <ib_port>
+    The default IB_PORT is 1 if not specified.
 
 - To tear down the cluster, on the monitor node, run::
 
