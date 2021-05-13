@@ -7,9 +7,9 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/.. >/dev/null 2>&1 && pwd )"
 readonly SCRIPT_DIR
-# shellcheck source=./common.sh
+# shellcheck source=../common.sh
 . "$SCRIPT_DIR/common.sh"
 
 
@@ -119,7 +119,7 @@ install_dependent_packages() {
 }
 install_dependent_packages
 
-# shellcheck source=./remote_script/ceph_volume/interface.sh
+# shellcheck source=../remote_script/ceph_volume/interface.sh
 . "$SCRIPT_DIR"/remote_script/ceph_volume/interface.sh
 create_ceph_lvs() {
   common::stage "Create logical volumes on OSD hosts..."
@@ -200,7 +200,7 @@ dump_hardware_info() {
 dump_hardware_info
 
 
-# shellcheck source=./remote_script/service/interface.sh
+# shellcheck source=../remote_script/service/interface.sh
 . "$SCRIPT_DIR"/remote_script/service/interface.sh
 start_sys_activity_collection_service() {
   common::stage "Launch the system activity collection service on cluster hosts..."
