@@ -14,7 +14,7 @@ restart_service() {
   trace_off
   rm --force "$SERVICE_PID_FILE"
 
-  local -ir interval_in_seconds=5
+  local -ir interval_in_seconds="${DATA_RECORD_INTERVAL_SECS:-5}"
   local -r local_output_file=/tmp/sys_activity_"$(date --iso-8601=seconds)".dat
 
   common::info "Starting a new sar daemon"

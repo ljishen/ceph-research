@@ -93,7 +93,7 @@ if ! [[ -f "$CEPH_SHELL_ARG_FILE" ]] \
       bind_mount(dir)
     }
 
-    /log file* =|admin socket *=/ {
+    /log file *=|admin socket *=/ {
       dir = realpath(dirname(getvalue($0)))
       bind_mount(dir)
     }

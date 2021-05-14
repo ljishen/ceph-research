@@ -1,0 +1,227 @@
+#!/usr/bin/env bash
+#
+# Require bash version >= 4.4
+#
+# This script depends on passwordless ssh to and passwordless sudo on remote hosts.
+
+set -euo pipefail
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/.. >/dev/null 2>&1 && pwd )"
+readonly SCRIPT_DIR
+# shellcheck source=../common.sh
+. "$SCRIPT_DIR/common.sh"
+
+# =============== CONFIGURATIONS TO UPDATE ===============
+readonly CEPH_HOST="10.10.1.2" \
+         CEPH_HOST_USER="ljishen" \
+         CEPH_HOST_SRC_BUILD_DIR=/mnt/sda8/ceph/build \
+         LOCAL_HOST="ubuntu@10.10.1.4" \
+
+declare -rA LOCAL_CEPH_CONF_OPTIONS=(
+  ['ms_async_rdma_device_name']=mlx5_0
+  ['ms_async_rdma_local_gid']=0000:0000:0000:0000:0000:ffff:0a0a:0104
+)
+
+readonly POOL_NAME=bench_rados \
+         NUM_PGS=128 \
+         POOL_SIZE=2 \
+         OBJECT_SIZES=(4KB 16KB 64KB 256KB 1MB 4MB 16MB 64MB)
+
+readonly ROUNDS_PER_TEST=5 \
+         RADOS_BENCH_RUN_LENTH_SECS=20
+# =============== CONFIGURATIONS TO UPDATE ===============
+
+readonly LOCAL_CEPH_CONF_DIR="$DEPLOYMENT_DATA_ROOT"/etc/ceph \
+         OUTPUT_DIR="$PWD"/output
+mkdir --parents "$LOCAL_CEPH_CONF_DIR" "$OUTPUT_DIR"
+
+if ! common::is_program_installed "sar"; then
+  common::err $(( ERR_STATUS_START + 1 )) "Please install sysstat."
+fi
+pkill -TERM --euid "$USER" --exact sar || true
+
+
+launch_ceph_cluster() {
+  common::stage "Launch a Ceph cluster on host $CEPH_HOST ..."
+
+  trace_on
+  "$SCRIPT_DIR"/parallel-ssh --host "$CEPH_HOST_USER"@"$CEPH_HOST" \
+    sudo bash <<EOF
+cd "$CEPH_HOST_SRC_BUILD_DIR" \
+  && ../src/stop.sh \
+  && rm --force --recursive out dev \
+  && ulimit -l unlimited \
+  && MON=1 OSD=3 MDS=0 MGR=1 FS=0 RGW=0 ../src/vstart.sh \
+      -d -n -x -i "$CEPH_HOST" --without-dashboard --memstore \
+  && scp -C "${SSH_COMM_OPTIONS[@]}" -p \
+      ceph.conf "$LOCAL_HOST":"$LOCAL_CEPH_CONF_DIR"/ceph.conf \
+  && scp -C "${SSH_COMM_OPTIONS[@]}" -p \
+      keyring "$LOCAL_HOST":"$LOCAL_CEPH_CONF_DIR"/ceph.client.admin.keyring
+EOF
+  trace_off
+}
+
+update_local_ceph_conf() {
+  common::stage "Update local ceph.conf as a client..."
+
+  local option
+  for option in "${!LOCAL_CEPH_CONF_OPTIONS[@]}"; do
+    trace_on
+    # ensure the pattern exists in file
+    grep --fixed-strings --word-regexp --quiet "$option" \
+      "$LOCAL_CEPH_CONF_DIR"/ceph.conf
+
+    sed --in-place --regexp-extended \
+      "s/($option *=).*$/\1 ${LOCAL_CEPH_CONF_OPTIONS[$option]}/g" \
+      "$LOCAL_CEPH_CONF_DIR"/ceph.conf
+    trace_off
+  done
+}
+
+configure_ceph_pool() {
+  common::stage "Configure Ceph pool..."
+
+  trace_on
+  "$SCRIPT_DIR"/ceph-shell -- ceph config set osd osd_max_backfills 32
+  "$SCRIPT_DIR"/ceph-shell -- ceph config set osd osd_recovery_max_active 32
+  "$SCRIPT_DIR"/ceph-shell -- ceph config set osd osd_recovery_max_single_start 8
+  "$SCRIPT_DIR"/ceph-shell -- ceph config set osd osd_recovery_op_priority 63
+
+  "$SCRIPT_DIR"/ceph-shell -- ceph config show-with-defaults osd.0 \
+    | grep 'osd_max_backfills\|osd_recovery' | column -t -s ' '
+
+  "$SCRIPT_DIR"/ceph-shell -- ceph osd pool create "$POOL_NAME" \
+    "$NUM_PGS" "$NUM_PGS" replicated --size "$POOL_SIZE" --pg-num-min "$NUM_PGS"
+  "$SCRIPT_DIR"/ceph-shell -- ceph osd pool set "$POOL_NAME" min_size 1
+  "$SCRIPT_DIR"/ceph-shell -- ceph osd pool set "$POOL_NAME" pg_autoscale_mode off
+  "$SCRIPT_DIR"/ceph-shell -- ceph osd pool application enable "$POOL_NAME" benchmark
+  "$SCRIPT_DIR"/ceph-shell -- ceph osd pool set "$POOL_NAME" noscrub 1
+  "$SCRIPT_DIR"/ceph-shell -- ceph osd pool set "$POOL_NAME" nodeep-scrub 1
+  "$SCRIPT_DIR"/ceph-shell -- ceph osd pool ls detail
+  "$SCRIPT_DIR"/ceph-shell -- ceph osd df tree
+  trace_off
+}
+
+object_size_bytes() {
+  local -r input="$1"
+  local -r num="${input%%[^0-9]*}"
+
+  if [[ "$input" =~ (KB|kb)$ ]]; then
+    echo $(( 2 ** 10 * num ))
+  elif [[ "$input" =~ (MB|mb)$ ]]; then
+    echo $(( 2 ** 20 * num ))
+  elif [[ "$input" =~ (GB|gb)$ ]]; then
+    echo $(( 2 ** 30 * num ))
+  elif [[ "$input" == "$num"B ]] || [[ "$input" == "$num"b ]] || [[ "$input" == "$num" ]]; then
+    echo "$num"
+  else
+    common::err $(( ERR_STATUS_START + 2 )) "Unsupport object size: $input"
+  fi
+}
+
+wait_till_cluster_idle() {
+  common::stage "Wait for the cluster to become idle..."
+
+  sleep 20
+  INFO_LEVEL=2
+
+  local cluster_status idle_count=0 idle_count_max=5
+  while true; do
+    cluster_status="$(
+      "$SCRIPT_DIR"/ceph-shell -- ceph --status 2>&1 \
+        | sed --quiet "/data:/,\$p"
+    )"
+    common::info "$cluster_status"
+
+    if grep "progress:" <<< "$cluster_status" >/dev/null; then
+      idle_count=0
+    else
+      (( idle_count += 1 ))
+      common::info "Counting down idle state [$idle_count/$idle_count_max]"
+
+      if (( idle_count == idle_count_max )); then
+        break
+      fi
+    fi
+    sleep 5
+  done
+
+  INFO_LEVEL=1 common::info "The cluster is idle now."
+}
+
+rados_bench() {
+  local -r mode="$1" round_idx="$2" object_size="$3"
+
+  common::stage "Start benchmarking of mode $mode ..."
+  INFO_LEVEL=1
+
+  local -r sysstat_file="$OUTPUT_DIR"/sys_activity_"$object_size"_"$mode".dat."$round_idx" \
+           object_size_bytes="$(object_size_bytes "$object_size")"
+  rm --force "$sysstat_file"
+
+  local sar_pid
+
+  common::info "Start system activity collection service at localhost"
+  trace_on
+  S_TIME_FORMAT=ISO sar -A -o "$sysstat_file" 2 >/dev/null 2>&1 & sar_pid=$!
+  trace_off
+
+  common::info "Run rados bench"
+  if [[ "$mode" == "write" ]]; then
+    trace_on
+    "$SCRIPT_DIR"/ceph-shell -- \
+      rados bench "$RADOS_BENCH_RUN_LENTH_SECS" write \
+      --pool "$POOL_NAME" \
+      -b "$object_size_bytes" \
+      -O "$object_size_bytes" \
+      --concurrent-ios 256 \
+      --show-time \
+      --write-object \
+      --write-omap \
+      --write-xattr \
+      --no-cleanup 2>&1 | tee "$OUTPUT_DIR"/rados_bench_"$object_size"_"$mode".log."$round_idx"
+    trace_off
+  elif [[ "$mode" == "seq" ]]; then
+    trace_on
+    "$SCRIPT_DIR"/ceph-shell -- \
+      rados bench 99999999 seq \
+      --pool "$POOL_NAME" \
+      --concurrent-ios 256 \
+      --show-time 2>&1 | tee "$OUTPUT_DIR"/rados_bench_"$object_size"_"$mode".log."$round_idx"
+    trace_off
+  else
+    common::err $(( ERR_STATUS_START + 3 )) "Unsupport rados bench mode: $mode"
+  fi
+
+  common::info "Stop system activity collection service at localhost"
+  trace_on
+  kill -INT "$sar_pid"
+  trace_off
+}
+
+
+main() {
+  local object_size_idx round_idx object_size
+  for (( object_size_idx = 0; object_size_idx < ${#OBJECT_SIZES[@]}; object_size_idx++ )); do
+    object_size="${OBJECT_SIZES[$object_size_idx]}"
+    for round_idx in $(seq $ROUNDS_PER_TEST); do
+      printf '\n\n\033[1;7;39;49m[%s][RUNNING][ROUND %d/%d/%d] %s\033[0m\n' \
+        "$(common::now)" \
+        "$round_idx" \
+        "$(( object_size_idx + 1 ))" \
+        "$(( ${#OBJECT_SIZES[@]} * ROUNDS_PER_TEST ))" \
+        "object_size=$object_size"
+
+      launch_ceph_cluster
+      update_local_ceph_conf
+      configure_ceph_pool
+
+      wait_till_cluster_idle
+      rados_bench "write" "$round_idx" "$object_size"
+
+      wait_till_cluster_idle
+      rados_bench "seq" "$round_idx" "$object_size"
+    done
+  done
+}
+main
