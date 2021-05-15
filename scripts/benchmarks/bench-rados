@@ -14,13 +14,17 @@ readonly SCRIPT_DIR
 # =============== CONFIGURATIONS TO UPDATE ===============
 readonly CEPH_HOST="10.10.1.2" \
          CEPH_HOST_USER="ljishen" \
-         CEPH_HOST_SRC_BUILD_DIR=/mnt/sda8/ceph/build \
-         LOCAL_HOST="ubuntu@10.10.1.4" \
+         LOCAL_HOST="ljishen@10.10.1.1"
+
+readonly CEPH_HOST_CPU_AFFINITY=96-127 \
+         LOCAL_HOST_CPU_AFFINITY=96-127
 
 declare -rA LOCAL_CEPH_CONF_OPTIONS=(
-  ['ms_async_rdma_device_name']=mlx5_0
-  ['ms_async_rdma_local_gid']=0000:0000:0000:0000:0000:ffff:0a0a:0104
+  ['ms_async_rdma_device_name']=mlx5_2
+  ['ms_async_rdma_local_gid']=0000:0000:0000:0000:0000:ffff:0a0a:0101
 )
+
+readonly CEPH_HOST_SRC_BUILD_DIR=/mnt/sda8/ceph/build
 
 readonly POOL_NAME=bench_rados \
          NUM_PGS=128 \
@@ -40,6 +44,9 @@ if ! common::is_program_installed "sar"; then
 fi
 pkill -TERM --euid "$USER" --exact sar || true
 
+readonly LOCAL_CEPH_SHELL=" \
+  ${LOCAL_HOST_CPU_AFFINITY:+taskset --cpu-list $LOCAL_HOST_CPU_AFFINITY} \
+  $SCRIPT_DIR/ceph-shell --"
 
 launch_ceph_cluster() {
   common::stage "Launch a Ceph cluster on host $CEPH_HOST ..."
@@ -51,7 +58,9 @@ cd "$CEPH_HOST_SRC_BUILD_DIR" \
   && ../src/stop.sh \
   && rm --force --recursive out dev \
   && ulimit -l unlimited \
-  && MON=1 OSD=3 MDS=0 MGR=1 FS=0 RGW=0 ../src/vstart.sh \
+  && MON=1 OSD=3 MDS=0 MGR=1 FS=0 RGW=0 \
+      ${CEPH_HOST_CPU_AFFINITY:+taskset --cpu-list $CEPH_HOST_CPU_AFFINITY} \
+      ../src/vstart.sh \
       -d -n -x -i "$CEPH_HOST" --without-dashboard --memstore \
   && scp -C "${SSH_COMM_OPTIONS[@]}" -p \
       ceph.conf "$LOCAL_HOST":"$LOCAL_CEPH_CONF_DIR"/ceph.conf \
@@ -82,23 +91,23 @@ configure_ceph_pool() {
   common::stage "Configure Ceph pool..."
 
   trace_on
-  "$SCRIPT_DIR"/ceph-shell -- ceph config set osd osd_max_backfills 32
-  "$SCRIPT_DIR"/ceph-shell -- ceph config set osd osd_recovery_max_active 32
-  "$SCRIPT_DIR"/ceph-shell -- ceph config set osd osd_recovery_max_single_start 8
-  "$SCRIPT_DIR"/ceph-shell -- ceph config set osd osd_recovery_op_priority 63
+  $LOCAL_CEPH_SHELL ceph config set osd osd_max_backfills 32
+  $LOCAL_CEPH_SHELL ceph config set osd osd_recovery_max_active 32
+  $LOCAL_CEPH_SHELL ceph config set osd osd_recovery_max_single_start 8
+  $LOCAL_CEPH_SHELL ceph config set osd osd_recovery_op_priority 63
 
-  "$SCRIPT_DIR"/ceph-shell -- ceph config show-with-defaults osd.0 \
+  $LOCAL_CEPH_SHELL ceph config show-with-defaults osd.0 \
     | grep 'osd_max_backfills\|osd_recovery' | column -t -s ' '
 
-  "$SCRIPT_DIR"/ceph-shell -- ceph osd pool create "$POOL_NAME" \
+  $LOCAL_CEPH_SHELL ceph osd pool create "$POOL_NAME" \
     "$NUM_PGS" "$NUM_PGS" replicated --size "$POOL_SIZE" --pg-num-min "$NUM_PGS"
-  "$SCRIPT_DIR"/ceph-shell -- ceph osd pool set "$POOL_NAME" min_size 1
-  "$SCRIPT_DIR"/ceph-shell -- ceph osd pool set "$POOL_NAME" pg_autoscale_mode off
-  "$SCRIPT_DIR"/ceph-shell -- ceph osd pool application enable "$POOL_NAME" benchmark
-  "$SCRIPT_DIR"/ceph-shell -- ceph osd pool set "$POOL_NAME" noscrub 1
-  "$SCRIPT_DIR"/ceph-shell -- ceph osd pool set "$POOL_NAME" nodeep-scrub 1
-  "$SCRIPT_DIR"/ceph-shell -- ceph osd pool ls detail
-  "$SCRIPT_DIR"/ceph-shell -- ceph osd df tree
+  $LOCAL_CEPH_SHELL ceph osd pool set "$POOL_NAME" min_size 1
+  $LOCAL_CEPH_SHELL ceph osd pool set "$POOL_NAME" pg_autoscale_mode off
+  $LOCAL_CEPH_SHELL ceph osd pool application enable "$POOL_NAME" benchmark
+  $LOCAL_CEPH_SHELL ceph osd pool set "$POOL_NAME" noscrub 1
+  $LOCAL_CEPH_SHELL ceph osd pool set "$POOL_NAME" nodeep-scrub 1
+  $LOCAL_CEPH_SHELL ceph osd pool ls detail
+  $LOCAL_CEPH_SHELL ceph osd df tree
   trace_off
 }
 
@@ -128,7 +137,7 @@ wait_till_cluster_idle() {
   local cluster_status idle_count=0 idle_count_max=5
   while true; do
     cluster_status="$(
-      "$SCRIPT_DIR"/ceph-shell -- ceph --status 2>&1 \
+      $LOCAL_CEPH_SHELL ceph --status 2>&1 \
         | sed --quiet "/data:/,\$p"
     )"
     common::info "$cluster_status"
@@ -169,7 +178,7 @@ rados_bench() {
   common::info "Run rados bench"
   if [[ "$mode" == "write" ]]; then
     trace_on
-    "$SCRIPT_DIR"/ceph-shell -- \
+    $LOCAL_CEPH_SHELL \
       rados bench "$RADOS_BENCH_RUN_LENTH_SECS" write \
       --pool "$POOL_NAME" \
       -b "$object_size_bytes" \
@@ -183,7 +192,7 @@ rados_bench() {
     trace_off
   elif [[ "$mode" == "seq" ]]; then
     trace_on
-    "$SCRIPT_DIR"/ceph-shell -- \
+    $LOCAL_CEPH_SHELL \
       rados bench 99999999 seq \
       --pool "$POOL_NAME" \
       --concurrent-ios 256 \
