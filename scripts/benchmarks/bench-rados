@@ -230,6 +230,9 @@ main() {
 
       wait_till_cluster_idle
       rados_bench "seq" "$round_idx" "$object_size"
+
+      # prevent "got completion with error:"
+      wait_till_cluster_idle
     done
   done
 }
