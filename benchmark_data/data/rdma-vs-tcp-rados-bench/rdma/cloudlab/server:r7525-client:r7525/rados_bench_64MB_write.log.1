@@ -1,0 +1,38 @@
+[1;30mnode-1.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-05-16T17:34:59,026178385-04:00] DEBUG: HOST_PARAMS: [][0m
+[1;30mnode-1.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-05-16T17:34:59,029480991-04:00] DEBUG: CEPHADM_PARAMS: ['shell', '--config', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.conf', '--keyring', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.client.admin.keyring', '--fsid', '2e5794e8-5c84-4f9a-a391-f818029371f5', '--mount', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/tmp/ceph-asok.NWw7yV:/tmp/ceph-asok.NWw7yV', '--', 'rados', 'bench', '20', 'write', '--pool', 'bench_rados', '-b', '67108864', '-O', '67108864', '--concurrent-ios', '256', '--show-time', '--write-object', '--write-omap', '--write-xattr', '--no-cleanup'][0m
+# ./parallel-cephadm:68 -  > sudo /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/usr/sbin/cephadm shell --config /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.conf --keyring /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.client.admin.keyring --fsid 2e5794e8-5c84-4f9a-a391-f818029371f5 --mount /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/tmp/ceph-asok.NWw7yV:/tmp/ceph-asok.NWw7yV -- rados bench 20 write --pool bench_rados -b 67108864 -O 67108864 --concurrent-ios 256 --show-time --write-object --write-omap --write-xattr --no-cleanup
+Using recent ceph image ceph/ceph@sha256:7bda5ef5bf4c06e8b720afefe24b22dd0fe2fdf7f3c34da265dc9238578563ff
+2021-05-16T21:35:01.281+0000 7fdace9e4d00 -1 WARNING: all dangerous and experimental features are enabled.
+2021-05-16T21:35:01.529+0000 7fdace9e4d00 -1 WARNING: all dangerous and experimental features are enabled.
+2021-05-16T21:35:01.529+0000 7fdace9e4d00 -1 WARNING: all dangerous and experimental features are enabled.
+hints = 1
+2021-05-16T21:35:01.558858+0000 Maintaining 256 concurrent writes of 67108864 bytes to objects of size 67108864 for up to 20 seconds or 0 objects
+2021-05-16T21:35:01.558921+0000 Object prefix: benchmark_data_node-1.bluefield2.ucsc-cmps10_7
+2021-05-16T21:35:05.591789+0000   sec Cur ops   started  finished  avg MB/s  cur MB/s last lat(s)  avg lat(s)
+2021-05-16T21:35:05.591789+0000     0       0         0         0         0         0           -           0
+2021-05-16T21:35:06.591938+0000     1      12        12         0         0         0           -           0
+2021-05-16T21:35:07.592015+0000     2      25        25         0         0         0           -           0
+2021-05-16T21:35:08.592084+0000     3      38        38         0         0         0           -           0
+2021-05-16T21:35:09.592154+0000     4      51        51         0         0         0           -           0
+2021-05-16T21:35:10.592222+0000     5      65        65         0         0         0           -           0
+2021-05-16T21:35:11.592299+0000     6      81        81         0         0         0           -           0
+2021-05-16T21:35:12.592367+0000     7      96        96         0         0         0           -           0
+2021-05-16T21:35:13.592438+0000     8     104       104         0         0         0           -           0
+2021-05-16T21:35:14.592505+0000     9     107       107         0         0         0           -           0
+2021-05-16T21:35:15.592582+0000    10     122       122         0         0         0           -           0
+2021-05-16T21:35:16.592652+0000    11     136       136         0         0         0           -           0
+2021-05-16T21:35:17.592721+0000    12     144       144         0         0         0           -           0
+2021-05-16T21:35:18.593141+0000    13     144       144         0         0         0           -           0
+2021-05-16T21:35:19.593217+0000    14     158       158         0         0         0           -           0
+2021-05-16T21:35:20.593287+0000    15     174       174         0         0         0           -           0
+2021-05-16T21:35:21.593356+0000    16     189       189         0         0         0           -           0
+2021-05-16T21:35:22.593427+0000    17     202       202         0         0         0           -           0
+2021-05-16T21:35:23.593504+0000    18     215       215         0         0         0           -           0
+2021-05-16T21:35:24.593574+0000    19     230       230         0         0         0           -           0
+2021-05-16T21:35:25.593656+0000 min lat: 9999 max lat: 0 avg lat: 0
+2021-05-16T21:35:25.593656+0000   sec Cur ops   started  finished  avg MB/s  cur MB/s last lat(s)  avg lat(s)
+2021-05-16T21:35:25.593656+0000    20     243       243         0         0         0           -           0
+2021-05-16T21:35:26.593739+0000    21     243       243         0         0         0           -           0
+2021-05-16T21:35:27.593815+0000    22     248       248         0         0         0           -           0
+error during benchmark: (90) Message too long
+error 90: (90) Message too long
