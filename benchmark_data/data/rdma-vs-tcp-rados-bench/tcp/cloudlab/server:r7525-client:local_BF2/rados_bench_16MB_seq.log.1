@@ -1,0 +1,30 @@
+[1;30mlocalhost.localdomain	[2021-05-17T03:02:29,197734982-07:00] DEBUG: HOST_PARAMS: [][0m
+[1;30mlocalhost.localdomain	[2021-05-17T03:02:29,204177907-07:00] DEBUG: CEPHADM_PARAMS: ['shell', '--config', '/home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.conf', '--keyring', '/home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.client.admin.keyring', '--fsid', 'fb27cf37-1afe-46c1-8345-249c7be17cfd', '--mount', '/home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib', '/home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib', '/home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out', '/home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out', '/home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out', '/home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/tmp/ceph-asok.EKogXy:/tmp/ceph-asok.EKogXy', '--', 'rados', 'bench', '99999999', 'seq', '--pool', 'bench_rados', '--concurrent-ios', '256', '--show-time'][0m
+# ./parallel-cephadm:68 -  > sudo /home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/usr/sbin/cephadm shell --config /home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.conf --keyring /home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.client.admin.keyring --fsid fb27cf37-1afe-46c1-8345-249c7be17cfd --mount /home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib /home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib /home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out /home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out /home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out /home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/tmp/ceph-asok.EKogXy:/tmp/ceph-asok.EKogXy -- rados bench 99999999 seq --pool bench_rados --concurrent-ios 256 --show-time
+Using recent ceph image ceph/ceph@sha256:16d37584df43bd6545d16e5aeba527de7d6ac3da3ca7b882384839d2d86acc7d
+2021-05-17T10:02:30.679+0000 ffffb09dd010 -1 WARNING: all dangerous and experimental features are enabled.
+2021-05-17T10:02:30.687+0000 ffffb09dd010 -1 WARNING: all dangerous and experimental features are enabled.
+2021-05-17T10:02:30.691+0000 ffffb09dd010 -1 WARNING: all dangerous and experimental features are enabled.
+hints = 1
+2021-05-17T10:02:30.724677+0000   sec Cur ops   started  finished  avg MB/s  cur MB/s last lat(s)  avg lat(s)
+2021-05-17T10:02:30.724677+0000     0       0         0         0         0         0           -           0
+2021-05-17T10:02:31.724907+0000     1      67        67         0         0         0           -           0
+2021-05-17T10:02:32.725137+0000     2     129       129         0         0         0           -           0
+2021-05-17T10:02:33.725389+0000     3     194       194         0         0         0           -           0
+2021-05-17T10:02:34.725646+0000     4     255       257         2   7.99769         8     3.99214      3.9878
+2021-05-17T10:02:35.728734+0000     5     255       305        50   159.864       768     4.34635     4.17922
+2021-05-17T10:02:36.728985+0000     6     255       351        96   255.808       736      4.4994     4.29867
+2021-05-17T10:02:37.729242+0000     7     255       397       142   324.351       736     4.82581     4.42003
+2021-05-17T10:02:39.449359+0000     8     136       445       309   566.656      2672     3.63183     4.51922
+2021-05-17T10:02:40.449701+0000 Total time run:       9.49956
+Total reads made:     445
+Read size:            16777216
+Object size:          16777216
+Bandwidth (MB/sec):   749.509
+Average IOPS:         46
+Stddev IOPS:          56.8756
+Max IOPS:             167
+Min IOPS:             0
+Average Latency(s):   3.91865
+Max latency(s):       5.11797
+Min latency(s):       1.49919
