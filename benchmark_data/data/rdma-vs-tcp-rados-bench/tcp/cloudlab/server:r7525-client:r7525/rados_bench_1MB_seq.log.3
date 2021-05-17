@@ -1,0 +1,27 @@
+[1;30mnode-1.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-05-17T14:08:03,495112470-04:00] DEBUG: HOST_PARAMS: [][0m
+[1;30mnode-1.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-05-17T14:08:03,499093307-04:00] DEBUG: CEPHADM_PARAMS: ['shell', '--config', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.conf', '--keyring', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.client.admin.keyring', '--fsid', '1f8ecfba-770d-4953-8fd3-00f4b2215aa3', '--mount', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/tmp/ceph-asok.Fg5cp2:/tmp/ceph-asok.Fg5cp2', '--', 'rados', 'bench', '99999999', 'seq', '--pool', 'bench_rados', '--concurrent-ios', '256', '--show-time'][0m
+# ./parallel-cephadm:68 -  > sudo /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/usr/sbin/cephadm shell --config /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.conf --keyring /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.client.admin.keyring --fsid 1f8ecfba-770d-4953-8fd3-00f4b2215aa3 --mount /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/tmp/ceph-asok.Fg5cp2:/tmp/ceph-asok.Fg5cp2 -- rados bench 99999999 seq --pool bench_rados --concurrent-ios 256 --show-time
+Using recent ceph image ceph/ceph@sha256:7bda5ef5bf4c06e8b720afefe24b22dd0fe2fdf7f3c34da265dc9238578563ff
+2021-05-17T18:08:05.989+0000 7f1354aa7d00 -1 WARNING: all dangerous and experimental features are enabled.
+2021-05-17T18:08:05.993+0000 7f1354aa7d00 -1 WARNING: all dangerous and experimental features are enabled.
+2021-05-17T18:08:05.997+0000 7f1354aa7d00 -1 WARNING: all dangerous and experimental features are enabled.
+hints = 1
+2021-05-17T18:08:06.008285+0000   sec Cur ops   started  finished  avg MB/s  cur MB/s last lat(s)  avg lat(s)
+2021-05-17T18:08:06.008285+0000     0       0         0         0         0         0           -           0
+2021-05-17T18:08:07.008375+0000     1     255      3697      3442   3441.51      3442   0.0706482   0.0706153
+2021-05-17T18:08:08.008519+0000     2     255      7200      6945      3472      3503   0.0732506   0.0717839
+2021-05-17T18:08:09.008707+0000     3     255     10616     10361   3453.12      3416   0.0702941   0.0727656
+2021-05-17T18:08:10.008814+0000     4     255     13994     13739   3434.25      3378   0.0776912    0.073487
+2021-05-17T18:08:11.008922+0000     5     255     17369     17114   3422.33      3375   0.0775568   0.0739433
+2021-05-17T18:08:12.009069+0000 Total time run:       5.65591
+Total reads made:     19432
+Read size:            1048576
+Object size:          1048576
+Bandwidth (MB/sec):   3435.7
+Average IOPS:         3435
+Stddev IOPS:          52.7703
+Max IOPS:             3503
+Min IOPS:             3375
+Average Latency(s):   0.0738942
+Max latency(s):       0.155902
+Min latency(s):       0.0173073

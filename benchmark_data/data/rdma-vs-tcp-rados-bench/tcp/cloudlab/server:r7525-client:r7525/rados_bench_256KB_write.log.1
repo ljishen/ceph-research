@@ -1,0 +1,50 @@
+[1;30mnode-1.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-05-17T13:26:20,119997071-04:00] DEBUG: HOST_PARAMS: [][0m
+[1;30mnode-1.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-05-17T13:26:20,123471057-04:00] DEBUG: CEPHADM_PARAMS: ['shell', '--config', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.conf', '--keyring', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.client.admin.keyring', '--fsid', 'f3b40365-f77a-4b26-bc7f-bccee69b03da', '--mount', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/tmp/ceph-asok.6NpS0A:/tmp/ceph-asok.6NpS0A', '--', 'rados', 'bench', '20', 'write', '--pool', 'bench_rados', '-b', '262144', '-O', '262144', '--concurrent-ios', '256', '--show-time', '--write-object', '--write-omap', '--write-xattr', '--no-cleanup'][0m
+# ./parallel-cephadm:68 -  > sudo /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/usr/sbin/cephadm shell --config /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.conf --keyring /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.client.admin.keyring --fsid f3b40365-f77a-4b26-bc7f-bccee69b03da --mount /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/tmp/ceph-asok.6NpS0A:/tmp/ceph-asok.6NpS0A -- rados bench 20 write --pool bench_rados -b 262144 -O 262144 --concurrent-ios 256 --show-time --write-object --write-omap --write-xattr --no-cleanup
+Using recent ceph image ceph/ceph@sha256:7bda5ef5bf4c06e8b720afefe24b22dd0fe2fdf7f3c34da265dc9238578563ff
+2021-05-17T17:26:22.693+0000 7fbbb8d99d00 -1 WARNING: all dangerous and experimental features are enabled.
+2021-05-17T17:26:22.697+0000 7fbbb8d99d00 -1 WARNING: all dangerous and experimental features are enabled.
+2021-05-17T17:26:22.697+0000 7fbbb8d99d00 -1 WARNING: all dangerous and experimental features are enabled.
+hints = 1
+2021-05-17T17:26:22.709714+0000 Maintaining 256 concurrent writes of 262144 bytes to objects of size 262144 for up to 20 seconds or 0 objects
+2021-05-17T17:26:22.709727+0000 Object prefix: benchmark_data_node-1.bluefield2.ucsc-cmps10_7
+2021-05-17T17:26:22.726072+0000   sec Cur ops   started  finished  avg MB/s  cur MB/s last lat(s)  avg lat(s)
+2021-05-17T17:26:22.726072+0000     0       0         0         0         0         0           -           0
+2021-05-17T17:26:23.726158+0000     1     255      4074      3819    954.71    954.75   0.0456546   0.0639124
+2021-05-17T17:26:24.726259+0000     2     255      8122      7867   983.305      1012   0.0389801   0.0634059
+2021-05-17T17:26:25.726374+0000     3     255     12257     12002   1000.08   1033.75   0.0477086    0.062933
+2021-05-17T17:26:26.726484+0000     4     255     16413     16158   1009.78      1039   0.0550171   0.0625577
+2021-05-17T17:26:27.726593+0000     5     255     20570     20315   1015.65   1039.25   0.0990905    0.062401
+2021-05-17T17:26:28.726697+0000     6     255     24687     24432    1017.9   1029.25    0.043289   0.0623404
+2021-05-17T17:26:29.726803+0000     7     255     28797     28542   1019.26    1027.5   0.0927989   0.0623496
+2021-05-17T17:26:30.726919+0000     8     255     32858     32603   1018.74   1015.25   0.0473412   0.0624319
+2021-05-17T17:26:31.727041+0000     9     255     36945     36690   1019.06   1021.75   0.0966411   0.0624509
+2021-05-17T17:26:32.727145+0000    10     255     40934     40679   1016.87    997.25   0.0896774   0.0626378
+2021-05-17T17:26:33.727250+0000    11     255     44720     44465   1010.46     946.5   0.0461108   0.0630451
+2021-05-17T17:26:34.727353+0000    12     255     48252     47997   999.834       883   0.0704205   0.0637293
+2021-05-17T17:26:35.727462+0000    13     255     52241     51986   999.627    997.25    0.103203   0.0637681
+2021-05-17T17:26:36.727581+0000    14     255     56124     55869   997.556    970.75   0.0547759    0.063897
+2021-05-17T17:26:37.727696+0000    15     255     60265     60010   1000.06   1035.25   0.0515655   0.0637728
+2021-05-17T17:26:38.727801+0000    16     255     64287     64032   1000.39    1005.5   0.0506577   0.0637696
+2021-05-17T17:26:39.727915+0000    17     255     68106     67851   997.703    954.75    0.055545   0.0639527
+2021-05-17T17:26:40.728018+0000    18     255     72212     71957   999.297    1026.5   0.0478271   0.0638581
+2021-05-17T17:26:41.728125+0000    19     255     76069     75814   997.447    964.25   0.0548247   0.0639816
+2021-05-17T17:26:42.728232+0000 min lat: 0.00304008 max lat: 0.198565 avg lat: 0.0638241
+2021-05-17T17:26:42.728232+0000   sec Cur ops   started  finished  avg MB/s  cur MB/s last lat(s)  avg lat(s)
+2021-05-17T17:26:42.728232+0000    20     108     80206     80098   1001.12      1071  0.00304049   0.0638241
+2021-05-17T17:26:43.728463+0000 Total time run:         20.0194
+Total writes made:      80206
+Write size:             262144
+Object size:            262144
+Bandwidth (MB/sec):     1001.6
+Stddev Bandwidth:       43.7957
+Max bandwidth (MB/sec): 1071
+Min bandwidth (MB/sec): 883
+Average IOPS:           4006
+Stddev IOPS:            175.183
+Max IOPS:               4284
+Min IOPS:               3532
+Average Latency(s):     0.0638017
+Stddev Latency(s):      0.023351
+Max latency(s):         0.198565
+Min latency(s):         0.00304008

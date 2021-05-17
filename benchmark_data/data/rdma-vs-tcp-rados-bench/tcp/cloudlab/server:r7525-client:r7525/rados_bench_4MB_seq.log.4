@@ -1,0 +1,28 @@
+[1;30mnode-1.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-05-17T14:42:17,307198165-04:00] DEBUG: HOST_PARAMS: [][0m
+[1;30mnode-1.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-05-17T14:42:17,310629200-04:00] DEBUG: CEPHADM_PARAMS: ['shell', '--config', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.conf', '--keyring', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.client.admin.keyring', '--fsid', '80ce042c-c3e6-4fdd-85ea-61c3df78b4eb', '--mount', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/tmp/ceph-asok.rt8zXj:/tmp/ceph-asok.rt8zXj', '--', 'rados', 'bench', '99999999', 'seq', '--pool', 'bench_rados', '--concurrent-ios', '256', '--show-time'][0m
+# ./parallel-cephadm:68 -  > sudo /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/usr/sbin/cephadm shell --config /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.conf --keyring /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.client.admin.keyring --fsid 80ce042c-c3e6-4fdd-85ea-61c3df78b4eb --mount /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/tmp/ceph-asok.rt8zXj:/tmp/ceph-asok.rt8zXj -- rados bench 99999999 seq --pool bench_rados --concurrent-ios 256 --show-time
+Using recent ceph image ceph/ceph@sha256:7bda5ef5bf4c06e8b720afefe24b22dd0fe2fdf7f3c34da265dc9238578563ff
+2021-05-17T18:42:19.787+0000 7f30b45abd00 -1 WARNING: all dangerous and experimental features are enabled.
+2021-05-17T18:42:19.791+0000 7f30b45abd00 -1 WARNING: all dangerous and experimental features are enabled.
+2021-05-17T18:42:19.791+0000 7f30b45abd00 -1 WARNING: all dangerous and experimental features are enabled.
+hints = 1
+2021-05-17T18:42:19.802393+0000   sec Cur ops   started  finished  avg MB/s  cur MB/s last lat(s)  avg lat(s)
+2021-05-17T18:42:19.802393+0000     0       0         0         0         0         0           -           0
+2021-05-17T18:42:20.802481+0000     1     255       864       609   2435.62      2436    0.327236    0.303229
+2021-05-17T18:42:21.802596+0000     2     255      1654      1399   2797.62      3160    0.312332    0.316084
+2021-05-17T18:42:22.802701+0000     3     255      2422      2167   2888.97      3072    0.337935    0.321039
+2021-05-17T18:42:23.802885+0000     4     255      3201      2946   2945.59      3116    0.315368    0.323494
+2021-05-17T18:42:24.803667+0000     5     255      4056      3801   3039.98      3420    0.284002    0.319541
+2021-05-17T18:42:25.803782+0000     6     255      4929      4674   3115.24      3492    0.308354    0.313857
+2021-05-17T18:42:26.803955+0000 Total time run:       6.09133
+Total reads made:     4948
+Read size:            4194304
+Object size:          4194304
+Bandwidth (MB/sec):   3249.21
+Average IOPS:         812
+Stddev IOPS:          93.5457
+Max IOPS:             873
+Min IOPS:             609
+Average Latency(s):   0.307288
+Max latency(s):       0.352478
+Min latency(s):       0.0661221

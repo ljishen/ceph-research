@@ -1,0 +1,26 @@
+[1;30mnode-1.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-05-17T13:27:41,243624551-04:00] DEBUG: HOST_PARAMS: [][0m
+[1;30mnode-1.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-05-17T13:27:41,247361571-04:00] DEBUG: CEPHADM_PARAMS: ['shell', '--config', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.conf', '--keyring', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.client.admin.keyring', '--fsid', 'f3b40365-f77a-4b26-bc7f-bccee69b03da', '--mount', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out', '/mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/tmp/ceph-asok.6NpS0A:/tmp/ceph-asok.6NpS0A', '--', 'rados', 'bench', '99999999', 'seq', '--pool', 'bench_rados', '--concurrent-ios', '256', '--show-time'][0m
+# ./parallel-cephadm:68 -  > sudo /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/usr/sbin/cephadm shell --config /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.conf --keyring /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.client.admin.keyring --fsid f3b40365-f77a-4b26-bc7f-bccee69b03da --mount /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out /mnt/sda8/ceph-research/scripts/benchmarks/deployment_data_root/tmp/ceph-asok.6NpS0A:/tmp/ceph-asok.6NpS0A -- rados bench 99999999 seq --pool bench_rados --concurrent-ios 256 --show-time
+Using recent ceph image ceph/ceph@sha256:7bda5ef5bf4c06e8b720afefe24b22dd0fe2fdf7f3c34da265dc9238578563ff
+2021-05-17T17:27:43.730+0000 7fc57da2cd00 -1 WARNING: all dangerous and experimental features are enabled.
+2021-05-17T17:27:43.734+0000 7fc57da2cd00 -1 WARNING: all dangerous and experimental features are enabled.
+2021-05-17T17:27:43.734+0000 7fc57da2cd00 -1 WARNING: all dangerous and experimental features are enabled.
+hints = 1
+2021-05-17T17:27:43.745861+0000   sec Cur ops   started  finished  avg MB/s  cur MB/s last lat(s)  avg lat(s)
+2021-05-17T17:27:43.745861+0000     0       0         0         0         0         0           -           0
+2021-05-17T17:27:44.745987+0000     1     255     19897     19642   4909.58    4910.5  0.00930878    0.012885
+2021-05-17T17:27:45.746113+0000     2     255     38825     38570    4820.5      4732  0.00604728   0.0131956
+2021-05-17T17:27:46.746288+0000     3     256     57435     57179   4764.14   4652.25   0.0107001   0.0132497
+2021-05-17T17:27:47.746470+0000     4     255     75880     75625   4725.77    4611.5   0.0196666   0.0134821
+2021-05-17T17:27:48.746680+0000 Total time run:       4.2614
+Total reads made:     80206
+Read size:            262144
+Object size:          262144
+Bandwidth (MB/sec):   4705.38
+Average IOPS:         18821
+Stddev IOPS:          529.776
+Max IOPS:             19642
+Min IOPS:             18446
+Average Latency(s):   0.0135315
+Max latency(s):       0.0772103
+Min latency(s):       0.000460174
