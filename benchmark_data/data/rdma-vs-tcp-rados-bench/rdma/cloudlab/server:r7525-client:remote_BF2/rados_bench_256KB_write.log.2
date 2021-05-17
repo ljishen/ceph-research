@@ -1,0 +1,52 @@
+[1;30mlocalhost.localdomain	[2021-05-16T16:56:41,984609710-07:00] DEBUG: HOST_PARAMS: [][0m
+[1;30mlocalhost.localdomain	[2021-05-16T16:56:41,990883165-07:00] DEBUG: CEPHADM_PARAMS: ['shell', '--config', '/home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.conf', '--keyring', '/home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.client.admin.keyring', '--fsid', '5a830462-841b-4721-b634-38a68917089f', '--mount', '/home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib', '/home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib', '/home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out', '/home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out', '/home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out', '/home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/tmp/ceph-asok.ldepWb:/tmp/ceph-asok.ldepWb', '--', 'rados', 'bench', '20', 'write', '--pool', 'bench_rados', '-b', '262144', '-O', '262144', '--concurrent-ios', '256', '--show-time', '--write-object', '--write-omap', '--write-xattr', '--no-cleanup'][0m
+# ./parallel-cephadm:68 -  > sudo /home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/usr/sbin/cephadm shell --config /home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.conf --keyring /home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.client.admin.keyring --fsid 5a830462-841b-4721-b634-38a68917089f --mount /home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib /home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib /home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out /home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out /home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out /home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/tmp/ceph-asok.ldepWb:/tmp/ceph-asok.ldepWb -- rados bench 20 write --pool bench_rados -b 262144 -O 262144 --concurrent-ios 256 --show-time --write-object --write-omap --write-xattr --no-cleanup
+Using recent ceph image ceph/ceph@sha256:16d37584df43bd6545d16e5aeba527de7d6ac3da3ca7b882384839d2d86acc7d
+2021-05-16T23:56:43.445+0000 ffffbdf4b010 -1 WARNING: all dangerous and experimental features are enabled.
+2021-05-16T23:56:44.237+0000 ffffbdf4b010 -1 WARNING: all dangerous and experimental features are enabled.
+2021-05-16T23:56:44.237+0000 ffffbdf4b010 -1 WARNING: all dangerous and experimental features are enabled.
+hints = 1
+2021-05-16T23:56:44.259008+0000 Maintaining 256 concurrent writes of 262144 bytes to objects of size 262144 for up to 20 seconds or 0 objects
+2021-05-16T23:56:44.259078+0000 Object prefix: benchmark_data_localhost.localdomain_6
+2021-05-16T23:56:44.310263+0000   sec Cur ops   started  finished  avg MB/s  cur MB/s last lat(s)  avg lat(s)
+2021-05-16T23:56:44.310263+0000     0       0         0         0         0         0           -           0
+2021-05-16T23:56:45.310485+0000     1     205       205         0         0         0           -           0
+2021-05-16T23:56:46.310659+0000     2     255       398       143   17.8728    17.875     1.27015     1.27552
+2021-05-16T23:56:47.310837+0000     3     255       398       143    11.915         0           -     1.27552
+2021-05-16T23:56:48.311017+0000     4     255       667       412   25.7461    33.625     2.20262     1.85435
+2021-05-16T23:56:49.311179+0000     5     255       667       412   20.5969         0           -     1.85435
+2021-05-16T23:56:50.311322+0000     6     255       945       690   28.7457     34.75   0.0472473     1.85624
+2021-05-16T23:56:51.311510+0000     7     255       945       690    24.639         0           -     1.85624
+2021-05-16T23:56:52.311678+0000     8     255      1889      1634   51.0544       118    0.047631     1.19455
+2021-05-16T23:56:53.311857+0000     9     255      1889      1634   45.3816         0           -     1.19455
+2021-05-16T23:56:54.312015+0000    10     255      2602      2347   58.6656    89.125   0.0366428     1.05984
+2021-05-16T23:56:55.312211+0000    11     255      3832      3577   81.2822     307.5   0.0495415    0.713691
+2021-05-16T23:56:56.312397+0000    12     255      3832      3577   74.5085         0           -    0.713691
+2021-05-16T23:56:57.312565+0000    13     255      4282      4027   77.4295     56.25   0.0499691     0.75168
+2021-05-16T23:56:58.312751+0000    14     255      4282      4027   71.8987         0           -     0.75168
+2021-05-16T23:56:59.312916+0000    15     255      4490      4235   70.5716        26     2.08956     0.81816
+2021-05-16T23:57:00.313098+0000    16     255      4490      4235   66.1608         0           -     0.81816
+2021-05-16T23:57:01.313258+0000    17     255      4507      4252    62.519     2.125     4.21344    0.831637
+2021-05-16T23:57:02.313420+0000    18     255      4507      4252   59.0457         0           -    0.831637
+2021-05-16T23:57:03.313576+0000    19     255      4608      4353   57.2668    12.625     4.27854    0.926257
+2021-05-16T23:57:04.313758+0000 min lat: 0.0265754 max lat: 6.36932 avg lat: 0.926257
+2021-05-16T23:57:04.313758+0000   sec Cur ops   started  finished  avg MB/s  cur MB/s last lat(s)  avg lat(s)
+2021-05-16T23:57:04.313758+0000    20     255      4608      4353   54.4034         0           -    0.926257
+2021-05-16T23:57:05.314001+0000    21      82      4609      4527   53.8837     21.75     2.13601     1.07107
+2021-05-16T23:57:06.314166+0000    22      82      4609      4527   51.4344         0           -     1.07107
+2021-05-16T23:57:07.314356+0000 Total time run:         22.7492
+Total writes made:      4609
+Write size:             262144
+Object size:            262144
+Bandwidth (MB/sec):     50.6502
+Stddev Bandwidth:       69.0132
+Max bandwidth (MB/sec): 307.5
+Min bandwidth (MB/sec): 0
+Average IOPS:           202
+Stddev IOPS:            276.056
+Max IOPS:               1230
+Min IOPS:               0
+Average Latency(s):     1.16738
+Stddev Latency(s):      1.64779
+Max latency(s):         8.56545
+Min latency(s):         0.0265754
