@@ -1,0 +1,37 @@
+[1;30mlocalhost.localdomain	[2021-05-17T16:21:15,060032792-07:00] DEBUG: HOST_PARAMS: [][0m
+[1;30mlocalhost.localdomain	[2021-05-17T16:21:15,066268473-07:00] DEBUG: CEPHADM_PARAMS: ['shell', '--config', '/home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.conf', '--keyring', '/home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.client.admin.keyring', '--fsid', '5323700f-844b-4a85-9624-5accdffdfe54', '--mount', '/home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib', '/home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib', '/home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out', '/home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out', '/home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out', '/home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/tmp/ceph-asok.2fctq6:/tmp/ceph-asok.2fctq6', '--', 'rados', 'bench', '99999999', 'seq', '--pool', 'bench_rados', '--concurrent-ios', '256', '--show-time'][0m
+# ./parallel-cephadm:68 -  > sudo /home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/usr/sbin/cephadm shell --config /home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.conf --keyring /home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/etc/ceph/ceph.client.admin.keyring --fsid 5323700f-844b-4a85-9624-5accdffdfe54 --mount /home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib /home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/lib:/mnt/sda8/ceph/build/lib /home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out /home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out /home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/mnt/sda8/ceph/build/out:/mnt/sda8/ceph/build/out /home/ubuntu/ceph-research/scripts/benchmarks/deployment_data_root/tmp/ceph-asok.2fctq6:/tmp/ceph-asok.2fctq6 -- rados bench 99999999 seq --pool bench_rados --concurrent-ios 256 --show-time
+Using recent ceph image ceph/ceph@sha256:16d37584df43bd6545d16e5aeba527de7d6ac3da3ca7b882384839d2d86acc7d
+2021-05-17T23:21:16.640+0000 ffff85393010 -1 WARNING: all dangerous and experimental features are enabled.
+2021-05-17T23:21:16.648+0000 ffff85393010 -1 WARNING: all dangerous and experimental features are enabled.
+2021-05-17T23:21:16.648+0000 ffff85393010 -1 WARNING: all dangerous and experimental features are enabled.
+hints = 1
+2021-05-17T23:21:16.668751+0000   sec Cur ops   started  finished  avg MB/s  cur MB/s last lat(s)  avg lat(s)
+2021-05-17T23:21:16.668751+0000     0       0         0         0         0         0           -           0
+2021-05-17T23:21:17.669414+0000     1     255       284        29     115.9       116    0.984482    0.930109
+2021-05-17T23:21:18.671703+0000     2     255       479       224   447.296       780      1.2562     1.09874
+2021-05-17T23:21:19.674104+0000     3     255       670       415   552.312       764     1.33315     1.19999
+2021-05-17T23:21:20.675606+0000     4     255       861       606   604.934       764     1.35165     1.24684
+2021-05-17T23:21:21.676721+0000     5     255      1049       794   634.164       752     1.34083     1.27043
+2021-05-17T23:21:22.676968+0000     6     255      1239       984   655.081       760      1.3371     1.28581
+2021-05-17T23:21:23.677277+0000     7     255      1420      1165   664.886       724     1.39772     1.29716
+2021-05-17T23:21:24.679467+0000     8     255      1612      1357   677.576       768     1.35559     1.31031
+2021-05-17T23:21:25.679714+0000     9     255      1793      1538   682.709       724     1.38063     1.31609
+2021-05-17T23:21:26.681302+0000    10     255      1989      1734   692.717       784     1.33869      1.3217
+2021-05-17T23:21:27.681822+0000    11     255      2169      1914   695.162       720     1.38788     1.32528
+2021-05-17T23:21:28.682972+0000    12     255      2354      2099   698.827       740     1.38298     1.33144
+2021-05-17T23:21:29.683174+0000    13     255      2539      2284    701.98       740     1.38906      1.3356
+2021-05-17T23:21:30.684627+0000    14     255      2721      2466   703.763       728     1.40971     1.34024
+2021-05-17T23:21:31.685147+0000    15     255      2903      2648   705.353       728     1.40114     1.34498
+2021-05-17T23:21:32.686550+0000 Total time run:       15.6602
+Total reads made:     2945
+Read size:            4194304
+Object size:          4194304
+Bandwidth (MB/sec):   752.227
+Average IOPS:         188
+Stddev IOPS:          41.1545
+Max IOPS:             196
+Min IOPS:             29
+Average Latency(s):   1.30974
+Max latency(s):       1.42682
+Min latency(s):       0.409873
