@@ -1,0 +1,70 @@
+
+Benchmark output:
+561384
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.0",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "f959141ece4d660bce5f7fa545befc0116a7db79",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "aarch64",
+        "cpu_core_count": "8",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "262144",
+        "cpu_l1i_cache_bytes": "393216",
+        "cpu_l2_cache_bytes": "4194304",
+        "cpu_l3_cache_bytes": "6291456",
+        "cpu_model_name": "Cortex-A72",
+        "cpu_thread_count": "8",
+        "kernel_name": "5.4.0-1008-bluefield",
+        "memory_bytes": "16106127360",
+        "name": "localhost.localdomain",
+        "os_name": "Linux",
+        "os_version": "5.4.0-1008-bluefield-aarch64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "84c56a6958cc4939a0fd46742152d47f",
+        "data": [
+            "3.972424",
+            "3.999152",
+            "4.002735",
+            "4.007571",
+            "4.013658",
+            "3.996626",
+            "4.011750",
+            "4.002169",
+            "4.021180",
+            "3.999321"
+        ],
+        "iqr": "0.011511",
+        "iterations": 10,
+        "max": "4.021180",
+        "mean": "4.002659",
+        "median": "4.002452",
+        "min": "3.972424",
+        "q1": "3.999195",
+        "q3": "4.010706",
+        "run_id": "84c56a6958cc4939a0fd46742152d47f",
+        "stdev": "0.013102",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-05-23T05:20:52.396112+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "cpu_count": null,
+        "dataset": "nyctaxi_multi_parquet_s3",
+        "name": "dataset-selectivity",
+        "selectivity": "1%"
+    }
+}
