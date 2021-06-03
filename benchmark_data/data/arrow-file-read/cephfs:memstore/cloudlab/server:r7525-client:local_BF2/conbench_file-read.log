@@ -1,4 +1,4 @@
-Time to create table/dataframe 163.0862419605255
++ conbench file-read nyctaxi_2010-01 --iterations=10 --all=true --drop-caches=true 2>&1
 
 Benchmark result:
 {
@@ -31,32 +31,32 @@ Benchmark result:
         "os_version": "5.4.0-1008-bluefield-aarch64-with-glibc2.29"
     },
     "stats": {
-        "batch_id": "7c83aacc75a64899bba4720e3445d17d",
+        "batch_id": "77c6f2202cd04375932ff23592ac9a5b",
         "data": [
-            "16.186064",
-            "15.868519",
-            "15.781070",
-            "15.743387",
-            "15.988094",
-            "15.710209",
-            "15.717792",
-            "15.761845",
-            "15.918815",
-            "15.759478"
+            "4.883299",
+            "4.733424",
+            "4.757423",
+            "4.779593",
+            "4.790584",
+            "4.749598",
+            "4.727935",
+            "4.783886",
+            "4.906866",
+            "4.733334"
         ],
-        "iqr": "0.158831",
+        "iqr": "0.051442",
         "iterations": 10,
-        "max": "16.186064",
-        "mean": "15.843527",
-        "median": "15.771457",
-        "min": "15.710209",
-        "q1": "15.747410",
-        "q3": "15.906241",
-        "run_id": "7c83aacc75a64899bba4720e3445d17d",
-        "stdev": "0.151207",
+        "max": "4.906866",
+        "mean": "4.784594",
+        "median": "4.768508",
+        "min": "4.727935",
+        "q1": "4.737467",
+        "q3": "4.788910",
+        "run_id": "77c6f2202cd04375932ff23592ac9a5b",
+        "stdev": "0.062516",
         "time_unit": "s",
         "times": [],
-        "timestamp": "2021-05-26T07:19:53.886006+00:00",
+        "timestamp": "2021-06-03T05:56:40.044999+00:00",
         "unit": "s"
     },
     "tags": {
@@ -64,11 +64,10 @@ Benchmark result:
         "cpu_count": null,
         "dataset": "nyctaxi_2010-01",
         "file_type": "parquet",
-        "input_type": "table",
-        "name": "file-write"
+        "name": "file-read",
+        "output_type": "table"
     }
 }
-Time to create table/dataframe 1.3589859008789062e-05
 
 Benchmark result:
 {
@@ -101,32 +100,32 @@ Benchmark result:
         "os_version": "5.4.0-1008-bluefield-aarch64-with-glibc2.29"
     },
     "stats": {
-        "batch_id": "7c83aacc75a64899bba4720e3445d17d",
+        "batch_id": "77c6f2202cd04375932ff23592ac9a5b",
         "data": [
-            "27.428538",
-            "26.896551",
-            "27.145833",
-            "27.393331",
-            "27.008423",
-            "26.949243",
-            "26.971899",
-            "27.340039",
-            "27.093574",
-            "28.194423"
+            "42.515451",
+            "42.252163",
+            "41.945417",
+            "42.853153",
+            "42.378314",
+            "42.352142",
+            "42.061146",
+            "42.195020",
+            "41.890363",
+            "42.057941"
         ],
-        "iqr": "0.398978",
+        "iqr": "0.313029",
         "iterations": 10,
-        "max": "28.194423",
-        "mean": "27.242185",
-        "median": "27.119703",
-        "min": "26.896551",
-        "q1": "26.981030",
-        "q3": "27.380008",
-        "run_id": "7c83aacc75a64899bba4720e3445d17d",
-        "stdev": "0.385609",
+        "max": "42.853153",
+        "mean": "42.250111",
+        "median": "42.223592",
+        "min": "41.890363",
+        "q1": "42.058742",
+        "q3": "42.371771",
+        "run_id": "77c6f2202cd04375932ff23592ac9a5b",
+        "stdev": "0.290372",
         "time_unit": "s",
         "times": [],
-        "timestamp": "2021-05-26T07:24:37.095819+00:00",
+        "timestamp": "2021-06-03T06:04:25.988984+00:00",
         "unit": "s"
     },
     "tags": {
@@ -134,11 +133,10 @@ Benchmark result:
         "cpu_count": null,
         "dataset": "nyctaxi_2010-01",
         "file_type": "parquet",
-        "input_type": "dataframe",
-        "name": "file-write"
+        "name": "file-read",
+        "output_type": "dataframe"
     }
 }
-Time to create table/dataframe 1.049041748046875e-05
 
 Benchmark result:
 {
@@ -171,32 +169,32 @@ Benchmark result:
         "os_version": "5.4.0-1008-bluefield-aarch64-with-glibc2.29"
     },
     "stats": {
-        "batch_id": "7c83aacc75a64899bba4720e3445d17d",
+        "batch_id": "77c6f2202cd04375932ff23592ac9a5b",
         "data": [
-            "19.600145",
-            "19.471923",
-            "19.387861",
-            "19.568504",
-            "19.738103",
-            "19.925328",
-            "19.496981",
-            "19.832361",
-            "19.596023",
-            "19.689306"
+            "3.985579",
+            "3.988145",
+            "4.027393",
+            "4.044838",
+            "4.111562",
+            "3.998523",
+            "4.045099",
+            "4.003294",
+            "4.021144",
+            "4.080948"
         ],
-        "iqr": "0.211042",
+        "iqr": "0.045318",
         "iterations": 10,
-        "max": "19.925328",
-        "mean": "19.630654",
-        "median": "19.598084",
-        "min": "19.387861",
-        "q1": "19.514862",
-        "q3": "19.725904",
-        "run_id": "7c83aacc75a64899bba4720e3445d17d",
-        "stdev": "0.166836",
+        "max": "4.111562",
+        "mean": "4.030653",
+        "median": "4.024268",
+        "min": "3.985579",
+        "q1": "3.999716",
+        "q3": "4.045034",
+        "run_id": "77c6f2202cd04375932ff23592ac9a5b",
+        "stdev": "0.041105",
         "time_unit": "s",
         "times": [],
-        "timestamp": "2021-05-26T07:28:01.376237+00:00",
+        "timestamp": "2021-06-03T06:05:24.070918+00:00",
         "unit": "s"
     },
     "tags": {
@@ -204,11 +202,10 @@ Benchmark result:
         "cpu_count": null,
         "dataset": "nyctaxi_2010-01",
         "file_type": "parquet",
-        "input_type": "table",
-        "name": "file-write"
+        "name": "file-read",
+        "output_type": "table"
     }
 }
-Time to create table/dataframe 1.3113021850585938e-05
 
 Benchmark result:
 {
@@ -241,32 +238,32 @@ Benchmark result:
         "os_version": "5.4.0-1008-bluefield-aarch64-with-glibc2.29"
     },
     "stats": {
-        "batch_id": "7c83aacc75a64899bba4720e3445d17d",
+        "batch_id": "77c6f2202cd04375932ff23592ac9a5b",
         "data": [
-            "31.004310",
-            "31.051410",
-            "31.146207",
-            "30.768300",
-            "31.249173",
-            "30.675469",
-            "31.113012",
-            "31.270115",
-            "30.915331",
-            "31.218339"
+            "41.666185",
+            "41.187136",
+            "41.333992",
+            "41.094862",
+            "41.372945",
+            "41.312472",
+            "41.331158",
+            "41.495339",
+            "40.918299",
+            "41.524607"
         ],
-        "iqr": "0.262730",
+        "iqr": "0.246271",
         "iterations": 10,
-        "max": "31.270115",
-        "mean": "31.041167",
-        "median": "31.082211",
-        "min": "30.675469",
-        "q1": "30.937576",
-        "q3": "31.200306",
-        "run_id": "7c83aacc75a64899bba4720e3445d17d",
-        "stdev": "0.202418",
+        "max": "41.666185",
+        "mean": "41.323699",
+        "median": "41.332575",
+        "min": "40.918299",
+        "q1": "41.218470",
+        "q3": "41.464741",
+        "run_id": "77c6f2202cd04375932ff23592ac9a5b",
+        "stdev": "0.217358",
         "time_unit": "s",
         "times": [],
-        "timestamp": "2021-05-26T07:33:21.185996+00:00",
+        "timestamp": "2021-06-03T06:13:00.762321+00:00",
         "unit": "s"
     },
     "tags": {
@@ -274,11 +271,10 @@ Benchmark result:
         "cpu_count": null,
         "dataset": "nyctaxi_2010-01",
         "file_type": "parquet",
-        "input_type": "dataframe",
-        "name": "file-write"
+        "name": "file-read",
+        "output_type": "dataframe"
     }
 }
-Time to create table/dataframe 1.1682510375976562e-05
 
 Benchmark result:
 {
@@ -311,32 +307,32 @@ Benchmark result:
         "os_version": "5.4.0-1008-bluefield-aarch64-with-glibc2.29"
     },
     "stats": {
-        "batch_id": "7c83aacc75a64899bba4720e3445d17d",
+        "batch_id": "77c6f2202cd04375932ff23592ac9a5b",
         "data": [
-            "23.256116",
-            "23.073730",
-            "22.948128",
-            "22.957234",
-            "23.033895",
-            "23.013944",
-            "23.035360",
-            "22.988155",
-            "23.053921",
-            "22.993743"
+            "4.068640",
+            "4.144613",
+            "4.189109",
+            "4.105209",
+            "4.138539",
+            "4.080060",
+            "4.054190",
+            "4.141155",
+            "4.112041",
+            "4.111224"
         ],
-        "iqr": "0.059729",
+        "iqr": "0.054154",
         "iterations": 10,
-        "max": "23.256116",
-        "mean": "23.035423",
-        "median": "23.023919",
-        "min": "22.948128",
-        "q1": "22.989552",
-        "q3": "23.049281",
-        "run_id": "7c83aacc75a64899bba4720e3445d17d",
-        "stdev": "0.087359",
+        "max": "4.189109",
+        "mean": "4.114478",
+        "median": "4.111633",
+        "min": "4.054190",
+        "q1": "4.086347",
+        "q3": "4.140501",
+        "run_id": "77c6f2202cd04375932ff23592ac9a5b",
+        "stdev": "0.040540",
         "time_unit": "s",
         "times": [],
-        "timestamp": "2021-05-26T07:37:18.915186+00:00",
+        "timestamp": "2021-06-03T06:13:58.358277+00:00",
         "unit": "s"
     },
     "tags": {
@@ -344,11 +340,10 @@ Benchmark result:
         "cpu_count": null,
         "dataset": "nyctaxi_2010-01",
         "file_type": "parquet",
-        "input_type": "table",
-        "name": "file-write"
+        "name": "file-read",
+        "output_type": "table"
     }
 }
-Time to create table/dataframe 1.239776611328125e-05
 
 Benchmark result:
 {
@@ -381,32 +376,32 @@ Benchmark result:
         "os_version": "5.4.0-1008-bluefield-aarch64-with-glibc2.29"
     },
     "stats": {
-        "batch_id": "7c83aacc75a64899bba4720e3445d17d",
+        "batch_id": "77c6f2202cd04375932ff23592ac9a5b",
         "data": [
-            "34.348337",
-            "34.134600",
-            "34.523363",
-            "34.759390",
-            "34.836869",
-            "34.531886",
-            "34.436395",
-            "34.210124",
-            "34.519599",
-            "34.123178"
+            "41.473458",
+            "41.352871",
+            "41.412378",
+            "41.586749",
+            "41.683799",
+            "40.928190",
+            "41.326753",
+            "41.484421",
+            "41.487825",
+            "41.668410"
         ],
-        "iqr": "0.285078",
+        "iqr": "0.194270",
         "iterations": 10,
-        "max": "34.836869",
-        "mean": "34.442374",
-        "median": "34.477997",
-        "min": "34.123178",
-        "q1": "34.244678",
-        "q3": "34.529756",
-        "run_id": "7c83aacc75a64899bba4720e3445d17d",
-        "stdev": "0.244061",
+        "max": "41.683799",
+        "mean": "41.440485",
+        "median": "41.478940",
+        "min": "40.928190",
+        "q1": "41.367748",
+        "q3": "41.562018",
+        "run_id": "77c6f2202cd04375932ff23592ac9a5b",
+        "stdev": "0.216449",
         "time_unit": "s",
         "times": [],
-        "timestamp": "2021-05-26T07:43:12.416953+00:00",
+        "timestamp": "2021-06-03T06:21:35.796367+00:00",
         "unit": "s"
     },
     "tags": {
@@ -414,11 +409,10 @@ Benchmark result:
         "cpu_count": null,
         "dataset": "nyctaxi_2010-01",
         "file_type": "parquet",
-        "input_type": "dataframe",
-        "name": "file-write"
+        "name": "file-read",
+        "output_type": "dataframe"
     }
 }
-Time to create table/dataframe 1.2636184692382812e-05
 
 Benchmark result:
 {
@@ -451,32 +445,32 @@ Benchmark result:
         "os_version": "5.4.0-1008-bluefield-aarch64-with-glibc2.29"
     },
     "stats": {
-        "batch_id": "7c83aacc75a64899bba4720e3445d17d",
+        "batch_id": "77c6f2202cd04375932ff23592ac9a5b",
         "data": [
-            "19.085789",
-            "18.982875",
-            "19.171275",
-            "19.001875",
-            "18.863146",
-            "18.832999",
-            "18.997794",
-            "19.029106",
-            "18.804517",
-            "19.018788"
+            "4.103659",
+            "4.082477",
+            "4.154407",
+            "4.206844",
+            "4.143264",
+            "4.066967",
+            "4.084679",
+            "4.090207",
+            "4.214297",
+            "4.146752"
         ],
-        "iqr": "0.133449",
+        "iqr": "0.066432",
         "iterations": 10,
-        "max": "19.171275",
-        "mean": "18.978817",
-        "median": "18.999835",
-        "min": "18.804517",
-        "q1": "18.893078",
-        "q3": "19.026527",
-        "run_id": "7c83aacc75a64899bba4720e3445d17d",
-        "stdev": "0.114766",
+        "max": "4.214297",
+        "mean": "4.129355",
+        "median": "4.123461",
+        "min": "4.066967",
+        "q1": "4.086061",
+        "q3": "4.152493",
+        "run_id": "77c6f2202cd04375932ff23592ac9a5b",
+        "stdev": "0.052305",
         "time_unit": "s",
         "times": [],
-        "timestamp": "2021-05-26T07:46:29.913534+00:00",
+        "timestamp": "2021-06-03T06:22:33.270762+00:00",
         "unit": "s"
     },
     "tags": {
@@ -484,11 +478,10 @@ Benchmark result:
         "cpu_count": null,
         "dataset": "nyctaxi_2010-01",
         "file_type": "parquet",
-        "input_type": "table",
-        "name": "file-write"
+        "name": "file-read",
+        "output_type": "table"
     }
 }
-Time to create table/dataframe 1.239776611328125e-05
 
 Benchmark result:
 {
@@ -521,32 +514,32 @@ Benchmark result:
         "os_version": "5.4.0-1008-bluefield-aarch64-with-glibc2.29"
     },
     "stats": {
-        "batch_id": "7c83aacc75a64899bba4720e3445d17d",
+        "batch_id": "77c6f2202cd04375932ff23592ac9a5b",
         "data": [
-            "30.345762",
-            "30.359966",
-            "30.788225",
-            "30.272437",
-            "30.256431",
-            "30.803519",
-            "30.467190",
-            "30.154958",
-            "30.433058",
-            "30.104529"
+            "41.804518",
+            "41.399833",
+            "41.297750",
+            "41.211369",
+            "41.753563",
+            "41.853940",
+            "41.676077",
+            "41.637935",
+            "41.817767",
+            "41.445448"
         ],
-        "iqr": "0.198224",
+        "iqr": "0.380542",
         "iterations": 10,
-        "max": "30.803519",
-        "mean": "30.398608",
-        "median": "30.352864",
-        "min": "30.104529",
-        "q1": "30.260433",
-        "q3": "30.458657",
-        "run_id": "7c83aacc75a64899bba4720e3445d17d",
-        "stdev": "0.237560",
+        "max": "41.853940",
+        "mean": "41.589820",
+        "median": "41.657006",
+        "min": "41.211369",
+        "q1": "41.411237",
+        "q3": "41.791779",
+        "run_id": "77c6f2202cd04375932ff23592ac9a5b",
+        "stdev": "0.233298",
         "time_unit": "s",
         "times": [],
-        "timestamp": "2021-05-26T07:51:43.518468+00:00",
+        "timestamp": "2021-06-03T06:30:12.488355+00:00",
         "unit": "s"
     },
     "tags": {
@@ -554,11 +547,10 @@ Benchmark result:
         "cpu_count": null,
         "dataset": "nyctaxi_2010-01",
         "file_type": "parquet",
-        "input_type": "dataframe",
-        "name": "file-write"
+        "name": "file-read",
+        "output_type": "dataframe"
     }
 }
-Time to create table/dataframe 1.1920928955078125e-05
 
 Benchmark result:
 {
@@ -591,32 +583,32 @@ Benchmark result:
         "os_version": "5.4.0-1008-bluefield-aarch64-with-glibc2.29"
     },
     "stats": {
-        "batch_id": "7c83aacc75a64899bba4720e3445d17d",
+        "batch_id": "77c6f2202cd04375932ff23592ac9a5b",
         "data": [
-            "10.023324",
-            "10.043302",
-            "10.036975",
-            "9.999366",
-            "10.076160",
-            "9.993511",
-            "10.025486",
-            "9.996577",
-            "10.004198",
-            "9.979626"
+            "6.128621",
+            "6.193807",
+            "6.137229",
+            "6.148109",
+            "6.081774",
+            "6.097000",
+            "6.040270",
+            "6.205682",
+            "6.153096",
+            "6.114427"
         ],
-        "iqr": "0.036829",
+        "iqr": "0.050493",
         "iterations": 10,
-        "max": "10.076160",
-        "mean": "10.017852",
-        "median": "10.013761",
-        "min": "9.979626",
-        "q1": "9.997274",
-        "q3": "10.034103",
-        "run_id": "7c83aacc75a64899bba4720e3445d17d",
-        "stdev": "0.028937",
+        "max": "6.205682",
+        "mean": "6.130001",
+        "median": "6.132925",
+        "min": "6.040270",
+        "q1": "6.101356",
+        "q3": "6.151850",
+        "run_id": "77c6f2202cd04375932ff23592ac9a5b",
+        "stdev": "0.049915",
         "time_unit": "s",
         "times": [],
-        "timestamp": "2021-05-26T07:53:34.996506+00:00",
+        "timestamp": "2021-06-03T06:31:31.823683+00:00",
         "unit": "s"
     },
     "tags": {
@@ -624,11 +616,10 @@ Benchmark result:
         "cpu_count": null,
         "dataset": "nyctaxi_2010-01",
         "file_type": "feather",
-        "input_type": "table",
-        "name": "file-write"
+        "name": "file-read",
+        "output_type": "table"
     }
 }
-Time to create table/dataframe 9.059906005859375e-06
 
 Benchmark result:
 {
@@ -661,32 +652,32 @@ Benchmark result:
         "os_version": "5.4.0-1008-bluefield-aarch64-with-glibc2.29"
     },
     "stats": {
-        "batch_id": "7c83aacc75a64899bba4720e3445d17d",
+        "batch_id": "77c6f2202cd04375932ff23592ac9a5b",
         "data": [
-            "21.328376",
-            "21.527270",
-            "21.790442",
-            "21.443684",
-            "21.159191",
-            "21.433047",
-            "21.678166",
-            "21.273173",
-            "21.610197",
-            "21.781799"
+            "43.669156",
+            "43.461029",
+            "43.941046",
+            "43.606060",
+            "43.643428",
+            "43.128560",
+            "43.881057",
+            "43.929954",
+            "43.791702",
+            "44.210484"
         ],
-        "iqr": "0.306630",
+        "iqr": "0.302328",
         "iterations": 10,
-        "max": "21.790442",
-        "mean": "21.502535",
-        "median": "21.485477",
-        "min": "21.159191",
-        "q1": "21.354544",
-        "q3": "21.661174",
-        "run_id": "7c83aacc75a64899bba4720e3445d17d",
-        "stdev": "0.214228",
+        "max": "44.210484",
+        "mean": "43.726248",
+        "median": "43.730429",
+        "min": "43.128560",
+        "q1": "43.615402",
+        "q3": "43.917730",
+        "run_id": "77c6f2202cd04375932ff23592ac9a5b",
+        "stdev": "0.298609",
         "time_unit": "s",
         "times": [],
-        "timestamp": "2021-05-26T07:57:23.003359+00:00",
+        "timestamp": "2021-06-03T06:39:36.436230+00:00",
         "unit": "s"
     },
     "tags": {
@@ -694,11 +685,10 @@ Benchmark result:
         "cpu_count": null,
         "dataset": "nyctaxi_2010-01",
         "file_type": "feather",
-        "input_type": "dataframe",
-        "name": "file-write"
+        "name": "file-read",
+        "output_type": "dataframe"
     }
 }
-Time to create table/dataframe 8.106231689453125e-06
 
 Benchmark result:
 {
@@ -731,32 +721,32 @@ Benchmark result:
         "os_version": "5.4.0-1008-bluefield-aarch64-with-glibc2.29"
     },
     "stats": {
-        "batch_id": "7c83aacc75a64899bba4720e3445d17d",
+        "batch_id": "77c6f2202cd04375932ff23592ac9a5b",
         "data": [
-            "8.700859",
-            "8.652415",
-            "8.593115",
-            "8.657557",
-            "8.573318",
-            "8.620023",
-            "8.630502",
-            "8.631147",
-            "8.624254",
-            "8.592587"
+            "3.571587",
+            "3.592542",
+            "3.590207",
+            "3.662499",
+            "3.675612",
+            "3.612610",
+            "3.645025",
+            "3.674481",
+            "3.636783",
+            "3.658563"
         ],
-        "iqr": "0.047256",
+        "iqr": "0.063956",
         "iterations": 10,
-        "max": "8.700859",
-        "mean": "8.627578",
-        "median": "8.627378",
-        "min": "8.573318",
-        "q1": "8.599842",
-        "q3": "8.647098",
-        "run_id": "7c83aacc75a64899bba4720e3445d17d",
-        "stdev": "0.037016",
+        "max": "3.675612",
+        "mean": "3.631991",
+        "median": "3.640904",
+        "min": "3.571587",
+        "q1": "3.597559",
+        "q3": "3.661515",
+        "run_id": "77c6f2202cd04375932ff23592ac9a5b",
+        "stdev": "0.037807",
         "time_unit": "s",
         "times": [],
-        "timestamp": "2021-05-26T07:58:58.314493+00:00",
+        "timestamp": "2021-06-03T06:40:28.729860+00:00",
         "unit": "s"
     },
     "tags": {
@@ -764,11 +754,10 @@ Benchmark result:
         "cpu_count": null,
         "dataset": "nyctaxi_2010-01",
         "file_type": "feather",
-        "input_type": "table",
-        "name": "file-write"
+        "name": "file-read",
+        "output_type": "table"
     }
 }
-Time to create table/dataframe 1.0251998901367188e-05
 
 Benchmark result:
 {
@@ -801,32 +790,32 @@ Benchmark result:
         "os_version": "5.4.0-1008-bluefield-aarch64-with-glibc2.29"
     },
     "stats": {
-        "batch_id": "7c83aacc75a64899bba4720e3445d17d",
+        "batch_id": "77c6f2202cd04375932ff23592ac9a5b",
         "data": [
-            "20.336892",
-            "19.889486",
-            "20.213993",
-            "19.794561",
-            "19.750401",
-            "19.959870",
-            "19.943969",
-            "19.758898",
-            "19.963981",
-            "19.890949"
+            "41.052855",
+            "40.991797",
+            "41.387660",
+            "41.316770",
+            "41.067477",
+            "41.059426",
+            "41.291375",
+            "40.962702",
+            "41.271983",
+            "40.945669"
         ],
-        "iqr": "0.144661",
+        "iqr": "0.279466",
         "iterations": 10,
-        "max": "20.336892",
-        "mean": "19.950300",
-        "median": "19.917459",
-        "min": "19.750401",
-        "q1": "19.818292",
-        "q3": "19.962953",
-        "run_id": "7c83aacc75a64899bba4720e3445d17d",
-        "stdev": "0.190723",
+        "max": "41.387660",
+        "mean": "41.134771",
+        "median": "41.063452",
+        "min": "40.945669",
+        "q1": "41.007062",
+        "q3": "41.286527",
+        "run_id": "77c6f2202cd04375932ff23592ac9a5b",
+        "stdev": "0.164368",
         "time_unit": "s",
         "times": [],
-        "timestamp": "2021-05-26T08:02:27.802445+00:00",
+        "timestamp": "2021-06-03T06:48:04.269174+00:00",
         "unit": "s"
     },
     "tags": {
@@ -834,11 +823,10 @@ Benchmark result:
         "cpu_count": null,
         "dataset": "nyctaxi_2010-01",
         "file_type": "feather",
-        "input_type": "dataframe",
-        "name": "file-write"
+        "name": "file-read",
+        "output_type": "dataframe"
     }
 }
-Time to create table/dataframe 7.62939453125e-06
 
 Benchmark result:
 {
@@ -871,32 +859,32 @@ Benchmark result:
         "os_version": "5.4.0-1008-bluefield-aarch64-with-glibc2.29"
     },
     "stats": {
-        "batch_id": "7c83aacc75a64899bba4720e3445d17d",
+        "batch_id": "77c6f2202cd04375932ff23592ac9a5b",
         "data": [
-            "8.769232",
-            "8.706144",
-            "8.712811",
-            "8.747777",
-            "8.667461",
-            "8.708291",
-            "8.754703",
-            "8.674614",
-            "8.749087",
-            "8.744665"
+            "3.694753",
+            "3.714753",
+            "3.698634",
+            "3.716311",
+            "3.668225",
+            "3.692098",
+            "3.702852",
+            "3.701244",
+            "3.684447",
+            "3.728848"
         ],
-        "iqr": "0.042079",
+        "iqr": "0.019015",
         "iterations": 10,
-        "max": "8.769232",
-        "mean": "8.723479",
-        "median": "8.728738",
-        "min": "8.667461",
-        "q1": "8.706681",
-        "q3": "8.748760",
-        "run_id": "7c83aacc75a64899bba4720e3445d17d",
-        "stdev": "0.034855",
+        "max": "3.728848",
+        "mean": "3.700216",
+        "median": "3.699939",
+        "min": "3.668225",
+        "q1": "3.692762",
+        "q3": "3.711777",
+        "run_id": "77c6f2202cd04375932ff23592ac9a5b",
+        "stdev": "0.017219",
         "time_unit": "s",
         "times": [],
-        "timestamp": "2021-05-26T08:04:03.397581+00:00",
+        "timestamp": "2021-06-03T06:48:56.300530+00:00",
         "unit": "s"
     },
     "tags": {
@@ -904,11 +892,10 @@ Benchmark result:
         "cpu_count": null,
         "dataset": "nyctaxi_2010-01",
         "file_type": "feather",
-        "input_type": "table",
-        "name": "file-write"
+        "name": "file-read",
+        "output_type": "table"
     }
 }
-Time to create table/dataframe 9.775161743164062e-06
 
 Benchmark result:
 {
@@ -941,32 +928,32 @@ Benchmark result:
         "os_version": "5.4.0-1008-bluefield-aarch64-with-glibc2.29"
     },
     "stats": {
-        "batch_id": "7c83aacc75a64899bba4720e3445d17d",
+        "batch_id": "77c6f2202cd04375932ff23592ac9a5b",
         "data": [
-            "20.402528",
-            "20.002133",
-            "19.971046",
-            "19.931441",
-            "20.104745",
-            "19.998991",
-            "19.937889",
-            "19.919065",
-            "19.949841",
-            "20.003886"
+            "41.241993",
+            "41.296321",
+            "40.955622",
+            "41.398467",
+            "41.348984",
+            "41.004220",
+            "41.572726",
+            "41.387314",
+            "41.386586",
+            "40.922860"
         ],
-        "iqr": "0.062570",
+        "iqr": "0.323469",
         "iterations": 10,
-        "max": "20.402528",
-        "mean": "20.022156",
-        "median": "19.985019",
-        "min": "19.919065",
-        "q1": "19.940877",
-        "q3": "20.003447",
-        "run_id": "7c83aacc75a64899bba4720e3445d17d",
-        "stdev": "0.143981",
+        "max": "41.572726",
+        "mean": "41.251509",
+        "median": "41.322653",
+        "min": "40.922860",
+        "q1": "41.063663",
+        "q3": "41.387132",
+        "run_id": "77c6f2202cd04375932ff23592ac9a5b",
+        "stdev": "0.218525",
         "time_unit": "s",
         "times": [],
-        "timestamp": "2021-05-26T08:07:32.963667+00:00",
+        "timestamp": "2021-06-03T06:56:32.652190+00:00",
         "unit": "s"
     },
     "tags": {
@@ -974,7 +961,7 @@ Benchmark result:
         "cpu_count": null,
         "dataset": "nyctaxi_2010-01",
         "file_type": "feather",
-        "input_type": "dataframe",
-        "name": "file-write"
+        "name": "file-read",
+        "output_type": "dataframe"
     }
 }

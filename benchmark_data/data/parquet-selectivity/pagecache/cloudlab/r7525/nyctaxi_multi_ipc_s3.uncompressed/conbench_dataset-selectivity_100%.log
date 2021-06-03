@@ -1,0 +1,70 @@
+
+Benchmark output:
+59616487
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.0",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "f959141ece4d660bce5f7fa545befc0116a7db79",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-1.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "c9ae433c3b0043fc96b66ff4334522f3",
+        "data": [
+            "0.678969",
+            "0.313623",
+            "0.374831",
+            "0.302600",
+            "0.310001",
+            "0.313271",
+            "0.327102",
+            "0.302198",
+            "0.350462",
+            "0.504536"
+        ],
+        "iqr": "0.057921",
+        "iterations": 10,
+        "max": "0.678969",
+        "mean": "0.377759",
+        "median": "0.320362",
+        "min": "0.302198",
+        "q1": "0.310818",
+        "q3": "0.368739",
+        "run_id": "c9ae433c3b0043fc96b66ff4334522f3",
+        "stdev": "0.122175",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-03T07:42:54.913822+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "cpu_count": null,
+        "dataset": "nyctaxi_multi_ipc_s3",
+        "name": "dataset-selectivity",
+        "selectivity": "100%"
+    }
+}

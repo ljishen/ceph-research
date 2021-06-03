@@ -1,0 +1,70 @@
+
+Benchmark output:
+596165
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.0",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "f959141ece4d660bce5f7fa545befc0116a7db79",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "aarch64",
+        "cpu_core_count": "8",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "262144",
+        "cpu_l1i_cache_bytes": "393216",
+        "cpu_l2_cache_bytes": "4194304",
+        "cpu_l3_cache_bytes": "6291456",
+        "cpu_model_name": "Cortex-A72",
+        "cpu_thread_count": "8",
+        "kernel_name": "5.4.0-1008-bluefield",
+        "memory_bytes": "16106127360",
+        "name": "localhost.localdomain",
+        "os_name": "Linux",
+        "os_version": "5.4.0-1008-bluefield-aarch64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "9e24118bb2f443ad8fe7cbf6bf36b2c4",
+        "data": [
+            "2.140186",
+            "2.088847",
+            "2.030431",
+            "2.075405",
+            "2.054750",
+            "2.083927",
+            "2.051721",
+            "2.083855",
+            "2.085584",
+            "2.056759"
+        ],
+        "iqr": "0.029917",
+        "iterations": 10,
+        "max": "2.140186",
+        "mean": "2.075146",
+        "median": "2.079630",
+        "min": "2.030431",
+        "q1": "2.055252",
+        "q3": "2.085170",
+        "run_id": "9e24118bb2f443ad8fe7cbf6bf36b2c4",
+        "stdev": "0.029781",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-03T07:52:25.174398+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "cpu_count": null,
+        "dataset": "nyctaxi_multi_ipc_s3",
+        "name": "dataset-selectivity",
+        "selectivity": "1%"
+    }
+}
