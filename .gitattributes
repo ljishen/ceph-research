@@ -1,7 +1,7 @@
 **/sys_activity/*.tar.gz filter=lfs diff=lfs merge=lfs -text
 **/sys_activity/*.svg filter=lfs diff=lfs merge=lfs -text
-**/perf/*.out filter=lfs diff=lfs merge=lfs -text
-**/perf/*.data filter=lfs diff=lfs merge=lfs -text
+**/perf/**/*.out filter=lfs diff=lfs merge=lfs -text
+**/perf/**/*.data filter=lfs diff=lfs merge=lfs -text
 *.data filter=lfs diff=lfs merge=lfs -text
 outa filter=lfs diff=lfs merge=lfs -text
 *.out filter=lfs diff=lfs merge=lfs -text
