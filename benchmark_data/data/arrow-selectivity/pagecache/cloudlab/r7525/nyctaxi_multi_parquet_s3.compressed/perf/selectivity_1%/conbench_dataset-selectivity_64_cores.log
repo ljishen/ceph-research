@@ -1,0 +1,66 @@
++ taskset -c 32-63,96-127 conbench dataset-selectivity nyctaxi_multi_parquet_s3 --selectivity 1% --show-output=true --iterations=5 --cpu-count=64
+
+Benchmark output:
+[None, 561384]
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.0",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "f959141ece4d660bce5f7fa545befc0116a7db79",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-1.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "069606cb1c7c4362a0d489360b7121bc",
+        "data": [
+            "0.444000",
+            "0.349013",
+            "0.351657",
+            "0.348353",
+            "30.398717"
+        ],
+        "iqr": "0.094987",
+        "iterations": 5,
+        "max": "30.398717",
+        "mean": "6.378348",
+        "median": "0.351657",
+        "min": "0.348353",
+        "q1": "0.349013",
+        "q3": "0.444000",
+        "run_id": "069606cb1c7c4362a0d489360b7121bc",
+        "stdev": "13.427857",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-04T21:30:38.050832+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "cpu_count": 64,
+        "dataset": "nyctaxi_multi_parquet_s3",
+        "name": "dataset-selectivity",
+        "selectivity": "1%"
+    }
+}

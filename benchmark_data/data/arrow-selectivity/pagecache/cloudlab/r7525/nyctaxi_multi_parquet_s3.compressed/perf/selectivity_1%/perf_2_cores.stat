@@ -1,0 +1,32 @@
+# started on Fri Jun  4 17:09:49 2021
+
+
+ Performance counter stats for process id '631415':
+
+          9,347.64 msec cpu-clock                 #    0.269 CPUs utilized          
+               120      context-switches          #    0.013 K/sec                  
+                 1      cpu-migrations            #    0.000 K/sec                  
+            50,530      page-faults               #    0.005 M/sec                  
+    31,631,545,997      cycles                    #    3.384 GHz                      (37.38%)
+     1,604,601,653      stalled-cycles-frontend   #    5.07% frontend cycles idle     (37.52%)
+       973,758,428      stalled-cycles-backend    #    3.08% backend cycles idle      (37.61%)
+    72,047,227,520      instructions              #    2.28  insn per cycle         
+                                                  #    0.02  stalled cycles per insn  (37.68%)
+    13,692,132,861      branches                  # 1464.769 M/sec                    (37.74%)
+       149,311,951      branch-misses             #    1.09% of all branches          (37.78%)
+       150,865,708      cache-misses                                                  (37.75%)
+    21,602,341,362      L1-dcache-loads           # 2310.995 M/sec                    (37.66%)
+       831,253,803      L1-dcache-load-misses     #    3.85% of all L1-dcache hits    (37.57%)
+   <not supported>      LLC-loads                                                   
+   <not supported>      LLC-load-misses                                             
+       664,993,214      L1-icache-loads           #   71.140 M/sec                    (37.50%)
+         3,345,264      L1-icache-load-misses     #    0.50% of all L1-icache hits    (37.44%)
+        33,168,481      dTLB-loads                #    3.548 M/sec                    (37.39%)
+         6,750,615      dTLB-load-misses          #   20.35% of all dTLB cache hits   (37.28%)
+        10,760,017      iTLB-loads                #    1.151 M/sec                    (37.23%)
+           400,027      iTLB-load-misses          #    3.72% of all iTLB cache hits   (37.22%)
+       548,412,041      L1-dcache-prefetches      #   58.669 M/sec                    (37.24%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+
+      34.753437613 seconds time elapsed
+
