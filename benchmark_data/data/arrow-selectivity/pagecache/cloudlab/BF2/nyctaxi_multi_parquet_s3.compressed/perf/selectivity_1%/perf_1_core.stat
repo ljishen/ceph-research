@@ -1,31 +1,31 @@
-# started on Fri Jun  4 20:04:56 2021
+# started on Sat Jun  5 00:00:33 2021
 
 
- Performance counter stats for process id '96354':
+ Performance counter stats for process id '494607':
 
-          23046.33 msec cpu-clock                 #    0.435 CPUs utilized          
-               371      context-switches          #    0.016 K/sec                  
-                 5      cpu-migrations            #    0.000 K/sec                  
-             62059      page-faults               #    0.003 M/sec                  
-       57326992742      cycles                    #    2.487 GHz                      (69.88%)
+          23055.87 msec cpu-clock                 #    0.435 CPUs utilized          
+               278      context-switches          #    0.012 K/sec                  
+                 4      cpu-migrations            #    0.000 K/sec                  
+             61272      page-faults               #    0.003 M/sec                  
+       57354334008      cycles                    #    2.488 GHz                      (69.92%)
    <not supported>      stalled-cycles-frontend                                     
    <not supported>      stalled-cycles-backend                                      
-       72930271193      instructions              #    1.27  insn per cycle           (69.90%)
+       72934021283      instructions              #    1.27  insn per cycle           (70.00%)
    <not supported>      branches                                                    
-         235849906      branch-misses                                                 (69.99%)
-         268465943      cache-misses                                                  (70.00%)
-       21944387020      L1-dcache-loads           #  952.186 M/sec                    (70.03%)
-         268389046      L1-dcache-load-misses     #    1.22% of all L1-dcache hits    (70.05%)
+         240734509      branch-misses                                                 (70.04%)
+         270990451      cache-misses                                                  (70.10%)
+       21936060946      L1-dcache-loads           #  951.431 M/sec                    (70.07%)
+         271599424      L1-dcache-load-misses     #    1.24% of all L1-dcache hits    (70.02%)
    <not supported>      LLC-loads                                                   
    <not supported>      LLC-load-misses                                             
-       26811207607      L1-icache-loads           # 1163.361 M/sec                    (70.09%)
-          71486693      L1-icache-load-misses     #    0.27% of all L1-icache hits    (60.07%)
+       26872921924      L1-icache-loads           # 1165.557 M/sec                    (69.99%)
+          74247050      L1-icache-load-misses     #    0.28% of all L1-icache hits    (59.94%)
    <not supported>      dTLB-loads                                                  
-          63843365      dTLB-load-misses                                              (59.97%)
+          64326551      dTLB-load-misses                                              (59.94%)
    <not supported>      iTLB-loads                                                  
-          40330170      iTLB-load-misses                                              (59.91%)
+          39221195      iTLB-load-misses                                              (59.90%)
    <not supported>      L1-dcache-prefetches                                        
    <not supported>      L1-dcache-prefetch-misses                                   
 
-      52.962113990 seconds time elapsed
+      52.954397789 seconds time elapsed
 
