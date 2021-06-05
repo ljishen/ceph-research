@@ -1,0 +1,40 @@
+diff --git a/benchmarks/dataset_selectivity_benchmark.py b/benchmarks/dataset_selectivity_benchmark.py
+index 97c8787..daedde5 100644
+--- a/benchmarks/dataset_selectivity_benchmark.py
++++ b/benchmarks/dataset_selectivity_benchmark.py
+@@ -1,3 +1,6 @@
++import subprocess
++import os
++
+ import conbench.runner
+ import pyarrow.dataset as ds
+ 
+@@ -51,6 +54,16 @@ class DatasetSelectivityBenchmark(_benchmark.Benchmark):
+         },
+     }
+ 
++    def _start_profile(self):
++        if not hasattr(self, 'bench_count'):
++            self.bench_count = 0
++        else:
++            self.bench_count = self.bench_count + 1
++
++        if self.bench_count == 4:
++            #  subprocess.call('(sudo perf record -F 99 -p ' + str(os.getpid()) + ' -g --call-graph dwarf) & sleep 30', shell=True)
++            subprocess.call('(sudo perf stat -e cpu-clock,context-switches,cpu-migrations,page-faults,cycles,stalled-cycles-frontend,stalled-cycles-backend,instructions,branches,branch-misses,cache-misses -ddd -B -p ' + str(os.getpid()) + ' -o perf.stat) & sleep 30', shell=True)
++
+     def run(self, source, case=None, **kwargs):
+         cases = self.get_cases(case, kwargs)
+         for source in self.get_sources(source):
+@@ -65,8 +78,9 @@ class DatasetSelectivityBenchmark(_benchmark.Benchmark):
+                 )
+                 f = self._get_benchmark_function(dataset, source.name, selectivity)
+                 yield self.benchmark(f, tags, kwargs, case)
++                subprocess.call('sudo pkill -INT perf || true', shell=True)
+ 
+     def _get_benchmark_function(self, dataset, source, selectivity):
+-        return lambda: dataset.to_table(
++        return lambda: [self._start_profile(), dataset.to_table(
+             filter=self.filters[source][selectivity]
+-        ).num_rows
++        ).num_rows]
