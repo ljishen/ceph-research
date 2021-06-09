@@ -1,0 +1,31 @@
+# started on Tue Jun  8 16:48:45 2021
+
+
+ Performance counter stats for process id '113049':
+
+          75757.15 msec cpu-clock                 #    2.121 CPUs utilized          
+               866      context-switches          #    0.011 K/sec                  
+                49      cpu-migrations            #    0.001 K/sec                  
+            273679      page-faults               #    0.004 M/sec                  
+       59845095850      cycles                    #    0.790 GHz                      (69.88%)
+   <not supported>      stalled-cycles-frontend                                     
+   <not supported>      stalled-cycles-backend                                      
+       74086983262      instructions              #    1.24  insn per cycle           (69.91%)
+   <not supported>      branches                                                    
+         210046074      branch-misses                                                 (69.96%)
+         304927209      cache-misses                                                  (70.02%)
+       22404457487      L1-dcache-loads           #  295.740 M/sec                    (70.05%)
+         305090183      L1-dcache-load-misses     #    1.36% of all L1-dcache hits    (70.12%)
+   <not supported>      LLC-loads                                                   
+   <not supported>      LLC-load-misses                                             
+       27698571111      L1-icache-loads           #  365.623 M/sec                    (70.11%)
+          77780244      L1-icache-load-misses     #    0.28% of all L1-icache hits    (60.03%)
+   <not supported>      dTLB-loads                                                  
+          74731887      dTLB-load-misses                                              (59.92%)
+   <not supported>      iTLB-loads                                                  
+          20606194      iTLB-load-misses                                              (59.86%)
+   <not supported>      L1-dcache-prefetches                                        
+   <not supported>      L1-dcache-prefetch-misses                                   
+
+      35.711476277 seconds time elapsed
+

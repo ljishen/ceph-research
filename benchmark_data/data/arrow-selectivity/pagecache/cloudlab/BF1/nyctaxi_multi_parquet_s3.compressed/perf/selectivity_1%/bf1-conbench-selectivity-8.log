@@ -1,0 +1,66 @@
+conbench dataset-selectivity nyctaxi_multi_parquet_s3 --selectivity 1% --show-output=true --iterations=5 --cpu-count=8
+
+Benchmark output:
+[None, 561384]
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "aarch64",
+        "cpu_core_count": "16",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "524288",
+        "cpu_l1i_cache_bytes": "786432",
+        "cpu_l2_cache_bytes": "8388608",
+        "cpu_l3_cache_bytes": "12582912",
+        "cpu_model_name": "Cortex-A72",
+        "cpu_thread_count": "16",
+        "kernel_name": "5.4.0-1007-bluefield",
+        "memory_bytes": "16106127360",
+        "name": "varsity-bf",
+        "os_name": "Linux",
+        "os_version": "5.4.0-1007-bluefield-aarch64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "1b06c8b1055e4b36975b363ecb8dbd6d",
+        "data": [
+            "8.858177",
+            "8.902423",
+            "8.909558",
+            "8.929799",
+            "39.198727"
+        ],
+        "iqr": "0.027375",
+        "iterations": 5,
+        "max": "39.198727",
+        "mean": "14.959737",
+        "median": "8.909558",
+        "min": "8.858177",
+        "q1": "8.902423",
+        "q3": "8.929799",
+        "run_id": "1b06c8b1055e4b36975b363ecb8dbd6d",
+        "stdev": "13.550033",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-08T23:52:57.812824+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "cpu_count": 8,
+        "dataset": "nyctaxi_multi_parquet_s3",
+        "name": "dataset-selectivity",
+        "selectivity": "1%"
+    }
+}
