@@ -1,0 +1,12 @@
++ ./secnetperf -bind:10.10.1.1 -test:Throughput -target:10.10.1.2 -uni:1 -download:2000000000 -stats:1
+Started!
+
+Result: 2000000000 bytes @ 4111339 kbps (3891.676 ms).
+[conn][0x561c28da99d0] STATS: SendTotalPackets=17997 SendSuspectedLostPackets=0 SendSpuriousLostPackets=0 RecvTotalPackets=1387911 RecvReorderedPackets=0 RecvDroppedPackets=0 RecvDuplicatePackets=0 RecvDecryptionFailures=0
+App Main returning status 0
++ ./secnetperf -bind:10.10.1.1 -test:Throughput -target:10.10.1.2 -uni:1 -download:2000000000 -stats:1 -encrypt:0
+Started!
+
+Result: 2000000000 bytes @ 4149178 kbps (3856.185 ms).
+[conn][0x55c0971349f0] STATS: SendTotalPackets=17769 SendSuspectedLostPackets=0 SendSpuriousLostPackets=0 RecvTotalPackets=1372708 RecvReorderedPackets=0 RecvDroppedPackets=0 RecvDuplicatePackets=0 RecvDecryptionFailures=0
+App Main returning status 0

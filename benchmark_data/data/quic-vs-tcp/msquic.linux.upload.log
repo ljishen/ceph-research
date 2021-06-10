@@ -1,0 +1,24 @@
++ ./secnetperf -bind:10.10.1.1 -test:Throughput -target:10.10.1.2 -uni:1 -upload:2000000000 -stats:1
+Started!
+
+Result: 2000000000 bytes @ 3815638 kbps (4193.269 ms).
+[conn][0x5633eec269d0] STATS: SendTotalPackets=1396680 SendSuspectedLostPackets=75 SendSpuriousLostPackets=0 RecvTotalPackets=19855 RecvReorderedPackets=0 RecvDroppedPackets=0 RecvDuplicatePackets=0 RecvDecryptionFailures=0
+App Main returning status 0
++ ./secnetperf -bind:10.10.1.1 -test:Throughput -target:10.10.1.2 -uni:1 -upload:2000000000 -stats:1 -encrypt:0
+Started!
+
+Result: 2000000000 bytes @ 4379619 kbps (3653.285 ms).
+[conn][0x561c6fa209f0] STATS: SendTotalPackets=1381505 SendSuspectedLostPackets=332 SendSpuriousLostPackets=0 RecvTotalPackets=19179 RecvReorderedPackets=0 RecvDroppedPackets=0 RecvDuplicatePackets=0 RecvDecryptionFailures=0
+App Main returning status 0
++ ./secnetperf -bind:10.10.1.1 -test:Throughput -target:10.10.1.2 -uni:1 -upload:2000000000 -stats:1 -sendbuf:1
+Started!
+
+Result: 2000000000 bytes @ 3734966 kbps (4283.840 ms).
+[conn][0x55d31409c9e0] STATS: SendTotalPackets=1396782 SendSuspectedLostPackets=188 SendSpuriousLostPackets=0 RecvTotalPackets=18512 RecvReorderedPackets=0 RecvDroppedPackets=0 RecvDuplicatePackets=0 RecvDecryptionFailures=0
+App Main returning status 0
++ ./secnetperf -bind:10.10.1.1 -test:Throughput -target:10.10.1.2 -uni:1 -upload:2000000000 -stats:1 -encrypt:0 -sendbuf:1
+Started!
+
+Result: 2000000000 bytes @ 4402188 kbps (3634.556 ms).
+[conn][0x559589ea69e0] STATS: SendTotalPackets=1381677 SendSuspectedLostPackets=503 SendSpuriousLostPackets=0 RecvTotalPackets=18909 RecvReorderedPackets=0 RecvDroppedPackets=0 RecvDuplicatePackets=0 RecvDecryptionFailures=0
+App Main returning status 0

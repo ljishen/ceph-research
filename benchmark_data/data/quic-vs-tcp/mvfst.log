@@ -1,0 +1,7 @@
++ sudo ./_build/build/quic/tools/tperf/tperf -block_size=65507 -bytes_per_stream=0 -d6d_enabled=true -duration=10 -gso=true -host=10.10.1.1 -max_receive_packet_size=8948 -mode=client -num_server_worker=1 -pacing=true -port=6666 -use_inplace_write=true -window=212992 -writes_per_loop=16
+I0609 23:06:54.322075 445916 tperf.cpp:743] TPerfClient connecting to 10.10.1.1:6666
+I0609 23:06:54.324051 445916 tperf.cpp:661] TPerfClient: onTransportReady
+I0609 23:07:04.326754 445916 tperf.cpp:671] TPerfClient connection end
+I0609 23:07:04.326822 445916 tperf.cpp:592] Received 3043477113 bytes in 10 seconds.
+I0609 23:07:04.326830 445916 tperf.cpp:594] Overall throughput: 2321.99Mb/s
+I0609 23:07:04.326865 445916 tperf.cpp:598] Average per Stream throughput: 2321.99Mb/s over 1 streams
