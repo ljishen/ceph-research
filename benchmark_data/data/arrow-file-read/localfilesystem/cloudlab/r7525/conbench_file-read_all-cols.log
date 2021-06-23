@@ -1,0 +1,897 @@
++ conbench file-read nyctaxi_2010-01 --iterations=5 --all=true --drop-caches=true 2>&1
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "2b0f3992e45449a187e1149750908f4a",
+        "data": [
+            "9.009989",
+            "7.845537",
+            "7.890554",
+            "7.750902",
+            "7.732810"
+        ],
+        "iqr": "0.139652",
+        "iterations": 5,
+        "max": "9.009989",
+        "mean": "8.045959",
+        "median": "7.845537",
+        "min": "7.732810",
+        "q1": "7.750902",
+        "q3": "7.890554",
+        "run_id": "2b0f3992e45449a187e1149750908f4a",
+        "stdev": "0.542862",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-23T07:13:59.365903+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "compression": "uncompressed",
+        "cpu_count": null,
+        "dataset": "nyctaxi_2010-01",
+        "file_type": "parquet",
+        "name": "file-read",
+        "output_type": "table"
+    }
+}
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "2b0f3992e45449a187e1149750908f4a",
+        "data": [
+            "14.228556",
+            "14.183273",
+            "14.670277",
+            "14.222676",
+            "14.391254"
+        ],
+        "iqr": "0.168578",
+        "iterations": 5,
+        "max": "14.670277",
+        "mean": "14.339207",
+        "median": "14.228556",
+        "min": "14.183273",
+        "q1": "14.222676",
+        "q3": "14.391254",
+        "run_id": "2b0f3992e45449a187e1149750908f4a",
+        "stdev": "0.201528",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-23T07:15:16.297037+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "compression": "uncompressed",
+        "cpu_count": null,
+        "dataset": "nyctaxi_2010-01",
+        "file_type": "parquet",
+        "name": "file-read",
+        "output_type": "dataframe"
+    }
+}
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "2b0f3992e45449a187e1149750908f4a",
+        "data": [
+            "4.968164",
+            "4.875998",
+            "5.122561",
+            "4.884188",
+            "4.860981"
+        ],
+        "iqr": "0.092166",
+        "iterations": 5,
+        "max": "5.122561",
+        "mean": "4.942379",
+        "median": "4.884188",
+        "min": "4.860981",
+        "q1": "4.875998",
+        "q3": "4.968164",
+        "run_id": "2b0f3992e45449a187e1149750908f4a",
+        "stdev": "0.109028",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-23T07:15:43.672421+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "compression": "lz4",
+        "cpu_count": null,
+        "dataset": "nyctaxi_2010-01",
+        "file_type": "parquet",
+        "name": "file-read",
+        "output_type": "table"
+    }
+}
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "2b0f3992e45449a187e1149750908f4a",
+        "data": [
+            "11.703878",
+            "11.272013",
+            "11.652864",
+            "11.113859",
+            "11.352555"
+        ],
+        "iqr": "0.380851",
+        "iterations": 5,
+        "max": "11.703878",
+        "mean": "11.419034",
+        "median": "11.352555",
+        "min": "11.113859",
+        "q1": "11.272013",
+        "q3": "11.652864",
+        "run_id": "2b0f3992e45449a187e1149750908f4a",
+        "stdev": "0.252477",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-23T07:16:46.347877+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "compression": "lz4",
+        "cpu_count": null,
+        "dataset": "nyctaxi_2010-01",
+        "file_type": "parquet",
+        "name": "file-read",
+        "output_type": "dataframe"
+    }
+}
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "2b0f3992e45449a187e1149750908f4a",
+        "data": [
+            "4.099315",
+            "4.091231",
+            "4.057560",
+            "4.284148",
+            "4.058191"
+        ],
+        "iqr": "0.041124",
+        "iterations": 5,
+        "max": "4.284148",
+        "mean": "4.118089",
+        "median": "4.091231",
+        "min": "4.057560",
+        "q1": "4.058191",
+        "q3": "4.099315",
+        "run_id": "2b0f3992e45449a187e1149750908f4a",
+        "stdev": "0.094738",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-23T07:17:09.792551+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "compression": "zstd",
+        "cpu_count": null,
+        "dataset": "nyctaxi_2010-01",
+        "file_type": "parquet",
+        "name": "file-read",
+        "output_type": "table"
+    }
+}
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "2b0f3992e45449a187e1149750908f4a",
+        "data": [
+            "10.446046",
+            "10.443979",
+            "10.799864",
+            "10.743624",
+            "10.569551"
+        ],
+        "iqr": "0.297578",
+        "iterations": 5,
+        "max": "10.799864",
+        "mean": "10.600613",
+        "median": "10.569551",
+        "min": "10.443979",
+        "q1": "10.446046",
+        "q3": "10.743624",
+        "run_id": "2b0f3992e45449a187e1149750908f4a",
+        "stdev": "0.165486",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-23T07:18:08.690662+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "compression": "zstd",
+        "cpu_count": null,
+        "dataset": "nyctaxi_2010-01",
+        "file_type": "parquet",
+        "name": "file-read",
+        "output_type": "dataframe"
+    }
+}
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "2b0f3992e45449a187e1149750908f4a",
+        "data": [
+            "5.185302",
+            "5.164279",
+            "5.099095",
+            "5.075048",
+            "5.098835"
+        ],
+        "iqr": "0.065443",
+        "iterations": 5,
+        "max": "5.185302",
+        "mean": "5.124512",
+        "median": "5.099095",
+        "min": "5.075048",
+        "q1": "5.098835",
+        "q3": "5.164279",
+        "run_id": "2b0f3992e45449a187e1149750908f4a",
+        "stdev": "0.047510",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-23T07:18:36.908121+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "compression": "snappy",
+        "cpu_count": null,
+        "dataset": "nyctaxi_2010-01",
+        "file_type": "parquet",
+        "name": "file-read",
+        "output_type": "table"
+    }
+}
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "2b0f3992e45449a187e1149750908f4a",
+        "data": [
+            "11.614037",
+            "11.496229",
+            "11.453826",
+            "11.715350",
+            "11.530162"
+        ],
+        "iqr": "0.117808",
+        "iterations": 5,
+        "max": "11.715350",
+        "mean": "11.561921",
+        "median": "11.530162",
+        "min": "11.453826",
+        "q1": "11.496229",
+        "q3": "11.614037",
+        "run_id": "2b0f3992e45449a187e1149750908f4a",
+        "stdev": "0.104001",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-23T07:19:40.509996+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "compression": "snappy",
+        "cpu_count": null,
+        "dataset": "nyctaxi_2010-01",
+        "file_type": "parquet",
+        "name": "file-read",
+        "output_type": "dataframe"
+    }
+}
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "2b0f3992e45449a187e1149750908f4a",
+        "data": [
+            "14.820432",
+            "15.445434",
+            "14.887650",
+            "14.866722",
+            "14.827684"
+        ],
+        "iqr": "0.059965",
+        "iterations": 5,
+        "max": "15.445434",
+        "mean": "14.969584",
+        "median": "14.866722",
+        "min": "14.820432",
+        "q1": "14.827684",
+        "q3": "14.887650",
+        "run_id": "2b0f3992e45449a187e1149750908f4a",
+        "stdev": "0.267446",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-23T07:20:57.887177+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "compression": "uncompressed",
+        "cpu_count": null,
+        "dataset": "nyctaxi_2010-01",
+        "file_type": "feather",
+        "name": "file-read",
+        "output_type": "table"
+    }
+}
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "2b0f3992e45449a187e1149750908f4a",
+        "data": [
+            "21.552591",
+            "21.474113",
+            "21.236226",
+            "21.204645",
+            "21.593187"
+        ],
+        "iqr": "0.316364",
+        "iterations": 5,
+        "max": "21.593187",
+        "mean": "21.412152",
+        "median": "21.474113",
+        "min": "21.204645",
+        "q1": "21.236226",
+        "q3": "21.552591",
+        "run_id": "2b0f3992e45449a187e1149750908f4a",
+        "stdev": "0.180517",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-23T07:22:50.287614+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "compression": "uncompressed",
+        "cpu_count": null,
+        "dataset": "nyctaxi_2010-01",
+        "file_type": "feather",
+        "name": "file-read",
+        "output_type": "dataframe"
+    }
+}
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "2b0f3992e45449a187e1149750908f4a",
+        "data": [
+            "7.055404",
+            "6.844069",
+            "6.961760",
+            "6.850265",
+            "6.943121"
+        ],
+        "iqr": "0.111495",
+        "iterations": 5,
+        "max": "7.055404",
+        "mean": "6.930924",
+        "median": "6.943121",
+        "min": "6.844069",
+        "q1": "6.850265",
+        "q3": "6.961760",
+        "run_id": "2b0f3992e45449a187e1149750908f4a",
+        "stdev": "0.087528",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-23T07:23:27.780322+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "compression": "lz4",
+        "cpu_count": null,
+        "dataset": "nyctaxi_2010-01",
+        "file_type": "feather",
+        "name": "file-read",
+        "output_type": "table"
+    }
+}
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "2b0f3992e45449a187e1149750908f4a",
+        "data": [
+            "13.574258",
+            "13.582556",
+            "13.528338",
+            "13.454625",
+            "13.490342"
+        ],
+        "iqr": "0.083916",
+        "iterations": 5,
+        "max": "13.582556",
+        "mean": "13.526024",
+        "median": "13.528338",
+        "min": "13.454625",
+        "q1": "13.490342",
+        "q3": "13.574258",
+        "run_id": "2b0f3992e45449a187e1149750908f4a",
+        "stdev": "0.054541",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-23T07:24:40.818990+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "compression": "lz4",
+        "cpu_count": null,
+        "dataset": "nyctaxi_2010-01",
+        "file_type": "feather",
+        "name": "file-read",
+        "output_type": "dataframe"
+    }
+}
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "2b0f3992e45449a187e1149750908f4a",
+        "data": [
+            "4.810255",
+            "4.791185",
+            "4.819558",
+            "4.793324",
+            "4.792884"
+        ],
+        "iqr": "0.017371",
+        "iterations": 5,
+        "max": "4.819558",
+        "mean": "4.801441",
+        "median": "4.793324",
+        "min": "4.791185",
+        "q1": "4.792884",
+        "q3": "4.810255",
+        "run_id": "2b0f3992e45449a187e1149750908f4a",
+        "stdev": "0.012750",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-23T07:25:07.604359+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "compression": "zstd",
+        "cpu_count": null,
+        "dataset": "nyctaxi_2010-01",
+        "file_type": "feather",
+        "name": "file-read",
+        "output_type": "table"
+    }
+}
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "2b0f3992e45449a187e1149750908f4a",
+        "data": [
+            "11.324832",
+            "11.299531",
+            "11.573999",
+            "11.434262",
+            "11.334793"
+        ],
+        "iqr": "0.109430",
+        "iterations": 5,
+        "max": "11.573999",
+        "mean": "11.393484",
+        "median": "11.334793",
+        "min": "11.299531",
+        "q1": "11.324832",
+        "q3": "11.434262",
+        "run_id": "2b0f3992e45449a187e1149750908f4a",
+        "stdev": "0.113174",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-23T07:26:09.924857+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "compression": "zstd",
+        "cpu_count": null,
+        "dataset": "nyctaxi_2010-01",
+        "file_type": "feather",
+        "name": "file-read",
+        "output_type": "dataframe"
+    }
+}

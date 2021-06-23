@@ -1,0 +1,967 @@
++ conbench file-read nyctaxi_2010-01 --iterations=10 --all=true --drop-caches=true 2>&1
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "72c23a721367494d889bb3edb67228d1",
+        "data": [
+            "1.770762",
+            "1.345104",
+            "1.311234",
+            "1.297757",
+            "1.345303",
+            "1.296070",
+            "1.293672",
+            "1.284215",
+            "1.331815",
+            "1.352139"
+        ],
+        "iqr": "0.048761",
+        "iterations": 10,
+        "max": "1.770762",
+        "mean": "1.362807",
+        "median": "1.321525",
+        "min": "1.284215",
+        "q1": "1.296492",
+        "q3": "1.345253",
+        "run_id": "72c23a721367494d889bb3edb67228d1",
+        "stdev": "0.145458",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-23T21:12:25.346534+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "compression": "uncompressed",
+        "cpu_count": null,
+        "dataset": "nyctaxi_2010-01",
+        "file_type": "parquet",
+        "name": "file-read",
+        "output_type": "table"
+    }
+}
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "72c23a721367494d889bb3edb67228d1",
+        "data": [
+            "7.798661",
+            "8.013574",
+            "7.760948",
+            "7.693861",
+            "7.767709",
+            "7.644753",
+            "7.718906",
+            "7.957138",
+            "7.927902",
+            "7.906239"
+        ],
+        "iqr": "0.193070",
+        "iterations": 10,
+        "max": "8.013574",
+        "mean": "7.818969",
+        "median": "7.783185",
+        "min": "7.644753",
+        "q1": "7.729417",
+        "q3": "7.922486",
+        "run_id": "72c23a721367494d889bb3edb67228d1",
+        "stdev": "0.124216",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-23T21:13:52.807048+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "compression": "uncompressed",
+        "cpu_count": null,
+        "dataset": "nyctaxi_2010-01",
+        "file_type": "parquet",
+        "name": "file-read",
+        "output_type": "dataframe"
+    }
+}
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "72c23a721367494d889bb3edb67228d1",
+        "data": [
+            "1.229580",
+            "1.094411",
+            "1.083555",
+            "1.092027",
+            "1.066138",
+            "1.076879",
+            "1.078150",
+            "1.317445",
+            "1.107054",
+            "1.065611"
+        ],
+        "iqr": "0.026697",
+        "iterations": 10,
+        "max": "1.317445",
+        "mean": "1.121085",
+        "median": "1.087791",
+        "min": "1.065611",
+        "q1": "1.077197",
+        "q3": "1.103893",
+        "run_id": "72c23a721367494d889bb3edb67228d1",
+        "stdev": "0.083920",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-23T21:14:08.757407+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "compression": "lz4",
+        "cpu_count": null,
+        "dataset": "nyctaxi_2010-01",
+        "file_type": "parquet",
+        "name": "file-read",
+        "output_type": "table"
+    }
+}
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "72c23a721367494d889bb3edb67228d1",
+        "data": [
+            "7.429688",
+            "7.384279",
+            "7.414991",
+            "7.478297",
+            "7.533437",
+            "7.502768",
+            "7.517479",
+            "7.492178",
+            "7.518181",
+            "7.455606"
+        ],
+        "iqr": "0.077634",
+        "iterations": 10,
+        "max": "7.533437",
+        "mean": "7.472690",
+        "median": "7.485238",
+        "min": "7.384279",
+        "q1": "7.436167",
+        "q3": "7.513801",
+        "run_id": "72c23a721367494d889bb3edb67228d1",
+        "stdev": "0.049854",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-23T21:15:33.379171+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "compression": "lz4",
+        "cpu_count": null,
+        "dataset": "nyctaxi_2010-01",
+        "file_type": "parquet",
+        "name": "file-read",
+        "output_type": "dataframe"
+    }
+}
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "72c23a721367494d889bb3edb67228d1",
+        "data": [
+            "1.447175",
+            "1.227307",
+            "1.245336",
+            "1.311519",
+            "1.316886",
+            "1.230741",
+            "1.229591",
+            "1.246131",
+            "1.272424",
+            "1.261880"
+        ],
+        "iqr": "0.067356",
+        "iterations": 10,
+        "max": "1.447175",
+        "mean": "1.278899",
+        "median": "1.254006",
+        "min": "1.227307",
+        "q1": "1.234390",
+        "q3": "1.301745",
+        "run_id": "72c23a721367494d889bb3edb67228d1",
+        "stdev": "0.067303",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-23T21:15:50.916405+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "compression": "zstd",
+        "cpu_count": null,
+        "dataset": "nyctaxi_2010-01",
+        "file_type": "parquet",
+        "name": "file-read",
+        "output_type": "table"
+    }
+}
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "72c23a721367494d889bb3edb67228d1",
+        "data": [
+            "7.969880",
+            "7.786457",
+            "7.822580",
+            "7.660653",
+            "7.719421",
+            "7.810691",
+            "7.620056",
+            "7.938931",
+            "7.878386",
+            "7.959971"
+        ],
+        "iqr": "0.187615",
+        "iterations": 10,
+        "max": "7.969880",
+        "mean": "7.816703",
+        "median": "7.816636",
+        "min": "7.620056",
+        "q1": "7.736180",
+        "q3": "7.923795",
+        "run_id": "72c23a721367494d889bb3edb67228d1",
+        "stdev": "0.123019",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-23T21:17:18.244276+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "compression": "zstd",
+        "cpu_count": null,
+        "dataset": "nyctaxi_2010-01",
+        "file_type": "parquet",
+        "name": "file-read",
+        "output_type": "dataframe"
+    }
+}
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "72c23a721367494d889bb3edb67228d1",
+        "data": [
+            "1.391894",
+            "1.263154",
+            "1.273195",
+            "1.266732",
+            "1.227647",
+            "1.229238",
+            "1.275515",
+            "1.237839",
+            "1.223589",
+            "1.241801"
+        ],
+        "iqr": "0.040191",
+        "iterations": 10,
+        "max": "1.391894",
+        "mean": "1.263060",
+        "median": "1.252477",
+        "min": "1.223589",
+        "q1": "1.231389",
+        "q3": "1.271579",
+        "run_id": "72c23a721367494d889bb3edb67228d1",
+        "stdev": "0.049344",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-23T21:17:35.672715+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "compression": "snappy",
+        "cpu_count": null,
+        "dataset": "nyctaxi_2010-01",
+        "file_type": "parquet",
+        "name": "file-read",
+        "output_type": "table"
+    }
+}
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "72c23a721367494d889bb3edb67228d1",
+        "data": [
+            "7.800778",
+            "7.646930",
+            "7.733712",
+            "7.744021",
+            "7.877419",
+            "7.758801",
+            "7.865404",
+            "7.749749",
+            "7.691032",
+            "7.977722"
+        ],
+        "iqr": "0.112958",
+        "iterations": 10,
+        "max": "7.977722",
+        "mean": "7.784557",
+        "median": "7.754275",
+        "min": "7.646930",
+        "q1": "7.736289",
+        "q3": "7.849248",
+        "run_id": "72c23a721367494d889bb3edb67228d1",
+        "stdev": "0.098051",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-23T21:19:02.660376+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "compression": "snappy",
+        "cpu_count": null,
+        "dataset": "nyctaxi_2010-01",
+        "file_type": "parquet",
+        "name": "file-read",
+        "output_type": "dataframe"
+    }
+}
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "72c23a721367494d889bb3edb67228d1",
+        "data": [
+            "2.084108",
+            "1.733208",
+            "1.735117",
+            "1.710467",
+            "1.697212",
+            "1.729413",
+            "1.724847",
+            "1.722546",
+            "1.724458",
+            "1.703392"
+        ],
+        "iqr": "0.018773",
+        "iterations": 10,
+        "max": "2.084108",
+        "mean": "1.756477",
+        "median": "1.724653",
+        "min": "1.697212",
+        "q1": "1.713486",
+        "q3": "1.732259",
+        "run_id": "72c23a721367494d889bb3edb67228d1",
+        "stdev": "0.115805",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-23T21:19:26.471745+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "compression": "uncompressed",
+        "cpu_count": null,
+        "dataset": "nyctaxi_2010-01",
+        "file_type": "feather",
+        "name": "file-read",
+        "output_type": "table"
+    }
+}
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "72c23a721367494d889bb3edb67228d1",
+        "data": [
+            "8.050818",
+            "8.037314",
+            "8.206193",
+            "7.856205",
+            "7.932419",
+            "8.061174",
+            "8.112129",
+            "7.997150",
+            "7.943691",
+            "8.091594"
+        ],
+        "iqr": "0.126933",
+        "iterations": 10,
+        "max": "8.206193",
+        "mean": "8.028869",
+        "median": "8.044066",
+        "min": "7.856205",
+        "q1": "7.957056",
+        "q3": "8.083989",
+        "run_id": "72c23a721367494d889bb3edb67228d1",
+        "stdev": "0.100711",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-23T21:20:56.953008+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "compression": "uncompressed",
+        "cpu_count": null,
+        "dataset": "nyctaxi_2010-01",
+        "file_type": "feather",
+        "name": "file-read",
+        "output_type": "dataframe"
+    }
+}
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "72c23a721367494d889bb3edb67228d1",
+        "data": [
+            "1.175325",
+            "0.955871",
+            "0.936713",
+            "0.954278",
+            "0.969311",
+            "0.929634",
+            "0.975347",
+            "0.969053",
+            "0.967700",
+            "0.969908"
+        ],
+        "iqr": "0.015082",
+        "iterations": 10,
+        "max": "1.175325",
+        "mean": "0.980314",
+        "median": "0.968377",
+        "min": "0.929634",
+        "q1": "0.954676",
+        "q3": "0.969759",
+        "run_id": "72c23a721367494d889bb3edb67228d1",
+        "stdev": "0.070170",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-23T21:21:11.942865+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "compression": "lz4",
+        "cpu_count": null,
+        "dataset": "nyctaxi_2010-01",
+        "file_type": "feather",
+        "name": "file-read",
+        "output_type": "table"
+    }
+}
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "72c23a721367494d889bb3edb67228d1",
+        "data": [
+            "7.291547",
+            "7.328428",
+            "7.258210",
+            "7.437526",
+            "7.405093",
+            "7.305546",
+            "7.321540",
+            "7.326463",
+            "7.331948",
+            "7.318136"
+        ],
+        "iqr": "0.022375",
+        "iterations": 10,
+        "max": "7.437526",
+        "mean": "7.332444",
+        "median": "7.324001",
+        "min": "7.258210",
+        "q1": "7.308693",
+        "q3": "7.331068",
+        "run_id": "72c23a721367494d889bb3edb67228d1",
+        "stdev": "0.052284",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-23T21:22:34.786065+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "compression": "lz4",
+        "cpu_count": null,
+        "dataset": "nyctaxi_2010-01",
+        "file_type": "feather",
+        "name": "file-read",
+        "output_type": "dataframe"
+    }
+}
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "72c23a721367494d889bb3edb67228d1",
+        "data": [
+            "1.121890",
+            "1.035266",
+            "1.010789",
+            "1.018914",
+            "1.015136",
+            "1.008028",
+            "1.015576",
+            "1.017339",
+            "1.032876",
+            "1.029209"
+        ],
+        "iqr": "0.016714",
+        "iterations": 10,
+        "max": "1.121890",
+        "mean": "1.030502",
+        "median": "1.018127",
+        "min": "1.008028",
+        "q1": "1.015246",
+        "q3": "1.031959",
+        "run_id": "72c23a721367494d889bb3edb67228d1",
+        "stdev": "0.033403",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-23T21:22:50.386680+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "compression": "zstd",
+        "cpu_count": null,
+        "dataset": "nyctaxi_2010-01",
+        "file_type": "feather",
+        "name": "file-read",
+        "output_type": "table"
+    }
+}
+
+Benchmark result:
+{
+    "context": {
+        "arrow_compiler_flags": " -fdiagnostics-color=always -O3 -DNDEBUG",
+        "arrow_compiler_id": "GNU",
+        "arrow_compiler_version": "9.3.1",
+        "arrow_version": "4.0.1",
+        "benchmark_language": "Python",
+        "benchmark_language_version": "Python 3.8.5"
+    },
+    "github": {
+        "commit": "81ff679c47754692224f655dab32cc0936bb5f55",
+        "repository": "https://github.com/apache/arrow"
+    },
+    "machine_info": {
+        "architecture_name": "x86_64",
+        "cpu_core_count": "64",
+        "cpu_frequency_max_hz": "0",
+        "cpu_l1d_cache_bytes": "2097152",
+        "cpu_l1i_cache_bytes": "2097152",
+        "cpu_l2_cache_bytes": "33554432",
+        "cpu_l3_cache_bytes": "268435456",
+        "cpu_model_name": "AMD EPYC 7542 32-Core Processor",
+        "cpu_thread_count": "128",
+        "kernel_name": "5.4.0-67-generic",
+        "memory_bytes": "528280977408",
+        "name": "node-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us",
+        "os_name": "Linux",
+        "os_version": "5.4.0-67-generic-x86_64-with-glibc2.29"
+    },
+    "stats": {
+        "batch_id": "72c23a721367494d889bb3edb67228d1",
+        "data": [
+            "7.392915",
+            "7.391333",
+            "7.366700",
+            "7.416739",
+            "7.326464",
+            "7.501141",
+            "7.594605",
+            "7.339512",
+            "7.408799",
+            "7.331422"
+        ],
+        "iqr": "0.068445",
+        "iterations": 10,
+        "max": "7.594605",
+        "mean": "7.406963",
+        "median": "7.392124",
+        "min": "7.326464",
+        "q1": "7.346309",
+        "q3": "7.414754",
+        "run_id": "72c23a721367494d889bb3edb67228d1",
+        "stdev": "0.083651",
+        "time_unit": "s",
+        "times": [],
+        "timestamp": "2021-06-23T21:24:14.298933+00:00",
+        "unit": "s"
+    },
+    "tags": {
+        "compression": "zstd",
+        "cpu_count": null,
+        "dataset": "nyctaxi_2010-01",
+        "file_type": "feather",
+        "name": "file-read",
+        "output_type": "dataframe"
+    }
+}
