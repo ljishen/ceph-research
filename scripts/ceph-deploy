@@ -28,7 +28,10 @@ Usage: $0 -m MON_IP [-o HOST_OSD_DEVICES]... [-z OSD_SERVICE_SPEC]
                              Both HOST_OSD_DEVICES and this spec will be applied for OSD deployment.
   -h :                       Show this help text
 
-All SSH connections to the cluster hosts will use the user '\$USER' (current: $USER).
+Notes:
+  - All SSH connections to the cluster hosts will use the user '\$USER' (current: $USER).
+  - The OSD host is required to be the bare host name returned by 'hostname'. See
+      https://docs.ceph.com/en/pacific/cephadm/host-management/
 
 EOF
 }
@@ -198,6 +201,7 @@ verify_parameters() {
             "Raw block device '$device' does not exist on host '$host'!"
         fi
 
+        # check that the device is not a partition
         trace_on
         $ssh_cmd \
           lsblk --nodeps --noheadings --output TYPE "$device" 2>/dev/null \
