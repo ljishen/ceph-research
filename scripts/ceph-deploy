@@ -21,7 +21,7 @@ Usage: $0 -m MON_IP [-o HOST_OSD_DEVICES]... [-z OSD_SERVICE_SPEC]
   -m : (\$MON_IP)             IP address for the cluster’s monitor daemon
                              (must be a locally configured IP)
   -o : (\$HOST_OSD_DEVICES)   Create an OSD on the storage device of the host defined by:
-                               HOST_OSD_DEVICES := host:DEVICE1[,DEVICE2,...]
+                               HOST_OSD_DEVICES := hostname[/ip]:DEVICE1[,DEVICE2,...]
                                DEVICE := /dev/XXX | volume_group/logical_volume
                              The device can only be a raw block device or a LVM logical volume.
   -i : (\$OSD_SERVICE_SPEC)   The OSD service specification file.
@@ -29,9 +29,11 @@ Usage: $0 -m MON_IP [-o HOST_OSD_DEVICES]... [-z OSD_SERVICE_SPEC]
   -h :                       Show this help text
 
 Notes:
+  - The OSD hostname is required to be the bare host name returned by command \`hostname\`. See
+      https://docs.ceph.com/en/pacific/cephadm/host-management/#fully-qualified-domain-names-vs-bare-host-names
+  - If the IP is not provided for a OSD host, then the DNS resolved IP will be used. See
+      https://docs.ceph.com/en/pacific/cephadm/host-management/#adding-hosts
   - All SSH connections to the cluster hosts will use the user '\$USER' (current: $USER).
-  - The OSD host is required to be the bare host name returned by 'hostname'. See
-      https://docs.ceph.com/en/pacific/cephadm/host-management/
 
 EOF
 }
@@ -103,43 +105,59 @@ index_of_arr() {
 }
 
 OSD_HOSTS=()
+OSD_IPS=()
 OSD_DEVICES=()
+examine_duplicated_device() {
+  local -r host=$1
+  local -nr _devices=$2
+  local -ir index_of_host=$3
+
+  if (( index_of_host >= 0 )); then
+    # shellcheck disable=SC2034
+    local -a prev_devices
+    parse_osd_devices prev_devices "${OSD_DEVICES[index_of_host]}"
+
+    local -i index_of_device
+    for device in "${_devices[@]}"; do
+        index_of_device=$(index_of_arr prev_devices "$device")
+        if (( index_of_device >= 0 )); then
+          common::err $(( ERR_STATUS_START + 3 )) \
+            "Duplicated device '$device' specified for host '$host'"
+        fi
+    done
+  fi
+}
 populate_osd_host_devices() {
   local host_devices_str
   for host_devices_str in "${HOST_OSD_DEVICES[@]}"; do
-    local -a host_devices_arr
-    IFS=':' read -ra host_devices_arr <<< "$host_devices_str"
-    if (( ${#host_devices_arr[@]} != 2 )); then
+    local -a host_devices_tuple
+    IFS=':' read -ra host_devices_tuple <<< "$host_devices_str"
+    if (( ${#host_devices_tuple[@]} != 2 )); then
       common::err $(( ERR_STATUS_START + 3 )) \
-        "Invalid HOST_OSD_DEVICES format (host:DEVICE1[,DEVICE2,...]): $host_devices_str"
+        "Invalid HOST_OSD_DEVICES format (hostname[/ip]:DEVICE1[,DEVICE2,...]): $host_devices_str"
     fi
-    if [[ "${host_devices_arr[0]}" == *@* ]]; then
+
+    local osd_host_name osd_ip
+    IFS='/' read -r osd_host_name osd_ip <<< "${host_devices_tuple[0]}"
+    if [[ "$osd_host_name" == *@* ]]; then
       common::err $(( ERR_STATUS_START + 3 )) "All SSH connections use the user defined by '\$USER' (current: $USER)"
     fi
 
-    local -i index_of_hosts
-    # shellcheck disable=SC2034
-    local -a prev_devices
-    index_of_hosts=$(index_of_arr OSD_HOSTS "${host_devices_arr[0]}")
-    if (( index_of_hosts >= 0 )); then
-        parse_osd_devices prev_devices "${OSD_DEVICES[index_of_hosts]}"
+    local -a devices
+    parse_osd_devices devices "${host_devices_tuple[1]}"
+
+    local -i index_of_host
+    index_of_host=$(index_of_arr OSD_HOSTS "$osd_host_name")
+    examine_duplicated_device "$osd_host_name" devices "$index_of_host"
+
+    if [[ -n "$osd_ip" ]]; then
+      index_of_host=$(index_of_arr OSD_IPS "$osd_ip")
+      examine_duplicated_device "$osd_ip" devices "$index_of_host"
     fi
 
-    local -a devices
-    local -i index_of_devices
-    parse_osd_devices devices "${host_devices_arr[1]}"
-    for device in "${devices[@]}"; do
-      if (( index_of_hosts >= 0 )); then
-        index_of_devices=$(index_of_arr prev_devices "$device")
-        if (( index_of_devices >= 0 )); then
-          common::err $(( ERR_STATUS_START + 3 )) \
-            "Duplicated device '$device' specified for host '${host_devices_arr[0]}'"
-        fi
-      fi
-    done
-
-    OSD_HOSTS+=("${host_devices_arr[0]}")
-    OSD_DEVICES+=("${host_devices_arr[1]}")
+    OSD_HOSTS+=("$osd_host_name")
+    OSD_IPS+=("$osd_ip")
+    OSD_DEVICES+=("${host_devices_tuple[1]}")
   done
 }
 populate_osd_host_devices
@@ -327,16 +345,13 @@ show_status() {
 add_hosts() {
   common::stage "Add hosts to the cluster..."
 
-  local host skip added_host added_hosts=()
-  for host in "${OSD_HOSTS[@]}"; do
-    skip=false
-    for added_host in "${added_hosts[@]}"; do
-      if [[ "$host" == "$added_host" ]]; then
-        skip=true
-        break
-      fi
-    done
-    if [[ "$skip" == true ]]; then
+  local -i idx index_of_host
+  local host added_hosts=()
+  for idx in "${!OSD_HOSTS[@]}"; do
+    host="${OSD_HOSTS[idx]}"
+    index_of_host=$(index_of_arr added_hosts "$host")
+
+    if (( index_of_host > 0 )); then
       continue
     fi
 
@@ -348,7 +363,7 @@ add_hosts() {
     trace_off
 
     trace_on
-    $CEPH orch host add "$host"
+    $CEPH orch host add "$host" "${OSD_IPS[idx]}"
     trace_off
 
     added_hosts+=("$host")
@@ -398,6 +413,11 @@ ceph_deploy::deploy() {
   trap exit_trap EXIT
 
   add_hosts
+
+  # need to sleep before being able to adding host devices
+  common::info "Sleep for 20 seconds"
+  sleep 20
+
   add_host_devices_as_osds
 }
 

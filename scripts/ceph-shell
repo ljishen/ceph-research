@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 #
 # Require bash version >= 4.4
+#
+# Example Usages:
+#   $ ./ceph-shell                    # launch a bash shell in a Ceph container
+#   $ ./ceph-shell -- ceph --status   # check the cluster status
 
 set -euo pipefail
 
@@ -19,8 +23,8 @@ readonly CONFIG_OUTPUT_DIR \
          CEPH_SHELL_ARG_FILE \
          CEPH_KEYRING_FILE
 
-if ! [[ -f "$CEPH_CONF_FILE" ]]; then
-  common::err $(( ERR_STATUS_START + 1 )) "File $CEPH_CONF_FILE does not exist."
+if ! [[ -w "$CEPH_CONF_FILE" ]]; then
+  common::err $(( ERR_STATUS_START + 1 )) "File $CEPH_CONF_FILE does not exist or is not writable."
 fi
 
 if ! [[ -f "$CEPH_KEYRING_FILE" ]]; then
@@ -30,9 +34,9 @@ fi
 
 if ! [[ -f "$CEPH_SHELL_ARG_FILE" ]] \
   || [[ "$(stat --format=%y "$CEPH_CONF_FILE")" != "$(stat --format=%y "$CEPH_SHELL_ARG_FILE")" ]]; then
-  sed --in-place '/keyring *= */d' "$CEPH_CONF_FILE"  \
-    && printf -- '--config %s --keyring %s ' \
-        "$CEPH_CONF_FILE" "$CEPH_KEYRING_FILE" >"$CEPH_SHELL_ARG_FILE"
+  sed --in-place '/keyring *= */d' "$CEPH_CONF_FILE"
+  printf -- '--config %s --keyring %s ' \
+    "$CEPH_CONF_FILE" "$CEPH_KEYRING_FILE" >"$CEPH_SHELL_ARG_FILE"
 
   awk -v data_root="$DEPLOYMENT_DATA_ROOT" '
     function getvalue(str) {
