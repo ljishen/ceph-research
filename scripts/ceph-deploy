@@ -219,7 +219,7 @@ verify_parameters() {
             "Raw block device '$device' does not exist on host '$host'!"
         fi
 
-        # check that the device is not a partition
+        # check that the device is not the type of 'part' or 'lvm'
         trace_on
         $ssh_cmd \
           lsblk --nodeps --noheadings --output TYPE "$device" 2>/dev/null \
