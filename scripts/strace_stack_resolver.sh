@@ -3,7 +3,7 @@
 # This script uses addr2line to resolve the addresses of function
 # calls produced by 'strace --stack-traces', e.g.,
 # 
-# $ sudo strace -p <pid> -f -i -k -o strace.log -tt -T -y
+# $ sudo strace -p <pid> -f -i -k -o strace.log -tt -T -y -yy
 # $ sudo ./strace_stack_resolver.sh strace.log
 #
 # ---
@@ -70,10 +70,10 @@ fi
 awk '
   $1 == ">" {
     src = $2
-    gsub(/\([^(]*$/, "", src)
-    addr = $3
+    gsub(/\(.*$/, "", src)
+    addr = $NF
     gsub(/\[|\]/, "", addr)
-    cmd = "addr2line -e " src " -f " addr " -p"
+    cmd = "addr2line -C -e " src " -f " addr " -p"
     cmd | getline output
     close(cmd)
 
