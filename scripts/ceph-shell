@@ -31,10 +31,45 @@ if ! [[ -f "$CEPH_KEYRING_FILE" ]]; then
   common::err $(( ERR_STATUS_START + 1 )) "File $CEPH_KEYRING_FILE does not exist."
 fi
 
-
-if ! [[ -f "$CEPH_SHELL_ARG_FILE" ]] \
-  || [[ "$(stat --format=%y "$CEPH_CONF_FILE")" != "$(stat --format=%y "$CEPH_SHELL_ARG_FILE")" ]]; then
+update_ceph_conf() {
+  # Remove the keyring attribute
   sed --in-place '/keyring *= */d' "$CEPH_CONF_FILE"
+
+  # Merge same sections
+  ## vstart.sh in Ceph v16.2.6 generates two [global] sections and cephadm fails on it
+  local ceph_conf_content
+  ceph_conf_content="$(awk '
+    BEGIN { current = "#none#" }
+
+    /^\[[^]]+\][[:blank:]]*$/ {
+      current = $0
+      next
+    }
+
+    !/^[[:blank:]]*$/ {
+      if (sections[current])
+        sections[current] = sections[current]"\n"$0
+      else
+        sections[current] = $0
+    }
+
+    END {
+      print sections["#none#"]
+
+      for (sec in sections) {
+        if (sec == "#none#")
+          continue
+
+        print sec
+        print sections[sec]
+        print ""
+      }
+    }
+  ' "$CEPH_CONF_FILE")"
+  echo "$ceph_conf_content" >"$CEPH_CONF_FILE"
+}
+
+gen_ceph_shell_arg_file() {
   printf -- '--config %s --keyring %s ' \
     "$CEPH_CONF_FILE" "$CEPH_KEYRING_FILE" >"$CEPH_SHELL_ARG_FILE"
 
@@ -109,6 +144,12 @@ if ! [[ -f "$CEPH_SHELL_ARG_FILE" ]] \
   ' "$CEPH_CONF_FILE" >>"$CEPH_SHELL_ARG_FILE"
 
   touch --reference="$CEPH_CONF_FILE" "$CEPH_SHELL_ARG_FILE"
+}
+
+if ! [[ -f "$CEPH_SHELL_ARG_FILE" ]] \
+  || [[ "$(stat --format=%y "$CEPH_CONF_FILE")" != "$(stat --format=%y "$CEPH_SHELL_ARG_FILE")" ]]; then
+  update_ceph_conf
+  gen_ceph_shell_arg_file
 fi
 
 IFS=" " read -ra CEPH_SHELL_ARGS <<< "$(cat "$CEPH_SHELL_ARG_FILE")"

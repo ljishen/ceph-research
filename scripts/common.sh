@@ -132,7 +132,7 @@ common::parse_cmdline_params() {
   shift
 
   # loop positional params: https://unix.stackexchange.com/a/314041
-  local -i return_status=0
+  local -i idx return_status=0
   for (( idx = 1; idx <= $#; idx++ )); do
     if [[ "${!idx}" == @(--hosts|--host) ]]; then
       _param_arr+=("${!idx}")
