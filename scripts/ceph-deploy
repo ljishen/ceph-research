@@ -127,6 +127,7 @@ examine_duplicated_device() {
     done
   fi
 }
+
 populate_osd_host_devices() {
   local host_devices_str
   for host_devices_str in "${HOST_OSD_DEVICES[@]}"; do
@@ -318,7 +319,8 @@ bootstrap_cluster() {
     --allow-overwrite \
     --allow-fqdn-hostname \
     --orphan-initial-daemons \
-    --skip-monitoring-stack
+    --skip-monitoring-stack \
+    --single-host-defaults
   trace_off
 
   INFO_LEVEL=1
