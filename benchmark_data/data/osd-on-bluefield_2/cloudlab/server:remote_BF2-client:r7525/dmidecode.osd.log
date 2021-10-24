@@ -1,0 +1,249 @@
+# dmidecode 3.2
+Getting SMBIOS data from sysfs.
+SMBIOS 3.1.1 present.
+Table at 0xF5940000.
+
+Handle 0x0000, DMI type 0, 26 bytes
+BIOS Information
+	Vendor: https://www.mellanox.com
+	Version: BlueField:3.7.1-13-g743f036
+	Release Date: Sep 23 2021
+	ROM Size: 4096 kB
+	Characteristics:
+		PCI is supported
+		BIOS is upgradeable
+		Selectable boot is supported
+		Serial services are supported (int 14h)
+		ACPI is supported
+		UEFI is supported
+	BIOS Revision: 3.0
+
+Handle 0x0001, DMI type 1, 27 bytes
+System Information
+	Manufacturer: https://www.mellanox.com
+	Product Name: BlueField SoC
+	Version: 1.0.0
+	Serial Number: Unspecified System Serial Number
+	UUID: e81cc105-1bb8-4440-a214-e77a7d37696a
+	Wake-up Type: Power Switch
+	SKU Number: Unspecified System SKU
+	Family: BlueField
+
+Handle 0x0002, DMI type 2, 17 bytes
+Base Board Information
+	Manufacturer: https://www.mellanox.com
+	Product Name: BlueField SoC
+	Version: 1.0.0
+	Serial Number: Unspecified Base Board Serial Number
+	Asset Tag: Unspecified Asset Tag
+	Features:
+		Board is a hosting board
+	Location In Chassis: NIC
+	Chassis Handle: 0xFFFF
+	Type: Motherboard
+	Contained Object Handles: 0
+
+Handle 0x0003, DMI type 3, 24 bytes
+Chassis Information
+	Manufacturer: https://www.mellanox.com
+	Type: Other
+	Lock: Not Present
+	Version: 1.0.0
+	Serial Number: Unspecified Chassis Board Serial Number
+	Asset Tag: Unspecified Chassis Board Asset Tag
+	Boot-up State: Safe
+	Power Supply State: Safe
+	Thermal State: Safe
+	Security Status: None
+	OEM Information: 0x00000000
+	Height: Unspecified
+	Number Of Power Cords: Unspecified
+	Contained Elements: 0
+	SKU Number: Not Specified
+
+Handle 0x0004, DMI type 4, 48 bytes
+Processor Information
+	Socket Designation: Socket 0
+	Type: Central Processor
+	Family: ARMv8
+	Manufacturer: https://www.mellanox.com
+	ID: 80 D0 1F 41 00 00 00 00
+	Signature: Implementor 0x41, Variant 0x1, Architecture 15, Part 0xd08, Revision 0
+	Version: Mellanox BlueField-2 [A0] A72(D08) r1p0
+	Voltage: 0.8 V
+	External Clock: 200 MHz
+	Max Speed: 2500 MHz
+	Current Speed: 2500 MHz
+	Status: Populated, Enabled
+	Upgrade: Other
+	L1 Cache Handle: 0x0005
+	L2 Cache Handle: 0x0006
+	L3 Cache Handle: 0x0007
+	Serial Number: Unspecified Serial Number
+	Asset Tag: Unspecified Asset Tag
+	Part Number: OPN: MBF2H516A-CENO
+	Core Count: 8
+	Core Enabled: 8
+	Characteristics:
+		64-bit capable
+		Multi-Core
+		Hardware Thread
+		Enhanced Virtualization
+
+Handle 0x0005, DMI type 7, 27 bytes
+Cache Information
+	Socket Designation: L1 dcache
+	Configuration: Enabled, Not Socketed, Level 1
+	Operational Mode: Write Back
+	Location: Internal
+	Installed Size: 32 kB
+	Maximum Size: 32 kB
+	Supported SRAM Types:
+		Unknown
+		Burst
+	Installed SRAM Type: Unknown Burst
+	Speed: Unknown
+	Error Correction Type: Unknown
+	System Type: Data
+	Associativity: 2-way Set-associative
+
+Handle 0x0006, DMI type 7, 27 bytes
+Cache Information
+	Socket Designation: L2 dcache
+	Configuration: Enabled, Not Socketed, Level 2
+	Operational Mode: Write Back
+	Location: External
+	Installed Size: 1024 kB
+	Maximum Size: 1024 kB
+	Supported SRAM Types:
+		Unknown
+		Burst
+	Installed SRAM Type: Unknown Burst
+	Speed: Unknown
+	Error Correction Type: Unknown
+	System Type: Data
+	Associativity: 16-way Set-associative
+
+Handle 0x0007, DMI type 7, 27 bytes
+Cache Information
+	Socket Designation: L3 dcache
+	Configuration: Enabled, Not Socketed, Level 3
+	Operational Mode: Write Back
+	Location: External
+	Installed Size: 12288 kB
+	Maximum Size: 12288 kB
+	Supported SRAM Types:
+		Unknown
+		Burst
+	Installed SRAM Type: Unknown Burst
+	Speed: Unknown
+	Error Correction Type: Unknown
+	System Type: Data
+	Associativity: 12-way Set-associative
+
+Handle 0x0008, DMI type 7, 27 bytes
+Cache Information
+	Socket Designation: L1 icache
+	Configuration: Enabled, Not Socketed, Level 1
+	Operational Mode: Write Back
+	Location: Internal
+	Installed Size: 48 kB
+	Maximum Size: 48 kB
+	Supported SRAM Types:
+		Unknown
+		Burst
+	Installed SRAM Type: Unknown Burst
+	Speed: Unknown
+	Error Correction Type: Unknown
+	System Type: Instruction
+	Associativity: Other
+
+Handle 0x0009, DMI type 8, 9 bytes
+Port Connector Information
+	Internal Reference Designator: Not Specified
+	Internal Connector Type: None
+	External Reference Designator: OOB Ethernet
+	External Connector Type: RJ-45
+	Port Type: Network Port
+
+Handle 0x000A, DMI type 8, 9 bytes
+Port Connector Information
+	Internal Reference Designator: Not Specified
+	Internal Connector Type: None
+	External Reference Designator: USB0
+	External Connector Type: Access Bus (USB)
+	Port Type: USB
+
+Handle 0x000B, DMI type 11, 5 bytes
+OEM Strings
+	String 1: MlxPlatformPkg
+
+Handle 0x000C, DMI type 12, 5 bytes
+System Configuration Options
+	Option 1: MlxPlatformPkg/BlueField.dsc
+
+Handle 0x000D, DMI type 16, 23 bytes
+Physical Memory Array
+	Location: System Board Or Motherboard
+	Use: System Memory
+	Error Correction Type: Multi-bit ECC
+	Maximum Capacity: 32 GB
+	Error Information Handle: Not Provided
+	Number Of Devices: 1
+
+Handle 0x000E, DMI type 17, 40 bytes
+Memory Device
+	Array Handle: 0x0000
+	Error Information Handle: Not Provided
+	Total Width: 72 bits
+	Data Width: 64 bits
+	Size: 16384 MB
+	Form Factor: Other
+	Set: 26
+	Locator: DDR4 memory
+	Bank Locator: Bank 0
+	Type: DRAM
+	Type Detail: Synchronous
+	Speed: 1600 MT/s
+	Manufacturer: Mellanox
+	Serial Number: Not Specified
+	Asset Tag: Not Specified
+	Part Number: Not Specified
+	Rank: 1
+	Configured Memory Speed: Unknown
+	Minimum Voltage: 1.14 V
+	Maximum Voltage: 1.26 V
+	Configured Voltage: 1.2 V
+
+Handle 0x000F, DMI type 32, 13 bytes
+System Boot Information
+	Status: No errors detected
+
+Handle 0x0010, DMI type 32, 11 bytes
+System Boot Information
+	Status: No errors detected
+
+Handle 0x0011, DMI type 233, 10 bytes
+OEM-specific Type
+	Header and Data:
+		E9 0A 11 00 4A 8A A4 A1 42 0C
+
+Handle 0x0012, DMI type 19, 31 bytes
+Memory Array Mapped Address
+	Starting Address: 0x0000000100000000k
+	Ending Address: 0x000000047FFFFFFFk
+	Range Size: 14 GB
+	Physical Array Handle: 0x000D
+	Partition Width: 1
+
+Handle 0x0013, DMI type 19, 31 bytes
+Memory Array Mapped Address
+	Starting Address: 0x0000000080000000k
+	Ending Address: 0x00000000FEFFFFFFk
+	Range Size: 2032 MB
+	Physical Array Handle: 0x000D
+	Partition Width: 1
+
+Handle 0xFEFF, DMI type 127, 4 bytes
+End Of Table
+
