@@ -11,19 +11,16 @@ readonly SCRIPT_DIR
 # shellcheck source=../common.sh
 . "$SCRIPT_DIR/common.sh"
 
-# =============== CONFIGURATIONS TO UPDATE ===============
-readonly CEPH_HOST="10.10.1.4" \
-         CEPH_HOST_USER="ubuntu"
+# =============== CONFIGURATIONS TO CHANGE ===============
+## This can only be "dev" or "release"
+readonly CLUSTER_TYPE=release
 
-readonly CEPH_HOST_CPU_AFFINITY=0-7 \
-         LOCAL_HOST_CPU_AFFINITY=32-63,96-127
+## The ceph host will run mon and mgr docker daemons. The osd deamons will also
+## run on this host if OSD_HOST is not defined.
+readonly CEPH_HOST="10.10.2.3" \
+         CEPH_USER="ljishen"
 
-declare -rA LOCAL_CEPH_CONF_OPTIONS=(
-  ['ms_async_rdma_device_name']=mlx5_2
-  ['ms_async_rdma_local_gid']=0000:0000:0000:0000:0000:ffff:0a0a:0101
-)
-
-readonly CEPH_HOST_SRC_BUILD_DIR=/mnt/sda8/ceph/build
+readonly RADOS_BENCH_CPU_AFFINITY=32-63,96-127
 
 readonly POOL_NAME=bench_rados \
          NUM_PGS=128 \
@@ -32,28 +29,60 @@ readonly POOL_NAME=bench_rados \
 
 readonly ROUNDS_PER_TEST=5 \
          RADOS_BENCH_RUN_LENTH_SECS=20
-# =============== CONFIGURATIONS TO UPDATE ===============
+
+
+declare -rA LOCAL_CEPH_CONF_OPTIONS=(
+#  ['ms_async_rdma_device_name']=mlx5_2
+#  ['ms_async_rdma_local_gid']=0000:0000:0000:0000:0000:ffff:0a0a:0101
+)
+
+## The following options only work for CLUSTER_TYPE of "dev"
+readonly CEPH_HOST_CPU_AFFINITY=0-7
+readonly CEPH_HOST_SRC_BUILD_DIR=/mnt/sda8/ceph/build
+
+## The following options only work for CLUSTER_TYPE of "release"
+OSD_HOST="10.10.2.5"
+readonly OSD_DRIVE=/dev/nvme0n1
+# =============== CONFIGURATIONS TO CHANGE ===============
+
+
+if [[ "$CLUSTER_TYPE" != @(dev|release) ]]; then
+  common::err $(( ERR_STATUS_START + 1 )) \
+    "Invalid CLUSTER_TYPE '$CLUSTER_TYPE' (must be 'dev' or 'release')."
+fi
+
+# dev cluster deploys everything on the CEPH_HOST
+if [[ "$CLUSTER_TYPE" == "dev" ]]; then
+  OSD_HOST="$CEPH_HOST"
+fi
+
 
 readonly LOCAL_CEPH_CONF_DIR="$DEPLOYMENT_DATA_ROOT"/etc/ceph \
          OUTPUT_DIR="$PWD"/output \
          REMOTE_OUTPUT_DIR=/tmp/bench-rados
 mkdir --parents "$LOCAL_CEPH_CONF_DIR" "$OUTPUT_DIR"
-"$SCRIPT_DIR"/parallel-ssh --host "$CEPH_HOST_USER"@"$CEPH_HOST" \
+"$SCRIPT_DIR"/parallel-ssh --host "$CEPH_USER"@"$CEPH_HOST" \
   mkdir --parents "$REMOTE_OUTPUT_DIR"
+if [[ "$CLUSTER_TYPE" == "release" ]]; then
+  "$SCRIPT_DIR"/parallel-ssh --host "$CEPH_USER"@"$OSD_HOST" \
+    mkdir --parents "$REMOTE_OUTPUT_DIR"
+fi
+
 
 if ! common::is_program_installed "sar"; then
-  common::err $(( ERR_STATUS_START + 1 )) "Please install sysstat."
+  common::err $(( ERR_STATUS_START + 2 )) "Please install sysstat."
 fi
 pkill -TERM --euid "$USER" --exact sar || true
 
-if ! "$SCRIPT_DIR"/parallel-ssh --host "$CEPH_HOST_USER"@"$CEPH_HOST" bash <<< "
+if ! "$SCRIPT_DIR"/parallel-ssh --host "$CEPH_USER"@"$OSD_HOST" bash <<< "
   command -v sar >/dev/null 2>&1 && \
-    (pkill -TERM --euid $CEPH_HOST_USER --exact sar || true)"; then
-  common::err $(( ERR_STATUS_START + 1 )) "Please install sysstat on the ceph host."
+    (pkill -TERM --euid $CEPH_USER --exact sar || true)"; then
+  common::err $(( ERR_STATUS_START + 2 )) "Please install sysstat on the ceph OSD host."
 fi
 
+
 readonly LOCAL_CEPH_SHELL=" \
-  ${LOCAL_HOST_CPU_AFFINITY:+taskset --cpu-list $LOCAL_HOST_CPU_AFFINITY} \
+  ${RADOS_BENCH_CPU_AFFINITY:+taskset --cpu-list $RADOS_BENCH_CPU_AFFINITY} \
   $SCRIPT_DIR/ceph-shell --"
 
 # https://stackoverflow.com/a/61835747/2926646
@@ -79,7 +108,7 @@ count_cpus() {
     IFS='-' read -ra nums <<< "$comp"
     for (( idx = 0; idx < ${#nums[@]}; idx++ )); do
       if ! is_uint "${nums[idx]}"; then
-        common::err $(( ERR_STATUS_START + 2 )) \
+        common::err $(( ERR_STATUS_START + 1 )) \
           "Cpu-list $cpu_list contains non-integer value in '$comp'"
       fi
     done
@@ -88,12 +117,12 @@ count_cpus() {
       (( ++cpu_count ))
     elif (( ${#nums[@]} == 2 )); then    # comp is a range
       if (( nums[0] > nums[1] )); then
-        common::err $(( ERR_STATUS_START + 2 )) \
+        common::err $(( ERR_STATUS_START + 1 )) \
           "Invalid cpu-list in $cpu_list: start > end (start: ${nums[0]}, end: ${nums[1]})"
       fi
       (( cpu_count += nums[1] - nums[0] + 1 ))
     else
-      common::err $(( ERR_STATUS_START + 2 )) "Invalid cpu-list format in $cpu_list"
+      common::err $(( ERR_STATUS_START + 1 )) "Invalid cpu-list format in $cpu_list"
     fi
   done
 
@@ -103,28 +132,67 @@ count_cpus() {
 }
 
 launch_ceph_cluster() {
-  common::stage "Launch a Ceph cluster on host $CEPH_HOST ..."
+  common::stage "Launch a Ceph cluster (CEPH_HOST: $CEPH_HOST, OSD_HOST: $OSD_HOST) ..."
+  local -r ceph_keyring_filename=ceph.client.admin.keyring
 
-  trace_on
-  "$SCRIPT_DIR"/parallel-ssh --host "$CEPH_HOST_USER"@"$CEPH_HOST" \
-    sudo bash <<EOF
+  if [[ "$CLUSTER_TYPE" == "dev" ]]; then
+    trace_on
+    "$SCRIPT_DIR"/parallel-ssh --host "$CEPH_USER"@"$CEPH_HOST" \
+      sudo bash <<EOF
 cd "$CEPH_HOST_SRC_BUILD_DIR" \
   && ../src/stop.sh \
   && rm --force --recursive out dev \
   && ulimit -l unlimited \
   && MON=1 OSD=1 MDS=0 MGR=1 FS=0 RGW=0 NFS=0 \
-      ${CEPH_HOST_CPU_AFFINITY:+taskset --cpu-list $CEPH_HOST_CPU_AFFINITY} \
-      ../src/vstart.sh \
-      -d -n -x -i "$CEPH_HOST" --without-dashboard --memstore
+    ${CEPH_HOST_CPU_AFFINITY:+taskset --cpu-list $CEPH_HOST_CPU_AFFINITY} \
+    ../src/vstart.sh \
+    -d -n -x -i "$CEPH_HOST" --without-dashboard --memstore
 EOF
 
-  scp -C "${SSH_COMM_OPTIONS[@]}" -p \
-    "$CEPH_HOST_USER"@"$CEPH_HOST":"$CEPH_HOST_SRC_BUILD_DIR"/ceph.conf \
-    "$LOCAL_CEPH_CONF_DIR"/ceph.conf
-  scp -C "${SSH_COMM_OPTIONS[@]}" -p \
-    "$CEPH_HOST_USER"@"$CEPH_HOST":"$CEPH_HOST_SRC_BUILD_DIR"/keyring \
-    "$LOCAL_CEPH_CONF_DIR"/ceph.client.admin.keyring
-  trace_off
+    scp -C "${SSH_COMM_OPTIONS[@]}" -p \
+      "$CEPH_USER"@"$CEPH_HOST":"$CEPH_HOST_SRC_BUILD_DIR"/ceph.conf \
+      "$LOCAL_CEPH_CONF_DIR"/ceph.conf
+    scp -C "${SSH_COMM_OPTIONS[@]}" -p \
+      "$CEPH_USER"@"$CEPH_HOST":"$CEPH_HOST_SRC_BUILD_DIR"/keyring \
+      "$LOCAL_CEPH_CONF_DIR"/"$ceph_keyring_filename"
+    trace_off
+
+  elif [[ "$CLUSTER_TYPE" == "release" ]]; then
+    local -r remote_repo_dir="$REMOTE_OUTPUT_DIR"/ceph-research
+    local -r remote_scripts="$remote_repo_dir"/scripts
+    local -r remote_ceph_config_dir="$remote_scripts"/deployment_data_root/etc/ceph
+
+    trace_on
+    "$SCRIPT_DIR"/parallel-ssh --host "$CEPH_USER"@"$CEPH_HOST" \
+      bash <<EOF
+set -euo pipefail
+
+if ! [[ -d "$remote_repo_dir" ]]; then
+  git clone https://github.com/ljishen/ceph-research.git "$remote_repo_dir"
+else
+  ( cd "$remote_repo_dir" && git fetch && git reset --hard origin/main )
+fi >/dev/null 2>&1
+
+if output="\$("$remote_scripts"/ceph-shell -- ceph fsid 2>&1)"; then
+  "$remote_scripts"/parallel-cephadm \
+    --host $CEPH_HOST --host $OSD_HOST \
+    rm-cluster --force --fsid \$(tail -n1 <<< "\$output")
+fi
+
+"$remote_scripts"/ceph-deploy -m "$CEPH_HOST" -o "$OSD_HOST":"$OSD_DRIVE"
+EOF
+
+    scp -C "${SSH_COMM_OPTIONS[@]}" -p \
+      "$CEPH_USER"@"$CEPH_HOST":"$remote_ceph_config_dir"/ceph.conf \
+      "$LOCAL_CEPH_CONF_DIR"/ceph.conf
+    scp -C "${SSH_COMM_OPTIONS[@]}" -p \
+      "$CEPH_USER"@"$CEPH_HOST":"$remote_ceph_config_dir"/"$ceph_keyring_filename" \
+      "$LOCAL_CEPH_CONF_DIR"/"$ceph_keyring_filename"
+    trace_off
+
+  else
+    common::err $(( ERR_STATUS_START + 3 )) "Unsupport CLUSTER_TYPE: $CLUSTER_TYPE"
+  fi
 }
 
 update_local_ceph_conf() {
@@ -181,7 +249,7 @@ object_size_bytes() {
   elif [[ "$input" == "$num"B ]] || [[ "$input" == "$num"b ]] || [[ "$input" == "$num" ]]; then
     echo "$num"
   else
-    common::err $(( ERR_STATUS_START + 2 )) "Unsupport object size: $input"
+    common::err $(( ERR_STATUS_START + 1 )) "Unsupport object size: $input"
   fi
 }
 
@@ -221,33 +289,34 @@ rados_bench() {
   common::stage "Start benchmarking of mode $mode ..."
   (( ++INFO_LEVEL ))
 
-  local -r sysstat_file_bench_host="$OUTPUT_DIR"/sys_activity_"$object_size"_"$mode".dat.bench_host."$round_idx" \
-           sysstat_file_ceph_host="$REMOTE_OUTPUT_DIR"/sys_activity_"$object_size"_"$mode".dat.ceph_host."$round_idx" \
+  local -r sysstat_file_rados_bench_host="$OUTPUT_DIR"/sys_activity_"$object_size"_"$mode".dat.rados_bench_host."$round_idx" \
+           sysstat_file_osd_host="$REMOTE_OUTPUT_DIR"/sys_activity_"$object_size"_"$mode".dat.osd_host."$round_idx" \
            object_size_bytes="$(object_size_bytes "$object_size")"
 
-  local -i sar_pid_bench_host sar_pid_ceph_host
+  local -i sar_pid_rados_bench_host sar_pid_osd_host
 
   common::info "Start system activity collection services"
   (( ++INFO_LEVEL ))
 
   common::info "for rados-bench host"
   trace_on
-  rm --force "$sysstat_file_bench_host"
-  S_TIME_FORMAT=ISO sar -A -o "$sysstat_file_bench_host" 2 >/dev/null 2>&1 & sar_pid_bench_host=$!
+  rm --force "$sysstat_file_rados_bench_host"
+  S_TIME_FORMAT=ISO sar -A -o "$sysstat_file_rados_bench_host" 2 >/dev/null 2>&1 & sar_pid_rados_bench_host=$!
   trace_off
 
-  common::info "for ceph host"
+  common::info "for OSD host"
   common::create_stdout_dup
-  sar_pid_ceph_host="$(
-    "$SCRIPT_DIR"/parallel-ssh --host "$CEPH_HOST_USER"@"$CEPH_HOST" \
+  sar_pid_osd_host="$(
+    "$SCRIPT_DIR"/parallel-ssh --host "$CEPH_USER"@"$OSD_HOST" \
       bash 2>&1 <<EOF | common::to_stdout_dup | tail -n1
-rm --force $sysstat_file_ceph_host
-S_TIME_FORMAT=ISO sar -A -o $sysstat_file_ceph_host 2 >/dev/null 2>&1 & echo \$!
+rm --force $sysstat_file_osd_host
+S_TIME_FORMAT=ISO sar -A -o $sysstat_file_osd_host 2 >/dev/null 2>&1 & echo \$!
 EOF
   )"
 
   (( --INFO_LEVEL ))
   common::info "Run rados bench"
+
   if [[ "$mode" == "write" ]]; then
     trace_on
     $LOCAL_CEPH_SHELL \
@@ -255,21 +324,23 @@ EOF
       --pool "$POOL_NAME" \
       -b "$object_size_bytes" \
       -O "$object_size_bytes" \
-      --concurrent-ios $(( $(count_cpus "$LOCAL_HOST_CPU_AFFINITY") * 2 )) \
+      --concurrent-ios $(( $(count_cpus "$RADOS_BENCH_CPU_AFFINITY") * 2 )) \
       --show-time \
       --write-object \
       --write-omap \
       --write-xattr \
       --no-cleanup 2>&1 | tee "$OUTPUT_DIR"/rados_bench_"$object_size"_"$mode".log."$round_idx"
     trace_off
+
   elif [[ "$mode" == "seq" ]]; then
     trace_on
     $LOCAL_CEPH_SHELL \
       rados bench 99999999 seq \
       --pool "$POOL_NAME" \
-      --concurrent-ios $(( $(count_cpus "$LOCAL_HOST_CPU_AFFINITY") * 2 )) \
+      --concurrent-ios $(( $(count_cpus "$RADOS_BENCH_CPU_AFFINITY") * 2 )) \
       --show-time 2>&1 | tee "$OUTPUT_DIR"/rados_bench_"$object_size"_"$mode".log."$round_idx"
     trace_off
+
   else
     common::err $(( ERR_STATUS_START + 3 )) "Unsupport rados bench mode: $mode"
   fi
@@ -279,21 +350,21 @@ EOF
 
   common::info "for rados-bench host"
   trace_on
-  kill -INT "$sar_pid_bench_host"
+  kill -INT "$sar_pid_rados_bench_host"
   trace_off
 
-  common::info "for ceph host"
+  common::info "for OSD host"
   trace_on
-  "$SCRIPT_DIR"/parallel-ssh --host "$CEPH_HOST_USER"@"$CEPH_HOST" \
-    kill -INT "$sar_pid_ceph_host"
+  "$SCRIPT_DIR"/parallel-ssh --host "$CEPH_USER"@"$OSD_HOST" \
+    kill -INT "$sar_pid_osd_host"
   trace_off
 
   (( ++INFO_LEVEL ))
-  common::info "Copy system activity file from ceph host"
+  common::info "Copy system activity file from OSD host"
   trace_on
   scp -C "${SSH_COMM_OPTIONS[@]}" -p \
-    "$CEPH_HOST_USER"@"$CEPH_HOST":"$sysstat_file_ceph_host" \
-    "$OUTPUT_DIR"/"$(basename -- "$sysstat_file_ceph_host")"
+    "$CEPH_USER"@"$OSD_HOST":"$sysstat_file_osd_host" \
+    "$OUTPUT_DIR"/"$(basename -- "$sysstat_file_osd_host")"
   trace_off
 }
 
