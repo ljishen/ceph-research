@@ -215,12 +215,16 @@ EOF
 
     common::info "Copy configuration files to local"
     trace_on
+    # change the owner so we can copy
+    "$SCRIPT_DIR"/parallel-ssh --host "$CEPH_USER"@"$CEPH_HOST" \
+      sudo bash -euo pipefail <<EOF
+chown $CEPH_USER "$remote_ceph_config_dir"/ceph.conf
+chown $CEPH_USER "$remote_ceph_config_dir"/"$ceph_keyring_filename"
+EOF
+
     scp -C "${SSH_COMM_OPTIONS[@]}" -p \
       "$CEPH_USER"@"$CEPH_HOST":"$remote_ceph_config_dir"/ceph.conf \
       "$LOCAL_CEPH_CONF_DIR"/ceph.conf
-    # change the permission so we can copy
-    "$SCRIPT_DIR"/parallel-ssh --host "$CEPH_USER"@"$CEPH_HOST" \
-      sudo chmod 644 "$remote_ceph_config_dir"/"$ceph_keyring_filename"
     scp -C "${SSH_COMM_OPTIONS[@]}" -p \
       "$CEPH_USER"@"$CEPH_HOST":"$remote_ceph_config_dir"/"$ceph_keyring_filename" \
       "$LOCAL_CEPH_CONF_DIR"/"$ceph_keyring_filename"
