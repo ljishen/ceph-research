@@ -17,7 +17,7 @@ readonly CLUSTER_TYPE=release
 
 ## The ceph host will run mon and mgr docker daemons. The osd deamons will also
 ## run on this host if OSD_HOST is not defined.
-readonly CEPH_HOST="10.10.2.3" \
+readonly CEPH_HOST="10.10.2.1" \
          CEPH_USER="ljishen"
 
 readonly RADOS_BENCH_CPU_AFFINITY=32-63,96-127
@@ -192,13 +192,19 @@ cd "$REMOTE_OUTPUT_DIR"
 . "$remote_scripts"/common.sh
 INFO_LEVEL=$INFO_LEVEL
 
-common::info "Remove the existing cluster"
-trace_on
-"$remote_scripts"/parallel-cephadm \
-  --host $CEPH_HOST --host $OSD_HOST \
-  rm-cluster --force \
-  --fsid \$(ls /var/lib/ceph | tail -n1) >/dev/null 2>&1 || true
-trace_off
+common::info "Remove existing clusters"
+if [[ -d /var/lib/ceph ]]; then
+  for fsid_dir in /var/lib/ceph/*; do
+    # skip if /var/lib/ceph/ is empty
+    [[ -d \$fsid_dir ]] || continue
+    trace_on
+    "$remote_scripts"/parallel-cephadm \
+      --host "$CEPH_HOST" --host "$OSD_HOST" \
+      rm-cluster --force \
+      --fsid \$(basename -- "\$fsid_dir")
+    trace_off
+  done
+fi
 
 common::info "Deploy a new cluster"
 trace_on
