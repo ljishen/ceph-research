@@ -18,7 +18,7 @@ fi
 # Test whether stdin has input using [ -t 0 ]
 #   https://stackoverflow.com/a/2456870/2926646
 #   https://unix.stackexchange.com/a/15683
-if [[ -t 0 ]]; then
+if [[ -t 0 ]] || [[ -n "${PARALLEL_SSH_CMDLINE:-}" ]]; then
   common::debug "command from cmdline"
 else
   common::debug "command from stdin"
