@@ -12,7 +12,7 @@ readonly SCRIPT_DIR
 . "$SCRIPT_DIR/common.sh"
 
 # =============== CONFIGURATIONS TO CHANGE ===============
-## This can only be "dev" or "release"
+## This option can only be "dev" or "release"
 readonly CLUSTER_TYPE=release
 
 ## The ceph host will run mon and mgr docker daemons. The osd deamons will also
@@ -27,8 +27,8 @@ readonly POOL_NAME=bench_rados \
          POOL_SIZE=1 \
          OBJECT_SIZES=(4KB 16KB 64KB 256KB 1MB 4MB 16MB)
 
-readonly ROUNDS_PER_TEST=5 \
-         RADOS_BENCH_RUN_LENTH_SECS=20
+readonly ROUNDS_PER_TEST=3 \
+         RADOS_BENCH_RUN_LENTH_SECS=30
 
 
 declare -rA LOCAL_CEPH_CONF_OPTIONS=(
@@ -106,7 +106,7 @@ count_cpus() {
   IFS=',' read -ra components <<< "$cpu_list"
   for comp in "${components[@]}"; do
     IFS='-' read -ra nums <<< "$comp"
-    for (( idx = 0; idx < ${#nums[@]}; idx++ )); do
+    for (( idx = 0; idx < ${#nums[@]}; ++idx )); do
       if ! is_uint "${nums[idx]}"; then
         common::err $(( ERR_STATUS_START + 1 )) \
           "Cpu-list $cpu_list contains non-integer value in '$comp'"
@@ -133,22 +133,28 @@ count_cpus() {
 
 launch_ceph_cluster() {
   common::stage "Launch a Ceph cluster (CEPH_HOST: $CEPH_HOST, OSD_HOST: $OSD_HOST) ..."
+  (( ++INFO_LEVEL ))
+
   local -r ceph_keyring_filename=ceph.client.admin.keyring
 
   if [[ "$CLUSTER_TYPE" == "dev" ]]; then
+    common::info "Stop and start a new $CLUSTER_TYPE cluster"
     trace_on
     "$SCRIPT_DIR"/parallel-ssh --host "$CEPH_USER"@"$CEPH_HOST" \
-      sudo bash <<EOF
-cd "$CEPH_HOST_SRC_BUILD_DIR" \
-  && ../src/stop.sh \
-  && rm --force --recursive out dev \
-  && ulimit -l unlimited \
-  && MON=1 OSD=1 MDS=0 MGR=1 FS=0 RGW=0 NFS=0 \
-    ${CEPH_HOST_CPU_AFFINITY:+taskset --cpu-list $CEPH_HOST_CPU_AFFINITY} \
-    ../src/vstart.sh \
-    -d -n -x -i "$CEPH_HOST" --without-dashboard --memstore
-EOF
+      bash -euo pipefail <<EOF
+cd "$CEPH_HOST_SRC_BUILD_DIR"
+../src/stop.sh && rm --force --recursive out dev
+ulimit -l unlimited
 
+MON=1 OSD=1 MDS=0 MGR=1 FS=0 RGW=0 NFS=0 \
+  ${CEPH_HOST_CPU_AFFINITY:+taskset --cpu-list $CEPH_HOST_CPU_AFFINITY} \
+  ../src/vstart.sh \
+  -d -n -x -i "$CEPH_HOST" --without-dashboard --memstore
+EOF
+    trace_off
+
+    common::info "Copy configuration files to local"
+    trace_on
     scp -C "${SSH_COMM_OPTIONS[@]}" -p \
       "$CEPH_USER"@"$CEPH_HOST":"$CEPH_HOST_SRC_BUILD_DIR"/ceph.conf \
       "$LOCAL_CEPH_CONF_DIR"/ceph.conf
@@ -160,31 +166,51 @@ EOF
   elif [[ "$CLUSTER_TYPE" == "release" ]]; then
     local -r remote_repo_dir="$REMOTE_OUTPUT_DIR"/ceph-research
     local -r remote_scripts="$remote_repo_dir"/scripts
-    local -r remote_ceph_config_dir="$remote_scripts"/deployment_data_root/etc/ceph
+    local -r remote_ceph_config_dir="$REMOTE_OUTPUT_DIR"/deployment_data_root/etc/ceph
 
     trace_on
     "$SCRIPT_DIR"/parallel-ssh --host "$CEPH_USER"@"$CEPH_HOST" \
-      bash <<EOF
-set -euo pipefail
-
+      bash -euo pipefail <<EOF
 if ! [[ -d "$remote_repo_dir" ]]; then
   git clone https://github.com/ljishen/ceph-research.git "$remote_repo_dir"
 else
   ( cd "$remote_repo_dir" && git fetch && git reset --hard origin/main )
 fi >/dev/null 2>&1
 
-if output="\$("$remote_scripts"/ceph-shell -- ceph fsid 2>&1)"; then
-  "$remote_scripts"/parallel-cephadm \
-    --host $CEPH_HOST --host $OSD_HOST \
-    rm-cluster --force --fsid \$(tail -n1 <<< "\$output")
-fi
+cd "$REMOTE_OUTPUT_DIR"
 
-"$remote_scripts"/ceph-deploy -m "$CEPH_HOST" -o "$OSD_HOST":"$OSD_DRIVE"
+. "$remote_scripts"/common.sh
+INFO_LEVEL=$INFO_LEVEL
+
+common::info "Remove the existing cluster"
+trace_on
+"$remote_scripts"/parallel-cephadm \
+  --host $CEPH_HOST --host $OSD_HOST \
+  rm-cluster --force \
+  --fsid \$(ls /var/lib/ceph | tail -n1) >/dev/null 2>&1 || true
+trace_off
+
+common::info "Deploy a new cluster"
+
+# Indicate that the commands for parallel-ssh is from cmdline
+export PARALLEL_SSH_CMDLINE=0
+
+trace_on
+osd_hostname=\$("$remote_scripts"/parallel-ssh --host "$OSD_HOST" \
+  uname --nodename | tail -n1)
+"$remote_scripts"/ceph-deploy -m "$CEPH_HOST" -o "\$osd_hostname"/"$OSD_HOST":"$OSD_DRIVE" 2>&1
+trace_off
 EOF
+    trace_off
 
+    common::info "Copy configuration files to local"
+    trace_on
     scp -C "${SSH_COMM_OPTIONS[@]}" -p \
       "$CEPH_USER"@"$CEPH_HOST":"$remote_ceph_config_dir"/ceph.conf \
       "$LOCAL_CEPH_CONF_DIR"/ceph.conf
+    # change the permission so we can copy
+    "$SCRIPT_DIR"/parallel-ssh --host "$CEPH_USER"@"$CEPH_HOST" \
+      sudo chmod 644 "$remote_ceph_config_dir"/"$ceph_keyring_filename"
     scp -C "${SSH_COMM_OPTIONS[@]}" -p \
       "$CEPH_USER"@"$CEPH_HOST":"$remote_ceph_config_dir"/"$ceph_keyring_filename" \
       "$LOCAL_CEPH_CONF_DIR"/"$ceph_keyring_filename"
@@ -371,7 +397,7 @@ EOF
 
 main() {
   local object_size_idx round_idx object_size
-  for (( object_size_idx = 0; object_size_idx < ${#OBJECT_SIZES[@]}; object_size_idx++ )); do
+  for (( object_size_idx = 0; object_size_idx < ${#OBJECT_SIZES[@]}; ++object_size_idx )); do
     object_size="${OBJECT_SIZES[$object_size_idx]}"
     for round_idx in $(seq $ROUNDS_PER_TEST); do
       printf '\n\n\033[1;7;39;49m[%s][RUNNING][ROUND %d/%d/%d] %s\033[0m\n' \
