@@ -1,0 +1,71 @@
+[1;30mnode-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-10-26T23:41:06,035786558-07:00] DEBUG: HOST_PARAMS: [][0m
+[1;30mnode-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-10-26T23:41:06,039163967-07:00] DEBUG: CEPHADM_PARAMS: ['shell', '--config', '/mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.conf', '--keyring', '/mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.client.admin.keyring', '--fsid', '3a077bf6-36f0-11ec-b561-09a495c6360a', '--', 'rados', 'bench', '30', 'write', '--pool', 'bench_rados', '-b', '16777216', '-O', '16777216', '--concurrent-ios', '128', '--show-time', '--write-object', '--write-omap', '--write-xattr', '--no-cleanup'][0m
+# ./parallel-cephadm:68 -  > sudo /mnt/sda8/ceph-research/scripts/deployment_data_root/usr/sbin/cephadm shell --config /mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.conf --keyring /mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.client.admin.keyring --fsid 3a077bf6-36f0-11ec-b561-09a495c6360a -- rados bench 30 write --pool bench_rados -b 16777216 -O 16777216 --concurrent-ios 128 --show-time --write-object --write-omap --write-xattr --no-cleanup
+Using recent ceph image quay.io/ceph/ceph@sha256:5755c3a5c197ef186b8186212e023565f15b799f1ed411207f2c3fcd4a80ab45
+hints = 1
+2021-10-27T06:41:08.405398+0000 Maintaining 128 concurrent writes of 16777216 bytes to objects of size 16777216 for up to 30 seconds or 0 objects
+2021-10-27T06:41:08.405427+0000 Object prefix: benchmark_data_node-0.bluefield2.ucsc-cmps10_7
+2021-10-27T06:41:09.013791+0000   sec Cur ops   started  finished  avg MB/s  cur MB/s last lat(s)  avg lat(s)
+2021-10-27T06:41:09.013791+0000     0       0         0         0         0         0           -           0
+2021-10-27T06:41:10.013926+0000     1       5         5         0         0         0           -           0
+2021-10-27T06:41:11.013995+0000     2      10        10         0         0         0           -           0
+2021-10-27T06:41:12.014102+0000     3      14        14         0         0         0           -           0
+2021-10-27T06:41:13.014205+0000     4      19        19         0         0         0           -           0
+2021-10-27T06:41:14.014310+0000     5      24        24         0         0         0           -           0
+2021-10-27T06:41:15.014374+0000     6      29        29         0         0         0           -           0
+2021-10-27T06:41:16.014479+0000     7      33        33         0         0         0           -           0
+2021-10-27T06:41:17.014696+0000     8      35        35         0         0         0           -           0
+2021-10-27T06:41:18.014802+0000     9      38        38         0         0         0           -           0
+2021-10-27T06:41:19.014867+0000    10      40        40         0         0         0           -           0
+2021-10-27T06:41:20.015000+0000    11      42        42         0         0         0           -           0
+2021-10-27T06:41:21.015069+0000    12      44        44         0         0         0           -           0
+2021-10-27T06:41:22.015178+0000    13      48        48         0         0         0           -           0
+2021-10-27T06:41:23.015243+0000    14      52        52         0         0         0           -           0
+2021-10-27T06:41:24.015347+0000    15      57        57         0         0         0           -           0
+2021-10-27T06:41:25.015560+0000    16      61        61         0         0         0           -           0
+2021-10-27T06:41:26.015665+0000    17      66        66         0         0         0           -           0
+2021-10-27T06:41:27.015759+0000    18      68        68         0         0         0           -           0
+2021-10-27T06:41:28.015983+0000    19      69        69         0         0         0           -           0
+2021-10-27T06:41:29.016049+0000 min lat: 9999 max lat: 0 avg lat: 0
+2021-10-27T06:41:29.016049+0000   sec Cur ops   started  finished  avg MB/s  cur MB/s last lat(s)  avg lat(s)
+2021-10-27T06:41:29.016049+0000    20      70        70         0         0         0           -           0
+2021-10-27T06:41:30.016172+0000    21      71        71         0         0         0           -           0
+2021-10-27T06:41:31.016241+0000    22      72        72         0         0         0           -           0
+2021-10-27T06:41:32.016344+0000    23      73        73         0         0         0           -           0
+2021-10-27T06:41:33.016411+0000    24      76        76         0         0         0           -           0
+2021-10-27T06:41:34.016489+0000    25      79        79         0         0         0           -           0
+2021-10-27T06:41:35.016558+0000    26      81        81         0         0         0           -           0
+2021-10-27T06:41:36.016623+0000    27      84        84         0         0         0           -           0
+2021-10-27T06:41:37.016718+0000    28      87        87         0         0         0           -           0
+2021-10-27T06:41:38.016922+0000    29      90        90         0         0         0           -           0
+2021-10-27T06:41:39.017016+0000    30      93        93         0         0         0           -           0
+2021-10-27T06:41:40.017229+0000    31      96        96         0         0         0           -           0
+2021-10-27T06:41:41.017323+0000    32      98        98         0         0         0           -           0
+2021-10-27T06:41:42.017542+0000    33      99        99         0         0         0           -           0
+2021-10-27T06:41:43.017637+0000    34     100       100         0         0         0           -           0
+2021-10-27T06:41:44.017717+0000    35     102       102         0         0         0           -           0
+2021-10-27T06:41:45.017929+0000    36     104       104         0         0         0           -           0
+2021-10-27T06:41:46.018006+0000    37     107       107         0         0         0           -           0
+2021-10-27T06:41:47.018102+0000    38     111       111         0         0         0           -           0
+2021-10-27T06:41:48.018211+0000    39     115       115         0         0         0           -           0
+2021-10-27T06:41:49.018305+0000 min lat: 9999 max lat: 0 avg lat: 0
+2021-10-27T06:41:49.018305+0000   sec Cur ops   started  finished  avg MB/s  cur MB/s last lat(s)  avg lat(s)
+2021-10-27T06:41:49.018305+0000    40     119       119         0         0         0           -           0
+2021-10-27T06:41:50.018393+0000    41     124       124         0         0         0           -           0
+2021-10-27T06:41:51.018465+0000    42       2       128       126   47.9947        48    0.688165      22.929
+2021-10-27T06:41:52.018728+0000 Total time run:         42.2343
+Total writes made:      128
+Write size:             16777216
+Object size:            16777216
+Bandwidth (MB/sec):     48.4914
+Stddev Bandwidth:       7.40656
+Max bandwidth (MB/sec): 48
+Min bandwidth (MB/sec): 0
+Average IOPS:           3
+Stddev IOPS:            0.46291
+Max IOPS:               3
+Min IOPS:               0
+Average Latency(s):     22.5806
+Stddev Latency(s):      13.3392
+Max latency(s):         41.8373
+Min latency(s):         0.622381

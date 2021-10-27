@@ -1,0 +1,57 @@
+[1;30mnode-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-10-26T22:56:10,000011352-07:00] DEBUG: HOST_PARAMS: [][0m
+[1;30mnode-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-10-26T22:56:10,003154580-07:00] DEBUG: CEPHADM_PARAMS: ['shell', '--config', '/mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.conf', '--keyring', '/mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.client.admin.keyring', '--fsid', 'f1454c32-36e9-11ec-b561-09a495c6360a', '--', 'rados', 'bench', '30', 'write', '--pool', 'bench_rados', '-b', '1048576', '-O', '1048576', '--concurrent-ios', '128', '--show-time', '--write-object', '--write-omap', '--write-xattr', '--no-cleanup'][0m
+# ./parallel-cephadm:68 -  > sudo /mnt/sda8/ceph-research/scripts/deployment_data_root/usr/sbin/cephadm shell --config /mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.conf --keyring /mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.client.admin.keyring --fsid f1454c32-36e9-11ec-b561-09a495c6360a -- rados bench 30 write --pool bench_rados -b 1048576 -O 1048576 --concurrent-ios 128 --show-time --write-object --write-omap --write-xattr --no-cleanup
+Using recent ceph image quay.io/ceph/ceph@sha256:5755c3a5c197ef186b8186212e023565f15b799f1ed411207f2c3fcd4a80ab45
+hints = 1
+2021-10-27T05:56:12.540597+0000 Maintaining 128 concurrent writes of 1048576 bytes to objects of size 1048576 for up to 30 seconds or 0 objects
+2021-10-27T05:56:12.540607+0000 Object prefix: benchmark_data_node-0.bluefield2.ucsc-cmps10_7
+2021-10-27T05:56:12.568774+0000   sec Cur ops   started  finished  avg MB/s  cur MB/s last lat(s)  avg lat(s)
+2021-10-27T05:56:12.568774+0000     0       0         0         0         0         0           -           0
+2021-10-27T05:56:13.569013+0000     1      83        83         0         0         0           -           0
+2021-10-27T05:56:14.569088+0000     2     127       156        29   14.4982      14.5     1.99357     1.82778
+2021-10-27T05:56:15.569157+0000     3     127       227       100   33.3299        71     1.83244     1.92124
+2021-10-27T05:56:16.569254+0000     4     127       298       171   42.7456        71     1.71538     1.88603
+2021-10-27T05:56:17.569360+0000     5     127       361       234   46.7952        63     1.63905      1.8833
+2021-10-27T05:56:18.569438+0000     6     127       426       299   49.8284        65     1.96452      1.8991
+2021-10-27T05:56:19.569640+0000     7     127       485       358    51.137        59     1.90865     1.90334
+2021-10-27T05:56:20.569718+0000     8     127       536       409   51.1194        51     1.87468     1.90599
+2021-10-27T05:56:21.569826+0000     9     127       565       438   48.6614        29     2.26875     1.92776
+2021-10-27T05:56:22.569904+0000    10     127       613       486   48.5949        48     3.16202     2.02618
+2021-10-27T05:56:23.569973+0000    11     127       644       517   46.9952        31     3.65527     2.11756
+2021-10-27T05:56:24.570051+0000    12     127       672       545   45.4121        28     3.77516       2.211
+2021-10-27T05:56:25.570157+0000    13     127       699       572   43.9956        27     3.76752     2.30157
+2021-10-27T05:56:26.570238+0000    14     127       730       603   43.0671        31     3.73032     2.39298
+2021-10-27T05:56:27.570307+0000    15     127       765       638   42.5292        35     3.72289     2.48041
+2021-10-27T05:56:28.570391+0000    16     127       839       712   44.4957        74      2.7233     2.57093
+2021-10-27T05:56:29.570497+0000    17     127       900       773   45.4662        61     1.90895     2.54646
+2021-10-27T05:56:30.570575+0000    18     127       965       838   46.5511        65     1.97843     2.49883
+2021-10-27T05:56:31.570644+0000    19     127      1037       910   47.8902        72     1.83813     2.45462
+2021-10-27T05:56:32.570803+0000 min lat: 1.5826 max lat: 4.33618 avg lat: 2.44427
+2021-10-27T05:56:32.570803+0000   sec Cur ops   started  finished  avg MB/s  cur MB/s last lat(s)  avg lat(s)
+2021-10-27T05:56:32.570803+0000    20     127      1061       934   46.6954        24     2.54477     2.44427
+2021-10-27T05:56:33.570996+0000    21     127      1091       964   45.9001        30     2.54722     2.44387
+2021-10-27T05:56:34.571224+0000    22     127      1113       986   44.8133        22     3.24896     2.46433
+2021-10-27T05:56:35.571456+0000    23     127      1126       999   43.4299        13     3.68661     2.48093
+2021-10-27T05:56:36.571534+0000    24     127      1159      1032   42.9952        33     4.97595     2.55236
+2021-10-27T05:56:37.571640+0000    25     127      1176      1049   41.9553        17     5.44366     2.60093
+2021-10-27T05:56:38.571720+0000    26     127      1192      1065    40.957        16     5.56835     2.65258
+2021-10-27T05:56:39.571787+0000    27     127      1207      1080   39.9956        15     6.29838     2.70326
+2021-10-27T05:56:40.571986+0000    28     127      1225      1098   39.2099        18     5.79525     2.76599
+2021-10-27T05:56:41.572096+0000    29     127      1240      1113    38.375        15     6.51534     2.81654
+2021-10-27T05:56:42.572175+0000    30     127      1280      1153   38.4291        40     6.11098     2.94377
+2021-10-27T05:56:43.572297+0000 Total time run:         30.7232
+Total writes made:      1281
+Write size:             1048576
+Object size:            1048576
+Bandwidth (MB/sec):     41.6948
+Stddev Bandwidth:       21.9012
+Max bandwidth (MB/sec): 74
+Min bandwidth (MB/sec): 0
+Average IOPS:           41
+Stddev IOPS:            21.9198
+Max IOPS:               74
+Min IOPS:               0
+Average Latency(s):     2.94322
+Stddev Latency(s):      1.45949
+Max latency(s):         7.51137
+Min latency(s):         0.617592
