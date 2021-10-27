@@ -305,6 +305,11 @@ EOF
   done
 }
 
+recess() {
+  common::info "Sleep for 20 seconds"
+  sleep 20
+}
+
 bootstrap_cluster() {
   common::stage "Bootstrap a new cluster..."
 
@@ -323,6 +328,8 @@ bootstrap_cluster() {
     --single-host-defaults
   trace_off
 
+  recess
+
   INFO_LEVEL=1
 
   common::info "Set the default number of monitor daemons to 1"
@@ -333,14 +340,6 @@ bootstrap_cluster() {
   common::info "Set the default number of manager daemons to 1"
   trace_on
   $CEPH orch apply mgr 1
-  trace_off
-}
-
-show_status() {
-  common::stage "Show Cluster Status"
-
-  trace_on
-  $CEPH --status
   trace_off
 }
 
@@ -370,6 +369,8 @@ add_hosts() {
 
     added_hosts+=("$host")
   done
+
+  recess
 }
 
 add_host_devices_as_osds() {
@@ -397,8 +398,15 @@ add_host_devices_as_osds() {
     trace_off
   fi
 
-  common::info "Sleep for 20 seconds"
-  sleep 20
+  recess
+}
+
+show_status() {
+  common::stage "Show Cluster Status"
+
+  trace_on
+  $CEPH --status
+  trace_off
 }
 
 
@@ -415,11 +423,6 @@ ceph_deploy::deploy() {
   trap exit_trap EXIT
 
   add_hosts
-
-  # need to sleep before being able to adding host devices
-  common::info "Sleep for 20 seconds"
-  sleep 20
-
   add_host_devices_as_osds
 }
 

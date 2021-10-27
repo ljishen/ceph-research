@@ -41,7 +41,10 @@ readonly CEPH_HOST_CPU_AFFINITY=0-7
 readonly CEPH_HOST_SRC_BUILD_DIR=/mnt/sda8/ceph/build
 
 ## The following options only work for CLUSTER_TYPE of "release"
-OSD_HOST="10.10.2.5"
+### the OSD_HOSTNAME will be auto fetched if not set
+OSD_HOSTNAME=
+### dev cluster will overwrite OSD_HOST to CEPH_HOST
+OSD_HOST="10.10.2.2"
 readonly OSD_DRIVE=/dev/nvme0n1
 # =============== CONFIGURATIONS TO CHANGE ===============
 
@@ -51,7 +54,6 @@ if [[ "$CLUSTER_TYPE" != @(dev|release) ]]; then
     "Invalid CLUSTER_TYPE '$CLUSTER_TYPE' (must be 'dev' or 'release')."
 fi
 
-# dev cluster deploys everything on the CEPH_HOST
 if [[ "$CLUSTER_TYPE" == "dev" ]]; then
   OSD_HOST="$CEPH_HOST"
 fi
@@ -168,6 +170,14 @@ EOF
     local -r remote_scripts="$remote_repo_dir"/scripts
     local -r remote_ceph_config_dir="$REMOTE_OUTPUT_DIR"/deployment_data_root/etc/ceph
 
+    if [[ -z "${OSD_HOSTNAME:-}" ]]; then
+      common::info "Get OSD hostname"
+      trace_on
+      OSD_HOSTNAME=$("$SCRIPT_DIR"/parallel-ssh --host "$CEPH_USER"@"$OSD_HOST" \
+        uname --nodename | tail -n1)
+      trace_off
+    fi
+
     trace_on
     "$SCRIPT_DIR"/parallel-ssh --host "$CEPH_USER"@"$CEPH_HOST" \
       bash -euo pipefail <<EOF
@@ -191,14 +201,8 @@ trace_on
 trace_off
 
 common::info "Deploy a new cluster"
-
-# Indicate that the commands for parallel-ssh is from cmdline
-export PARALLEL_SSH_CMDLINE=0
-
 trace_on
-osd_hostname=\$("$remote_scripts"/parallel-ssh --host "$OSD_HOST" \
-  uname --nodename | tail -n1)
-"$remote_scripts"/ceph-deploy -m "$CEPH_HOST" -o "\$osd_hostname"/"$OSD_HOST":"$OSD_DRIVE" 2>&1
+"$remote_scripts"/ceph-deploy -m "$CEPH_HOST" -o "$OSD_HOSTNAME"/"$OSD_HOST":"$OSD_DRIVE" 2>&1
 trace_off
 EOF
     trace_off
