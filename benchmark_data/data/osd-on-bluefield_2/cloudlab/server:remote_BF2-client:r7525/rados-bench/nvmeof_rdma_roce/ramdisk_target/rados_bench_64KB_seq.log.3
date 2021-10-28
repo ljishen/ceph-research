@@ -1,21 +1,23 @@
-[1;30mnode-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-10-26T22:27:50,838790719-07:00] DEBUG: HOST_PARAMS: [][0m
-[1;30mnode-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-10-26T22:27:50,842237738-07:00] DEBUG: CEPHADM_PARAMS: ['shell', '--config', '/mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.conf', '--keyring', '/mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.client.admin.keyring', '--fsid', 'c72300b0-36e5-11ec-b561-09a495c6360a', '--', 'rados', 'bench', '99999999', 'seq', '--pool', 'bench_rados', '--concurrent-ios', '128', '--show-time'][0m
-# ./parallel-cephadm:68 -  > sudo /mnt/sda8/ceph-research/scripts/deployment_data_root/usr/sbin/cephadm shell --config /mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.conf --keyring /mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.client.admin.keyring --fsid c72300b0-36e5-11ec-b561-09a495c6360a -- rados bench 99999999 seq --pool bench_rados --concurrent-ios 128 --show-time
+[1;30mnode-2.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-10-28T08:13:43,041168677-07:00] DEBUG: HOST_PARAMS: [][0m
+[1;30mnode-2.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-10-28T08:13:43,044227942-07:00] DEBUG: CEPHADM_PARAMS: ['shell', '--config', '/mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.conf', '--keyring', '/mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.client.admin.keyring', '--fsid', '93237fa8-3800-11ec-b51d-53e6e728d2d3', '--', 'rados', 'bench', '99999999', 'seq', '--pool', 'bench_rados', '--concurrent-ios', '128', '--show-time'][0m
+# ./parallel-cephadm:68 -  > sudo /mnt/sda8/ceph-research/scripts/deployment_data_root/usr/sbin/cephadm shell --config /mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.conf --keyring /mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.client.admin.keyring --fsid 93237fa8-3800-11ec-b51d-53e6e728d2d3 -- rados bench 99999999 seq --pool bench_rados --concurrent-ios 128 --show-time
 Using recent ceph image quay.io/ceph/ceph@sha256:5755c3a5c197ef186b8186212e023565f15b799f1ed411207f2c3fcd4a80ab45
 hints = 1
-2021-10-27T05:27:53.271043+0000   sec Cur ops   started  finished  avg MB/s  cur MB/s last lat(s)  avg lat(s)
-2021-10-27T05:27:53.271043+0000     0       2         2         0         0         0           -           0
-2021-10-27T05:27:54.271165+0000     1     128      8503      8375   523.335   523.438   0.0160946   0.0151573
-2021-10-27T05:27:55.271283+0000     2     128     17294     17166   536.353   549.438   0.0144864   0.0148652
-2021-10-27T05:27:56.271486+0000 Total time run:       2.19255
-Total reads made:     18930
+2021-10-28T15:13:46.264684+0000   sec Cur ops   started  finished  avg MB/s  cur MB/s last lat(s)  avg lat(s)
+2021-10-28T15:13:46.264684+0000     0       0         0         0         0         0           -           0
+2021-10-28T15:13:47.264837+0000     1     128      8082      7954   497.014   497.125   0.0189186   0.0159553
+2021-10-28T15:13:48.264959+0000     2     128     16048     15920   497.414   497.875   0.0114682   0.0160044
+2021-10-28T15:13:49.265042+0000     3     128     24221     24093   501.866   510.812   0.0149182   0.0158856
+2021-10-28T15:13:50.265164+0000     4     128     32545     32417   506.446    520.25   0.0165027   0.0157526
+2021-10-28T15:13:51.265309+0000 Total time run:       4.23503
+Total reads made:     34310
 Read size:            65536
 Object size:          65536
-Bandwidth (MB/sec):   539.613
-Average IOPS:         8633
-Stddev IOPS:          294.156
-Max IOPS:             8791
-Min IOPS:             8375
-Average Latency(s):   0.0147771
-Max latency(s):       0.0328243
-Min latency(s):       0.00345012
+Bandwidth (MB/sec):   506.343
+Average IOPS:         8101
+Stddev IOPS:          177.675
+Max IOPS:             8324
+Min IOPS:             7954
+Average Latency(s):   0.0157654
+Max latency(s):       0.0480752
+Min latency(s):       0.00358274
