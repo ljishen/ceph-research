@@ -1,0 +1,24 @@
+[1;30mnode-2.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-10-28T04:27:42,044139361-07:00] DEBUG: HOST_PARAMS: [][0m
+[1;30mnode-2.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-10-28T04:27:42,046929058-07:00] DEBUG: CEPHADM_PARAMS: ['shell', '--config', '/mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.conf', '--keyring', '/mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.client.admin.keyring', '--fsid', '03dd21ce-37e1-11ec-b51d-53e6e728d2d3', '--', 'rados', 'bench', '99999999', 'seq', '--pool', 'bench_rados', '--concurrent-ios', '128', '--show-time'][0m
+# ./parallel-cephadm:68 -  > sudo /mnt/sda8/ceph-research/scripts/deployment_data_root/usr/sbin/cephadm shell --config /mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.conf --keyring /mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.client.admin.keyring --fsid 03dd21ce-37e1-11ec-b51d-53e6e728d2d3 -- rados bench 99999999 seq --pool bench_rados --concurrent-ios 128 --show-time
+Using recent ceph image quay.io/ceph/ceph@sha256:5755c3a5c197ef186b8186212e023565f15b799f1ed411207f2c3fcd4a80ab45
+hints = 1
+2021-10-28T11:27:45.472478+0000   sec Cur ops   started  finished  avg MB/s  cur MB/s last lat(s)  avg lat(s)
+2021-10-28T11:27:45.472478+0000     0       0         0         0         0         0           -           0
+2021-10-28T11:27:46.472574+0000     1     120       120         0         0         0           -           0
+2021-10-28T11:27:47.472645+0000     2     127       231       104   831.885       832     1.15046     1.10514
+2021-10-28T11:27:48.472727+0000     3     127       337       210   1119.87      1696      1.2061      1.1457
+2021-10-28T11:27:49.472805+0000     4     127       444       317   1267.86      1712      1.1998     1.16687
+2021-10-28T11:27:50.654687+0000     5       7       548       541    1670.3      3584    0.269271     1.07734
+2021-10-28T11:27:51.654782+0000 Total time run:       5.19114
+Total reads made:     548
+Read size:            16777216
+Object size:          16777216
+Bandwidth (MB/sec):   1689.03
+Average IOPS:         105
+Stddev IOPS:          83.2778
+Max IOPS:             224
+Min IOPS:             0
+Average Latency(s):   1.06672
+Max latency(s):       1.21982
+Min latency(s):       0.222527

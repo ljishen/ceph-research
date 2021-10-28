@@ -1,0 +1,24 @@
+[1;30mnode-2.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-10-28T03:51:48,967552360-07:00] DEBUG: HOST_PARAMS: [][0m
+[1;30mnode-2.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-10-28T03:51:48,970421496-07:00] DEBUG: CEPHADM_PARAMS: ['shell', '--config', '/mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.conf', '--keyring', '/mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.client.admin.keyring', '--fsid', '01d7f8cc-37dc-11ec-b51d-53e6e728d2d3', '--', 'rados', 'bench', '99999999', 'seq', '--pool', 'bench_rados', '--concurrent-ios', '128', '--show-time'][0m
+# ./parallel-cephadm:68 -  > sudo /mnt/sda8/ceph-research/scripts/deployment_data_root/usr/sbin/cephadm shell --config /mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.conf --keyring /mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.client.admin.keyring --fsid 01d7f8cc-37dc-11ec-b51d-53e6e728d2d3 -- rados bench 99999999 seq --pool bench_rados --concurrent-ios 128 --show-time
+Using recent ceph image quay.io/ceph/ceph@sha256:5755c3a5c197ef186b8186212e023565f15b799f1ed411207f2c3fcd4a80ab45
+hints = 1
+2021-10-28T10:51:52.254500+0000   sec Cur ops   started  finished  avg MB/s  cur MB/s last lat(s)  avg lat(s)
+2021-10-28T10:51:52.254500+0000     0       0         0         0         0         0           -           0
+2021-10-28T10:51:53.254635+0000     1     127       382       255    1019.8      1020    0.376333    0.351738
+2021-10-28T10:51:54.254749+0000     2     127       719       592   1183.82      1348     0.37707    0.367111
+2021-10-28T10:51:55.254870+0000     3     127      1056       929   1238.49      1348    0.377731    0.371811
+2021-10-28T10:51:56.254992+0000     4     127      1395      1268   1267.82      1356    0.377237    0.373266
+2021-10-28T10:51:57.255265+0000     5     127      1735      1608   1286.19      1360    0.377165    0.373944
+2021-10-28T10:51:58.255420+0000 Total time run:       5.81666
+Total reads made:     1988
+Read size:            4194304
+Object size:          4194304
+Bandwidth (MB/sec):   1367.11
+Average IOPS:         341
+Stddev IOPS:          37.2532
+Max IOPS:             340
+Min IOPS:             255
+Average Latency(s):   0.363738
+Max latency(s):       0.385398
+Min latency(s):       0.0723214
