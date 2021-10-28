@@ -63,6 +63,7 @@ readonly LOCAL_CEPH_CONF_DIR="$DEPLOYMENT_DATA_ROOT"/etc/ceph \
          OUTPUT_DIR="$PWD"/output \
          REMOTE_OUTPUT_DIR=/tmp/bench-rados
 mkdir --parents "$LOCAL_CEPH_CONF_DIR" "$OUTPUT_DIR"
+sudo chown --changes --recursive  "$USER" "$DEPLOYMENT_DATA_ROOT" "$OUTPUT_DIR"
 "$SCRIPT_DIR"/parallel-ssh --host "$CEPH_USER"@"$CEPH_HOST" \
   mkdir --parents "$REMOTE_OUTPUT_DIR"
 if [[ "$CLUSTER_TYPE" == "release" ]]; then
@@ -168,7 +169,7 @@ EOF
   elif [[ "$CLUSTER_TYPE" == "release" ]]; then
     local -r remote_repo_dir="$REMOTE_OUTPUT_DIR"/ceph-research
     local -r remote_scripts="$remote_repo_dir"/scripts
-    local -r remote_ceph_config_dir="$REMOTE_OUTPUT_DIR"/deployment_data_root/etc/ceph
+    local -r remote_ceph_config_dir="$REMOTE_OUTPUT_DIR"/"$(basename -- "$DEPLOYMENT_DATA_ROOT")"/etc/ceph
 
     if [[ -z "${OSD_HOSTNAME:-}" ]]; then
       common::info "Get OSD hostname"
@@ -215,12 +216,9 @@ EOF
 
     common::info "Copy configuration files to local"
     trace_on
-    # change the owner so we can copy
+    # change the owner so we can copy files from the dir
     "$SCRIPT_DIR"/parallel-ssh --host "$CEPH_USER"@"$CEPH_HOST" \
-      sudo bash -euo pipefail <<EOF
-chown $CEPH_USER "$remote_ceph_config_dir"/ceph.conf
-chown $CEPH_USER "$remote_ceph_config_dir"/"$ceph_keyring_filename"
-EOF
+      sudo chown --changes --recursive "$CEPH_USER" "$remote_ceph_config_dir"
 
     scp -C "${SSH_COMM_OPTIONS[@]}" -p \
       "$CEPH_USER"@"$CEPH_HOST":"$remote_ceph_config_dir"/ceph.conf \
