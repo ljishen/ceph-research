@@ -1,0 +1,30 @@
+[1;30mnode-2.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-10-28T13:09:39,139158233-07:00] DEBUG: HOST_PARAMS: [][0m
+[1;30mnode-2.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-10-28T13:09:39,142130285-07:00] DEBUG: CEPHADM_PARAMS: ['shell', '--config', '/mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.conf', '--keyring', '/mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.client.admin.keyring', '--fsid', 'ee03f06e-3829-11ec-b51d-53e6e728d2d3', '--', 'rados', 'bench', '99999999', 'seq', '--pool', 'bench_rados', '--concurrent-ios', '128', '--show-time'][0m
+# ./parallel-cephadm:68 -  > sudo /mnt/sda8/ceph-research/scripts/deployment_data_root/usr/sbin/cephadm shell --config /mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.conf --keyring /mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.client.admin.keyring --fsid ee03f06e-3829-11ec-b51d-53e6e728d2d3 -- rados bench 99999999 seq --pool bench_rados --concurrent-ios 128 --show-time
+Using recent ceph image quay.io/ceph/ceph@sha256:5755c3a5c197ef186b8186212e023565f15b799f1ed411207f2c3fcd4a80ab45
+hints = 1
+2021-10-28T20:09:42.076994+0000   sec Cur ops   started  finished  avg MB/s  cur MB/s last lat(s)  avg lat(s)
+2021-10-28T20:09:42.076994+0000     0       0         0         0         0         0           -           0
+2021-10-28T20:09:43.077125+0000     1     128       530       402    100.48     100.5    0.310239    0.241885
+2021-10-28T20:09:44.077239+0000     2     128       982       854   106.733       113    0.222649     0.28199
+2021-10-28T20:09:45.077331+0000     3     127      1391      1264   105.319     102.5    0.463981    0.279416
+2021-10-28T20:09:46.077438+0000     4     128      1732      1604   100.237        85    0.418723    0.299242
+2021-10-28T20:09:47.077550+0000     5     128      2136      2008   100.387       101     0.54917    0.299415
+2021-10-28T20:09:48.077659+0000     6     128      2549      2421   100.863    103.25    0.258562    0.310701
+2021-10-28T20:09:49.077769+0000     7     128      2900      2772    98.988     87.75    0.553486    0.311024
+2021-10-28T20:09:50.077871+0000     8     128      3350      3222   100.676     112.5    0.369119    0.310334
+2021-10-28T20:09:51.077952+0000     9     128      3828      3700   102.766     119.5    0.162624    0.306535
+2021-10-28T20:09:52.078055+0000    10     128      4187      4059   101.463     89.75    0.356326    0.310206
+2021-10-28T20:09:53.078166+0000    11     128      4520      4392   99.8069     83.25    0.713605    0.310374
+2021-10-28T20:09:54.078303+0000 Total time run:       11.6561
+Total reads made:     4609
+Read size:            262144
+Object size:          262144
+Bandwidth (MB/sec):   98.8542
+Average IOPS:         395
+Stddev IOPS:          48.7259
+Max IOPS:             478
+Min IOPS:             333
+Average Latency(s):   0.319568
+Max latency(s):       1.0571
+Min latency(s):       0.00887884
