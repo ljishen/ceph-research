@@ -3,7 +3,7 @@
 
 ATA device, with non-removable media
 	Model Number:       ST2000NM012A-2MP130                     
-	Serial Number:      WJC07ARM
+	Serial Number:      WJC07G29
 	Firmware Revision:  CAJC
 	Transport:          Serial, ATA8-AST, SATA 1.0a, SATA II Extensions, SATA Rev 2.5, SATA Rev 2.6, SATA Rev 3.0
 Standards:
@@ -101,9 +101,9 @@ Security:
 		frozen
 	not	expired: security count
 		supported: enhanced erase
-	200min for SECURITY ERASE UNIT. 2min for ENHANCED SECURITY ERASE UNIT.
-Logical Unit WWN Device Identifier: 5000c500c4ae3eb7
+	208min for SECURITY ERASE UNIT. 2min for ENHANCED SECURITY ERASE UNIT.
+Logical Unit WWN Device Identifier: 5000c500cf543289
 	NAA		: 5
 	IEEE OUI	: 000c50
-	Unique ID	: 0c4ae3eb7
+	Unique ID	: 0cf543289
 Checksum: correct
