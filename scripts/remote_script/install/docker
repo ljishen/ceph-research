@@ -36,24 +36,6 @@ if [[ -n "$DOCKER_CLIENT_VERSION" ]] \
 fi
 
 
-get_arch() {
-  local machine_name arch
-  machine_name="$(uname -m)"
-  if [[ "$machine_name" == "aarch64" ]]; then
-    arch=arm64
-  elif [[ "$machine_name" == "armv7l" ]]; then
-    arch=armhf
-  elif [[ "$machine_name" == "x86_64" ]]; then
-    arch=amd64
-  else
-    common::err $(( ERR_STATUS_START + 1 )) \
-      "Docker does not support architecture '$machine_name'"
-  fi
-  echo "$arch"
-}
-SYS_ARCH="$(get_arch)"
-
-
 # This is to avoid the error:
 #   debconf: unable to initialize frontend: XXXX
 export DEBIAN_FRONTEND=noninteractive
@@ -78,9 +60,11 @@ curl -fsSL https://download.docker.com/linux/"$SYS_DISTRO"/gpg \
   | gpg --dearmor --batch --no-tty --yes \
     --output /usr/share/keyrings/docker-archive-keyring.gpg
 
-echo \
-  "deb [arch=$SYS_ARCH signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/$SYS_DISTRO \
-  $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list >/dev/null
+cat <<EOF | tee /etc/apt/sources.list.d/docker.list >/dev/null
+deb [arch=$(dpkg --print-architecture) \
+signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] \
+https://download.docker.com/linux/$SYS_DISTRO $(lsb_release -cs) stable
+EOF
 trace_off
 
 common::info "Install docker engine..."
