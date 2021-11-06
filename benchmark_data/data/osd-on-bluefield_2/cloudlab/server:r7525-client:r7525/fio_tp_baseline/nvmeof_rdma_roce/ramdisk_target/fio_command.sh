@@ -26,23 +26,23 @@ for num_jobs in $(seq 1 9); do
   cd ../numjobs="$num_jobs"
 
   for bs in "${FIO_BLOCK_SIZES[@]}"; do
-    for _ in $(seq 1 2); do
+    for idx in $(seq 1 3); do
       $FIO_COMMAND  \
         --rw=randread \
         --bs="$bs" \
         --numjobs="$num_jobs" \
-        --output=fio_randread_"$bs".log
+        --output=fio_randread_"$bs".log."$idx"
       sleep 10
     done
   done
   
   for bs in "${FIO_BLOCK_SIZES[@]}"; do
-    for _ in $(seq 1 2); do
+    for idx in $(seq 1 3); do
       $FIO_COMMAND \
         --rw=randwrite \
         --bs="$bs" \
         --numjobs="$num_jobs" \
-        --output=fio_randwrite_"$bs".log
+        --output=fio_randwrite_"$bs".log."$idx"
       sleep 10
     done
   done
