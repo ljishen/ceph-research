@@ -1,0 +1,1 @@
+BOOT_IMAGE=/boot/vmlinuz-5.4.0-1017.17.gf565efa-bluefield root=UUID=e6ebe46e-bfcb-434d-be65-868b353b9e9e ro console=hvc0 console=ttyAMA0 earlycon=pl011,0x01000000 fixrtc quiet
