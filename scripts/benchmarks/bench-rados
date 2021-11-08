@@ -17,7 +17,7 @@ readonly CLUSTER_TYPE=release
 
 ## The ceph host will run mon and mgr docker daemons. The osd deamons will also
 ## run on this host if OSD_HOST is not defined.
-readonly CEPH_HOST="10.10.2.1" \
+readonly CEPH_HOST="10.10.2.3" \
          CEPH_USER="ljishen"
 
 readonly RADOS_BENCH_CPU_AFFINITY=32-63,96-127

@@ -1,23 +1,23 @@
-[1;30mnode-2.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-10-28T03:16:05,478991193-07:00] DEBUG: HOST_PARAMS: [][0m
-[1;30mnode-2.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-10-28T03:16:05,481819403-07:00] DEBUG: CEPHADM_PARAMS: ['shell', '--config', '/mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.conf', '--keyring', '/mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.client.admin.keyring', '--fsid', '0400b7d8-37d7-11ec-b51d-53e6e728d2d3', '--', 'rados', 'bench', '99999999', 'seq', '--pool', 'bench_rados', '--concurrent-ios', '128', '--show-time'][0m
-# ./parallel-cephadm:68 -  > sudo /mnt/sda8/ceph-research/scripts/deployment_data_root/usr/sbin/cephadm shell --config /mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.conf --keyring /mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.client.admin.keyring --fsid 0400b7d8-37d7-11ec-b51d-53e6e728d2d3 -- rados bench 99999999 seq --pool bench_rados --concurrent-ios 128 --show-time
+[1;30mnode-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-11-08T01:41:30,335844728-05:00] DEBUG: HOST_PARAMS: [][0m
+[1;30mnode-0.bluefield2.ucsc-cmps107-pg0.clemson.cloudlab.us	[2021-11-08T01:41:30,338769752-05:00] DEBUG: CEPHADM_PARAMS: ['shell', '--config', '/mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.conf', '--keyring', '/mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.client.admin.keyring', '--fsid', 'd7f3f620-405d-11ec-aba1-c5f3c07a3dc7', '--', 'rados', 'bench', '99999999', 'seq', '--pool', 'bench_rados', '--concurrent-ios', '128', '--show-time'][0m
+# ./parallel-cephadm:68 -  > sudo /mnt/sda8/ceph-research/scripts/deployment_data_root/usr/sbin/cephadm shell --config /mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.conf --keyring /mnt/sda8/ceph-research/scripts/deployment_data_root/etc/ceph/ceph.client.admin.keyring --fsid d7f3f620-405d-11ec-aba1-c5f3c07a3dc7 -- rados bench 99999999 seq --pool bench_rados --concurrent-ios 128 --show-time
 Using recent ceph image quay.io/ceph/ceph@sha256:5755c3a5c197ef186b8186212e023565f15b799f1ed411207f2c3fcd4a80ab45
 hints = 1
-2021-10-28T10:16:08.832245+0000   sec Cur ops   started  finished  avg MB/s  cur MB/s last lat(s)  avg lat(s)
-2021-10-28T10:16:08.832245+0000     0       0         0         0         0         0           -           0
-2021-10-28T10:16:09.832398+0000     1     127      1880      1753   1752.61      1753   0.0689307   0.0700565
-2021-10-28T10:16:10.832508+0000     2     127      3633      3506   1752.71      1753   0.0700392   0.0714823
-2021-10-28T10:16:11.832589+0000     3     127      5409      5282   1760.42      1776   0.0721505   0.0716954
-2021-10-28T10:16:12.832659+0000     4     127      7174      7047   1761.54      1765   0.0699798   0.0718664
-2021-10-28T10:16:13.832762+0000 Total time run:       4.249
-Total reads made:     7512
+2021-11-08T06:41:33.665038+0000   sec Cur ops   started  finished  avg MB/s  cur MB/s last lat(s)  avg lat(s)
+2021-11-08T06:41:33.665038+0000     0       0         0         0         0         0           -           0
+2021-11-08T06:41:34.665150+0000     1     127      1872      1745   1744.69      1745   0.0713548   0.0704328
+2021-11-08T06:41:35.665304+0000     2     127      3613      3486   1742.71      1741   0.0736317   0.0718851
+2021-11-08T06:41:36.665419+0000     3     127      5372      5245   1748.07      1759   0.0738475   0.0721776
+2021-11-08T06:41:37.665528+0000     4     127      7133      7006   1751.26      1761   0.0750063   0.0722717
+2021-11-08T06:41:38.665684+0000 Total time run:       4.38712
+Total reads made:     7714
 Read size:            1048576
 Object size:          1048576
-Bandwidth (MB/sec):   1767.95
-Average IOPS:         1767
-Stddev IOPS:          11.0567
-Max IOPS:             1776
-Min IOPS:             1753
-Average Latency(s):   0.0716953
-Max latency(s):       0.128349
-Min latency(s):       0.0193894
+Bandwidth (MB/sec):   1758.33
+Average IOPS:         1758
+Stddev IOPS:          9.98332
+Max IOPS:             1761
+Min IOPS:             1741
+Average Latency(s):   0.0721176
+Max latency(s):       0.123096
+Min latency(s):       0.0194683
