@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# Update the following configurations
+# ---------------------------------------
+RDMA_PERF_TEST_SERVER=10.10.2.3
+RDMA_PERF_TEST_CLIENT_TYPE=bf2
+
+RDMA_PERF_TEST_SERVER_DEV=mlx5_2
+RDMA_PERF_TEST_CLIENT_DEV=mlx5_0
+
+RDMA_PERF_TEST_SERVER_CPU_LIST=96
+RDMA_PERF_TEST_CLIENT_CPU_LIST=7
+# ---------------------------------------
+
+
+run_perf() {
+  local -r test_type=$1 test_mode=$2
+  local -r test_prog=ib_${test_mode}_${test_type}
+
+  local perf_test_command
+
+  if [[ "$test_type" == "bw" ]]; then
+    IFS=" " read -ra perf_test_command <<< " \
+      $test_prog --all --connection=RC --CPU-freq --ib-port=1 --mtu=1024 \
+        --iters=20000 --qp=1 --cq-mod=1024 --rdma_cm --sl=3 --tx-depth=1025 -z \
+        --mr_per_qp --use_old_post_send --report_gbits --tclass=96"
+  else
+    IFS=" " read -ra perf_test_command <<< " \
+      $test_prog --all --connection=RC --CPU-freq --ib-port=1 --mtu=1024 \
+        --iters=10000 --rdma_cm --sl=3 -z --use_old_post_send \
+        --perform_warm_up --tclass=96"
+  fi
+
+  local mode_alias
+
+  if [[ "$test_mode" == "read" ]]; then
+    mode_alias="rx"
+  else
+    mode_alias="tx"
+  fi
+
+  local -i idx
+
+  for idx in $(seq 1 5); do
+    # shellcheck disable=SC2087
+    ssh \
+      -o GlobalKnownHostsFile=/dev/null \
+      -o PasswordAuthentication=no \
+      -o StrictHostKeyChecking=no \
+      -o UserKnownHostsFile=/dev/null \
+      "$RDMA_PERF_TEST_SERVER" bash <<EOF
+sudo nohup taskset --cpu-list "$RDMA_PERF_TEST_SERVER_CPU_LIST" \
+  ${perf_test_command[@]} --ib-dev="$RDMA_PERF_TEST_SERVER_DEV" >/dev/null 2>&1 &
+EOF
+    sleep 2
+    sudo bash -x <<EOF |& tee "$test_prog"."$RDMA_PERF_TEST_CLIENT_TYPE"_"$mode_alias".log."$idx"
+taskset --cpu-list "$RDMA_PERF_TEST_CLIENT_CPU_LIST" ${perf_test_command[@]} \
+  --ib-dev="$RDMA_PERF_TEST_CLIENT_DEV" "$RDMA_PERF_TEST_SERVER"
+EOF
+    sleep 10
+  done
+}
+
+# You can run `run_perf` manually with `run_perf bw read`
+
+main() {
+  for test_type in "bw" "lat"; do
+    for test_mode in "read" "write"; do
+      run_perf "$test_type" "$test_mode"
+    done
+  done
+}
+main
