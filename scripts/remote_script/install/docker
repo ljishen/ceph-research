@@ -50,7 +50,6 @@ common::info "Set up Docker's repository..."
 trace_on
 apt-get update >/dev/null
 apt-get --yes --no-install-recommends install \
-  apt-transport-https \
   ca-certificates \
   curl \
   gnupg \
